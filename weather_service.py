@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta
-from database import get_cached_weather, store_weather
+#from database import get_cached_weather, store_weather
 
 
 def get_coordinates(city):
@@ -57,14 +57,6 @@ def calculate_averages(temps, rain, humidity):
 
 def get_climate_data(city):
 
-    cached = get_cached_weather(city)
-
-    if cached:
-        print("Using cached weather data")
-        return cached
-
-    print("Fetching weather from API")
-
     lat, lon = get_coordinates(city)
 
     temps, rain, humidity = fetch_weather_data(lat, lon)
@@ -72,8 +64,6 @@ def get_climate_data(city):
     avg_temp, avg_rain, avg_humidity = calculate_averages(
         temps, rain, humidity
     )
-
-    store_weather(city, avg_temp, avg_rain, avg_humidity)
 
     return {
         "temperature": avg_temp,
