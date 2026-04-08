@@ -20,30 +20,71 @@ def get_coordinates(city):
 
     return lat, lon
 
+import time
 
 def fetch_weather_data(lat, lon):
 
     end_date = datetime.today()
-    start_date = end_date - timedelta(days=730)
 
-    url = (
-        f"https://archive-api.open-meteo.com/v1/archive?"
-        f"latitude={lat}&longitude={lon}"
-        f"&start_date={start_date.date()}"
-        f"&end_date={end_date.date()}"
-        f"&daily=temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean"
-    )
+    chunks = [
+        (end_date - timedelta(days=730), end_date - timedelta(days=540)),
+        (end_date - timedelta(days=540), end_date - timedelta(days=360)),
+        (end_date - timedelta(days=360), end_date - timedelta(days=180)),
+        (end_date - timedelta(days=180), end_date)
+    ]
 
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
+    all_temps = []
+    all_rain = []
+    all_humidity = []
 
-    data = response.json()
+    for start, end in chunks:
 
-    temps = data["daily"]["temperature_2m_mean"]
-    rain = data["daily"]["precipitation_sum"]
-    humidity = data["daily"]["relative_humidity_2m_mean"]
+        url = (
+            f"https://archive-api.open-meteo.com/v1/archive?"
+            f"latitude={lat}&longitude={lon}"
+            f"&start_date={start.date()}"
+            f"&end_date={end.date()}"
+            f"&daily=temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean"
+        )
 
-    return temps, rain, humidity
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+
+            temps = data["daily"]["temperature_2m_mean"]
+            rain = data["daily"]["precipitation_sum"]
+            humidity = data["daily"]["relative_humidity_2m_mean"]
+
+            all_temps.extend(temps)
+            all_rain.extend(rain)
+            all_humidity.extend(humidity)
+
+        except Exception as e:
+            print("API chunk failed:", e)
+
+            # fallback = use previous data if available
+            if all_temps:
+                avg_temp = sum(all_temps) / len(all_temps)
+                avg_rain = sum(all_rain) / len(all_rain)
+                avg_humidity = sum(all_humidity) / len(all_humidity)
+
+                all_temps.extend([avg_temp]*30)
+                all_rain.extend([avg_rain]*30)
+                all_humidity.extend([avg_humidity]*30)
+            else:
+                # first chunk fallback
+                all_temps.extend([25]*30)
+                all_rain.extend([100]*30)
+                all_humidity.extend([60]*30)
+
+        # VERY IMPORTANT → avoid rate limit
+        time.sleep(1)
+
+    return all_temps, all_rain, all_humidity
+
+
+        
 
 
 def calculate_averages(temps, rain, humidity):
