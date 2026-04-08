@@ -1,0 +1,31 @@
+crop_name,temp_min,temp_max,rain_min,rain_max,humidity_min,humidity_max,soil_type,season,fertilizer,fertilizer_time,fertilizer_per_acre
+Rice,20,35,150,300,70,90,Clay,Kharif,Urea,20 days after sowing,50
+Wheat,10,25,30,100,50,70,Loamy,Rabi,NPK,30 days after sowing,40
+Maize,18,30,50,150,60,80,Loamy,Kharif,NPK,25 days after sowing,35
+Cotton,20,35,50,100,60,70,Black,Kharif,Urea,30 days after sowing,45
+Sugarcane,25,35,100,200,70,85,Alluvial,All,Urea,45 days after planting,60
+Barley,12,25,30,80,40,60,Loamy,Rabi,NPK,20 days after sowing,30
+Groundnut,20,30,40,120,60,70,Sandy,Kharif,Gypsum,30 days after sowing,25
+Soybean,20,30,60,150,60,75,Loamy,Kharif,Urea,25 days after sowing,35
+Millet,25,35,30,80,40,60,Sandy,Kharif,NPK,20 days after sowing,20
+Pulses,20,30,40,100,50,70,Loamy,Rabi,NPK,20 days after sowing,25
+Mustard,10,25,20,60,40,60,Alluvial,Rabi,Urea,30 days after sowing,30
+Tea,18,30,150,300,80,90,Red,All,NPK,60 days interval,50
+Coffee,15,28,120,250,75,85,Red,All,NPK,60 days interval,45
+Banana,25,35,100,200,70,90,Alluvial,All,Urea,30 days interval,60
+Mango,24,35,50,100,50,70,Alluvial,Summer,NPK,Flowering stage,40
+Tomato,20,30,50,150,60,80,Loamy,All,NPK,20 days after planting,30
+Potato,15,25,30,100,60,80,Loamy,Rabi,NPK,30 days after planting,35
+Onion,18,30,40,120,60,75,Loamy,All,NPK,25 days after planting,30
+Cabbage,15,25,40,100,60,80,Clay,Rabi,NPK,30 days after planting,30
+Carrot,15,25,30,80,60,75,Sandy,Rabi,NPK,25 days after sowing,25
+Peas,10,20,30,80,60,75,Loamy,Rabi,NPK,20 days after sowing,20
+Chili,20,30,50,120,60,80,Loamy,All,NPK,30 days after planting,35
+Brinjal,22,32,50,120,65,80,Loamy,All,NPK,30 days after planting,35
+Okra,25,35,50,120,60,80,Sandy,Summer,NPK,20 days after sowing,25
+Spinach,15,25,40,100,60,80,Loamy,Winter,NPK,15 days after sowing,20
+Garlic,15,25,30,80,60,75,Loamy,Rabi,NPK,25 days after planting,25
+Turmeric,20,30,100,200,70,85,Red,Kharif,Urea,30 days after planting,40
+Ginger,20,30,100,200,70,85,Red,Kharif,Urea,30 days after planting,40
+Sunflower,20,30,40,100,50,70,Black,Kharif,NPK,25 days after sowing,30
+Sesame,25,35,30,80,50,70,Sandy,Kharif,NPK,20 days after sowing,20
