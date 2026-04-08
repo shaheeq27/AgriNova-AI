@@ -6,7 +6,7 @@ A Machine Learning-based web application that recommends optimal crops based on 
 
 ## 🚀 Features
 
-- 🌦 Uses 2 years of historical weather data (temperature, rainfall, humidity)
+- 🌦 Uses 2 years of historical weather data (temperature, rainfall, humidity) 
 - 🤖 Machine Learning model (Random Forest) for crop prediction
 - 📊 Top 3 crop predictions with confidence scores
 - 🧠 Hybrid system combining ML + rule-based scoring
