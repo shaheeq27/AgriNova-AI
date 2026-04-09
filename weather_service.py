@@ -1,6 +1,6 @@
 import requests
+import time
 from datetime import datetime, timedelta
-#from database import get_cached_weather, store_weather
 
 
 def get_coordinates(city):
@@ -20,16 +20,14 @@ def get_coordinates(city):
 
     return lat, lon
 
-import time
 
 def fetch_weather_data(lat, lon):
 
     end_date = datetime.today()
 
+    # ✅ 1-year data split into 2 safe chunks
     chunks = [
-        (end_date - timedelta(days=730), end_date - timedelta(days=540)),
-        (end_date - timedelta(days=540), end_date - timedelta(days=360)),
-        (end_date - timedelta(days=360), end_date - timedelta(days=180)),
+        (end_date - timedelta(days=365), end_date - timedelta(days=180)),
         (end_date - timedelta(days=180), end_date)
     ]
 
@@ -48,8 +46,11 @@ def fetch_weather_data(lat, lon):
         )
 
         try:
+            print(f"Fetching data: {start.date()} to {end.date()}")
+
             response = requests.get(url, timeout=10)
             response.raise_for_status()
+
             data = response.json()
 
             temps = data["daily"]["temperature_2m_mean"]
@@ -61,33 +62,21 @@ def fetch_weather_data(lat, lon):
             all_humidity.extend(humidity)
 
         except Exception as e:
-            print("API chunk failed:", e)
+            print("API failed for chunk:", e)
+            continue  # ✅ skip failed chunk (DO NOT add fake data)
 
-            # fallback = use previous data if available
-            if all_temps:
-                avg_temp = sum(all_temps) / len(all_temps)
-                avg_rain = sum(all_rain) / len(all_rain)
-                avg_humidity = sum(all_humidity) / len(all_humidity)
-
-                all_temps.extend([avg_temp]*30)
-                all_rain.extend([avg_rain]*30)
-                all_humidity.extend([avg_humidity]*30)
-            else:
-                # first chunk fallback
-                all_temps.extend([25]*30)
-                all_rain.extend([100]*30)
-                all_humidity.extend([60]*30)
-
-        # VERY IMPORTANT → avoid rate limit
+        # ✅ avoid rate limiting
         time.sleep(1)
 
     return all_temps, all_rain, all_humidity
 
 
-        
-
-
 def calculate_averages(temps, rain, humidity):
+
+    # ✅ final fallback ONLY if everything failed
+    if not temps or not rain or not humidity:
+        print("Using fallback climate data")
+        return 25, 100, 60
 
     avg_temp = sum(temps) / len(temps)
     avg_rain = sum(rain) / len(rain)
