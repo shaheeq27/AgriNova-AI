@@ -1,96 +1,94 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Crop Recommendation Result</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-
-<div class="hero">
-<div class="overlay"></div>
-
-<div class="content">
-
-<h1>Weather Analysis for {{city}}</h1>
-
-<div class="result-box">
-
-<p><strong>Average Temperature:</strong> {{temperature}} °C</p>
-<p><strong>Average Rainfall:</strong> {{rainfall}} mm</p>
-<p><strong>Average Humidity:</strong> {{humidity}} %</p>
-
-<!-- 🌱 ML Predictions -->
-<h2>🌱 AI Predictions</h2>
-
-{% if ml_predictions %}
-
-<div class="ml-cards">
-
-{% for crop in ml_predictions %}
-
-<div class="ml-card">
-
-<h3>{{ crop.name }}</h3>
-
-<div class="progress-bar">
-<div class="progress" style="width: {{ crop.confidence }}%;"></div>
+    <div class="result-page">
+        <div class="content">
+            <h1 class="section-title">Analysis Report</h1>
+            <div class="result-box">
+                <div class="status-badge">✅ Analysis Completed</div>
+                <h2 class="section-title">🌦 Climate Summary</h2>
+                <p class="hero-subtitle">
+Historical weather conditions used by AgriNova to generate intelligent crop recommendations.
+</p>
+          <div class="weather-info">
+    <p>
+        <strong>📍 City</strong>
+        <span>{{ city }}</span>
+    </p>
+    <p>
+        <strong>🌡 Average Temperature</strong>
+        <span>{{ temperature }}°C</span>
+    </p>
+    <p>
+        <strong>🌧 Average Rainfall</strong>
+        <span>{{ rainfall }} mm</span>
+    </p>
+    <p>
+        <strong>💧 Average Humidity</strong>
+        <span>{{ humidity }}%</span>
+    </p>
 </div>
+                {% if crops %}
+                <div class="best-recommendation-card">
+                    <div class="best-label">Best Recommendation</div>
+                    <div class="best-match-name">{{ crops[0].name }}</div>
+                    <div class="best-score">Suitability Score: {{ crops[0].score }}%</div>
+                    <p>The highest-ranked crop based on historical climate, soil type and season.</p>
+                </div>
+                {% endif %}
+                <div class="ml-cards">
+                    {% for prediction in ml_predictions %}
+                    <div class="ml-card">
+                        <h3>{{ prediction.name }}</h3>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ prediction.confidence }}%;"></div>
+                        </div>
+                        <p>Confidence: {{ prediction.confidence }}%</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="crop-list">
+                    {% for crop in crops %}
+                    <div class="crop-card">
+                        <div class="crop-header">
+                            <h3>{{ crop.name }}</h3>
+                            <span class="score">{{ crop.score }}%</span>
+                        </div>
 
-<p>{{ crop.confidence }}% confidence</p>
+                        <p>
+                            <strong>🧪 Fertilizer</strong><br>
+                            {{ crop.fertilizer }}
+                        </p>
 
-</div>
+                        <p>
+                            <strong>⏰ Application Time</strong><br>
+                            {{ crop.fertilizer_time }}
+                        </p>
 
-{% endfor %}
-
-</div>
-
-{% else %}
-
-<p>No ML prediction available</p>
-
-{% endif %}
-
-
-<!-- 📊 Rule-Based Recommendations -->
-<h2>📊 Recommended Crops</h2>
-
-{% if crops %}
-
-<div class="crop-list">
-
-{% for crop in crops %}
-
-<div class="crop-card">
-
-<h3>{{ crop.name }} ({{ crop.score }}%)</h3>
-
-<p><strong>Fertilizer:</strong> {{ crop.fertilizer }}</p>
-<p><strong>Apply:</strong> {{ crop.fertilizer_time }}</p>
-
-{% if crop.fertilizer_needed %}
-<p><strong>Required:</strong> {{ crop.fertilizer_needed }} kg</p>
-{% endif %}
-
-</div>
-
-{% endfor %}
-
-</div>
-
-{% else %}
-
-<p>No suitable crops found.</p>
-
-{% endif %}
-
-</div>
-
-<a href="/index" class="back-button">Check Another Location</a>
-
-</div>
-</div>
-
+                        {% if crop.fertilizer_needed %}
+                        <p>
+                            <strong>📦 Quantity Needed</strong><br>
+                            {{ crop.fertilizer_needed }} kg
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="/index" class="back-button">← Start New Analysis</a>
+                <footer class="app-footer">
+    <div class="footer-logo">🌱 AgriNova</div>
+    <p>AI Crop Intelligence Platform</p>
+    <small>Powered by Flask • Machine Learning • Climate Intelligence</small>
+    <small>© 2026 AgriNova</small>
+</footer>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
