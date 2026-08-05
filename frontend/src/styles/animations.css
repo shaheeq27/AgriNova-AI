@@ -1,0 +1,164 @@
+/* ══════════════════════════════════════════════════════
+   AgriNova AI — Animation System
+   Everything: Slow · Elegant · Organic · Never flashy
+   Max duration: 500ms (except bg/particles/timeline)
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Durations ── */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 400ms;
+  --duration-max: 500ms;
+  --duration-organic: 4s;
+  --duration-bg: 20s;
+
+  /* ── Easings ── */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0, 1);
+}
+
+/* ── Page Transition ── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Fade Variants ── */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in-left { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fade-in-right { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ── Float ── */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* ── Shimmer / Skeleton ── */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* ── Breathing — slow organic pulse ── */
+@keyframes breathe-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(78, 232, 106, 0.08); }
+  50% { box-shadow: 0 0 14px rgba(78, 232, 106, 0.18); }
+}
+
+@keyframes breathe-text {
+  0%, 100% { text-shadow: 0 0 4px rgba(78, 232, 106, 0.08); }
+  50% { text-shadow: 0 0 10px rgba(78, 232, 106, 0.18); }
+}
+
+@keyframes breathe-border {
+  0%, 100% { border-color: rgba(78, 232, 106, 0.08); }
+  50% { border-color: rgba(78, 232, 106, 0.20); }
+}
+
+@keyframes breathe-outline {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(78, 232, 106, 0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(78, 232, 106, 0.16); }
+}
+
+/* ── Icon Animations ── */
+@keyframes icon-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes icon-scanner { 0% { clip-path: inset(100% 0 0 0); } 50% { clip-path: inset(0); } 100% { clip-path: inset(0 0 100% 0); } }
+@keyframes icon-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes icon-vertical-pulse { 0%, 100% { transform: scaleY(1); opacity: 0.7; } 50% { transform: scaleY(1.12); opacity: 1; } }
+
+/* ── Timeline ── */
+@keyframes timeline-pulse-travel {
+  0% { background-position: 0 100%; }
+  100% { background-position: 0 -100%; }
+}
+
+/* ── Number / Data ── */
+@keyframes number-pop { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.02); } 100% { transform: scale(1); opacity: 1; } }
+
+/* ── Progress Circle ── */
+@keyframes progress-fill {
+  from { stroke-dashoffset: var(--circumference, 283); }
+  to { stroke-dashoffset: var(--target-offset, 0); }
+}
+
+/* ── Critical Pulse ── */
+@keyframes critical-pulse {
+  0%, 85%, 100% { box-shadow: none; }
+  92% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+}
+
+/* ── Button Sweep ── */
+@keyframes btn-sweep {
+  from { left: -100%; }
+  to { left: 120%; }
+}
+
+/* ── Ripple ── */
+@keyframes ripple { to { transform: scale(2.5); opacity: 0; } }
+
+/* ── Typing Cursor ── */
+@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── Seedling Loader ── */
+@keyframes seedling-rise {
+  0% { transform: translateY(16px); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-16px); opacity: 0; }
+}
+
+/* ── Scan Line ── */
+@keyframes scan-line {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ── Background Organic Drift ── */
+@keyframes organic-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(12px, -6px) scale(1.01); }
+  66% { transform: translate(-8px, 4px) scale(0.99); }
+  100% { transform: translate(4px, -2px) scale(1); }
+}
+
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-2%, 1%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Ambient Vignette ── */
+@keyframes vignette-breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
+
+
+/* ══════════════════════════════════════════════════════
+   Utility Classes
+   ══════════════════════════════════════════════════════ */
+
+.anim-page-enter { animation: page-enter 350ms var(--ease-out) forwards; }
+.anim-fade-in { animation: fade-in 350ms var(--ease-out) forwards; }
+.anim-fade-in-up { opacity: 0; animation: fade-in-up 500ms var(--ease-spring) forwards; }
+.anim-fade-in-down { opacity: 0; animation: fade-in-down 500ms var(--ease-spring) forwards; }
+.anim-fade-in-left { opacity: 0; animation: fade-in-left 400ms var(--ease-spring) forwards; }
+.anim-fade-in-right { opacity: 0; animation: fade-in-right 400ms var(--ease-spring) forwards; }
+.anim-float { animation: float 3s ease-in-out infinite; }
+.anim-breathe { animation: breathe-glow 4s ease-in-out infinite; }
+.anim-breathe-text { animation: breathe-text 4s ease-in-out infinite; }
+.anim-breathe-outline { animation: breathe-outline 4s ease-in-out infinite; }
+.anim-icon-pulse { animation: icon-pulse 3s ease-in-out infinite; }
+.anim-icon-scanner { animation: icon-scanner 4s ease-in-out infinite; }
+.anim-icon-rotate { animation: icon-rotate 20s linear infinite; }
+.anim-icon-vertical { animation: icon-vertical-pulse 3s ease-in-out infinite; }
+.anim-number-pop { animation: number-pop 400ms var(--ease-spring) forwards; }
+
+.delay-1 { animation-delay: 100ms; }
+.delay-2 { animation-delay: 200ms; }
+.delay-3 { animation-delay: 300ms; }
+.delay-4 { animation-delay: 400ms; }
+.delay-5 { animation-delay: 500ms; }
+.delay-6 { animation-delay: 600ms; }

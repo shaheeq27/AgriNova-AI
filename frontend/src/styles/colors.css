@@ -1,0 +1,62 @@
+/* ══════════════════════════════════════════════════════
+   AgriNova AI — Color System
+   Dark Forest Aesthetic + Neon Green Identity
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Core Background ── */
+  --color-bg-primary: #040a06;
+  --color-bg-subtle: #081410;
+  --color-bg-surface: #0d1f15;
+  --color-bg-surface-hover: #122a1c;
+  --color-bg-surface-active: #173523;
+  --color-bg-glass: rgba(13, 31, 21, 0.7);
+  --color-bg-glass-heavy: rgba(13, 31, 21, 0.85);
+  --color-bg-overlay: rgba(4, 10, 6, 0.8);
+
+  /* ── Accent — Primary (Neon Green) ── */
+  --color-accent: #4ee86a;
+  --color-accent-secondary: #2dd4a8;
+  --color-accent-muted: #1a5a3a;
+  --color-accent-dim: #14402a;
+  --color-accent-faint: #0d2e1e;
+
+  /* ── Accent Glow ── */
+  --color-glow-10: rgba(78, 232, 106, 0.10);
+  --color-glow-15: rgba(78, 232, 106, 0.15);
+  --color-glow-20: rgba(78, 232, 106, 0.20);
+  --color-glow-30: rgba(78, 232, 106, 0.30);
+
+  /* ── Text ── */
+  --color-text-primary: #e8f5ec;
+  --color-text-secondary: #8fb89e;
+  --color-text-muted: #5a8a6d;
+  --color-text-dim: #3d6a52;
+  --color-text-inverse: #040a06;
+
+  /* ── Border ── */
+  --color-border: rgba(78, 232, 106, 0.08);
+  --color-border-hover: rgba(78, 232, 106, 0.16);
+  --color-border-active: rgba(78, 232, 106, 0.28);
+  --color-border-subtle: rgba(78, 232, 106, 0.04);
+
+  /* ── Status ── */
+  --color-success: #4ee86a;
+  --color-warning: #f5a623;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-critical: #dc2626;
+
+  /* Status backgrounds */
+  --color-success-bg: rgba(78, 232, 106, 0.10);
+  --color-warning-bg: rgba(245, 166, 35, 0.10);
+  --color-error-bg: rgba(239, 68, 68, 0.10);
+  --color-info-bg: rgba(59, 130, 246, 0.10);
+
+  /* ── Semantic ── */
+  --color-healthy: #4ee86a;
+  --color-stress: #f5a623;
+  --color-disease: #ef4444;
+  --color-neutral: #8fb89e;
+  --color-optimal: #2dd4a8;
+}
