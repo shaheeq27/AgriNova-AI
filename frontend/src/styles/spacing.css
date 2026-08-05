@@ -1,0 +1,39 @@
+/* ══════════════════════════════════════════════════════
+   AgriNova AI — Spacing System
+   Premium interfaces breathe.
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Semantic spacing */
+  --space-section: 40px;
+  --space-card-padding: 24px;
+  --space-card-padding-sm: 16px;
+  --space-card-gap: 16px;
+  --space-inline: 8px;
+  --space-stack: 12px;
+  --space-page-x: 32px;
+  --space-page-y: 32px;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+  --navbar-height: 64px;
+  --bottom-nav-height: 64px;
+}

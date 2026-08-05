@@ -18,6 +18,11 @@ import app.models  # noqa: F401
 from app.api.v1.auth import router as auth_router
 from app.api.v1.farms import router as farms_router
 from app.api.v1.knowledge import router as knowledge_router
+from app.api.v1.crops import router as crops_router
+from app.api.v1.weather import router as weather_router
+from app.api.v1.fertilizer import router as fertilizer_router
+from app.api.v1.irrigation import router as irrigation_router
+from app.api.v1.disease import router as disease_router
 
 
 @asynccontextmanager
@@ -55,6 +60,11 @@ register_exception_handlers(app)
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(farms_router, prefix="/api/v1")
 app.include_router(knowledge_router, prefix="/api/v1")
+app.include_router(crops_router, prefix="/api/v1")
+app.include_router(weather_router, prefix="/api/v1")
+app.include_router(fertilizer_router, prefix="/api/v1")
+app.include_router(irrigation_router, prefix="/api/v1")
+app.include_router(disease_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Health"])
