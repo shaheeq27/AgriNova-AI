@@ -1,62 +1,65 @@
 /* ══════════════════════════════════════════════════════
-   AgriNova AI — Color System
-   Dark Forest Aesthetic + Neon Green Identity
+   AgriNova AI — Color System (v1.1)
+   Dark Forest · Restrained Green · Accent Cyan
    ══════════════════════════════════════════════════════ */
 
 :root {
   /* ── Core Background ── */
-  --color-bg-primary: #040a06;
-  --color-bg-subtle: #081410;
-  --color-bg-surface: #0d1f15;
-  --color-bg-surface-hover: #122a1c;
-  --color-bg-surface-active: #173523;
-  --color-bg-glass: rgba(13, 31, 21, 0.7);
-  --color-bg-glass-heavy: rgba(13, 31, 21, 0.85);
-  --color-bg-overlay: rgba(4, 10, 6, 0.8);
+  --color-bg-primary: #010603;
+  --color-bg-subtle: #041008;
+  --color-bg-surface: #07140A;
+  --color-bg-card: #0B1B10;
+  --color-bg-surface-hover: #0F2216;
+  --color-bg-surface-active: #132A1C;
+  --color-bg-overlay: rgba(1, 6, 3, 0.85);
 
-  /* ── Accent — Primary (Neon Green) ── */
-  --color-accent: #4ee86a;
-  --color-accent-secondary: #2dd4a8;
-  --color-accent-muted: #1a5a3a;
-  --color-accent-dim: #14402a;
-  --color-accent-faint: #0d2e1e;
+  /* ── Accent — Primary Green ── */
+  --color-accent: #66FF88;
+  --color-accent-secondary: #55F6FF;
+  --color-accent-muted: #4FAE68;
+  --color-accent-dim: #2D6B42;
+  --color-accent-faint: #1A3D28;
 
   /* ── Accent Glow ── */
-  --color-glow-10: rgba(78, 232, 106, 0.10);
-  --color-glow-15: rgba(78, 232, 106, 0.15);
-  --color-glow-20: rgba(78, 232, 106, 0.20);
-  --color-glow-30: rgba(78, 232, 106, 0.30);
+  --color-glow-10: rgba(102, 255, 136, 0.10);
+  --color-glow-15: rgba(102, 255, 136, 0.15);
+  --color-glow-20: rgba(102, 255, 136, 0.20);
+  --color-glow-30: rgba(102, 255, 136, 0.30);
+
+  /* ── Cyan Accent ── */
+  --color-cyan: #55F6FF;
+  --color-cyan-glow: rgba(85, 246, 255, 0.12);
 
   /* ── Text ── */
-  --color-text-primary: #e8f5ec;
-  --color-text-secondary: #8fb89e;
-  --color-text-muted: #5a8a6d;
-  --color-text-dim: #3d6a52;
-  --color-text-inverse: #040a06;
+  --color-text-primary: #E8F5EC;
+  --color-text-secondary: #8FB89E;
+  --color-text-muted: #5A8A6D;
+  --color-text-dim: #3D6A52;
+  --color-text-inverse: #010603;
 
   /* ── Border ── */
-  --color-border: rgba(78, 232, 106, 0.08);
-  --color-border-hover: rgba(78, 232, 106, 0.16);
-  --color-border-active: rgba(78, 232, 106, 0.28);
-  --color-border-subtle: rgba(78, 232, 106, 0.04);
+  --color-border: rgba(102, 255, 136, 0.08);
+  --color-border-hover: rgba(102, 255, 136, 0.16);
+  --color-border-active: rgba(102, 255, 136, 0.28);
+  --color-border-subtle: rgba(102, 255, 136, 0.04);
 
   /* ── Status ── */
-  --color-success: #4ee86a;
-  --color-warning: #f5a623;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  --color-critical: #dc2626;
+  --color-success: #66FF88;
+  --color-warning: #FFC857;
+  --color-error: #FF6B6B;
+  --color-info: #55F6FF;
+  --color-critical: #FF6B6B;
 
   /* Status backgrounds */
-  --color-success-bg: rgba(78, 232, 106, 0.10);
-  --color-warning-bg: rgba(245, 166, 35, 0.10);
-  --color-error-bg: rgba(239, 68, 68, 0.10);
-  --color-info-bg: rgba(59, 130, 246, 0.10);
+  --color-success-bg: rgba(102, 255, 136, 0.10);
+  --color-warning-bg: rgba(255, 200, 87, 0.10);
+  --color-error-bg: rgba(255, 107, 107, 0.10);
+  --color-info-bg: rgba(85, 246, 255, 0.10);
 
   /* ── Semantic ── */
-  --color-healthy: #4ee86a;
-  --color-stress: #f5a623;
-  --color-disease: #ef4444;
-  --color-neutral: #8fb89e;
-  --color-optimal: #2dd4a8;
+  --color-healthy: #66FF88;
+  --color-stress: #FFC857;
+  --color-disease: #FF6B6B;
+  --color-neutral: #8FB89E;
+  --color-optimal: #55F6FF;
 }

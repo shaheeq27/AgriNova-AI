@@ -1,0 +1,29 @@
+.container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.seed {
+  position: absolute;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-muted);
+  opacity: 0;
+  animation: float-seed linear infinite;
+}
+
+@keyframes float-seed {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}

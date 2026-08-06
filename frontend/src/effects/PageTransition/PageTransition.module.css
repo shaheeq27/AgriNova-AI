@@ -1,0 +1,4 @@
+.pageTransition {
+  animation: page-enter var(--duration-slow) var(--ease-out) forwards;
+  opacity: 0;
+}

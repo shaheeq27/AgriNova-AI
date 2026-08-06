@@ -1,19 +1,34 @@
 'use client';
 import React from 'react';
 
-interface SectionProps {
+export interface SectionProps {
   children: React.ReactNode;
   title?: string;
   subtitle?: string;
   action?: React.ReactNode;
   delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function Section({ children, title, subtitle, action, delay = 0 }: SectionProps) {
+export default function Section({
+  children,
+  title,
+  subtitle,
+  action,
+  delay = 0,
+  className = '',
+  style = {},
+}: SectionProps) {
   return (
-    <section style={{ 
-      marginBottom: '40px', animation: `fadeInUp 0.5s ease-out ${delay}ms both`
-    }}>
+    <section
+      className={className}
+      style={{
+        marginBottom: '40px',
+        animation: `fadeInUp 0.5s ease-out ${delay}ms both`,
+        ...style,
+      }}
+    >
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
