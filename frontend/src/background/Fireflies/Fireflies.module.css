@@ -1,0 +1,29 @@
+.container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+}
+
+.blink {
+  animation: blink-firefly ease-in-out infinite;
+}
+
+@keyframes blink-firefly {
+  0%, 100% {
+    opacity: 0.05;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.5);
+    box-shadow: 0 0 8px 2px var(--color-accent);
+  }
+}

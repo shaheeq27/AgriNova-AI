@@ -18,7 +18,7 @@
   --surface: var(--color-bg-surface);
   --surface-hover: var(--color-bg-surface-hover);
   --surface-active: var(--color-bg-surface-active);
-  --surface-glass: var(--color-bg-glass);
+  --surface-glass: var(--color-bg-card);
   --accent-primary: var(--color-accent);
   --accent-secondary: var(--color-accent-secondary);
   --accent-muted: var(--color-accent-muted);
@@ -111,12 +111,10 @@ body > * { position: relative; z-index: 1; }
 ::-webkit-scrollbar-thumb { background: var(--color-accent-dim); border-radius: var(--radius-full); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-accent-muted); }
 
-/* ── Glass Card (legacy class) ── */
+/* ── Card (legacy class — maps to ui/Card) ── */
 .glass-card {
   position: relative;
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -138,42 +136,32 @@ body > * { position: relative; z-index: 1; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary));
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-accent);
   color: var(--color-text-inverse);
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 300ms ease;
+  transition: all var(--duration-normal) var(--ease-out);
   text-decoration: none;
   overflow: hidden;
   isolation: isolate;
 }
 
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transition: left 400ms ease;
-  z-index: 1;
-}
-
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 24px rgba(78, 232, 106, 0.25), 0 0 8px rgba(78, 232, 106, 0.15);
+  box-shadow: var(--shadow-glow-md);
   filter: brightness(1.05);
 }
 
-.btn-primary:hover::after { left: 120%; }
-.btn-primary:active { transform: translateY(0); filter: brightness(0.95); }
+.btn-primary:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
 
 /* ── Secondary Button ── */
 .btn-secondary {

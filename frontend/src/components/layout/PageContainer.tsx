@@ -1,20 +1,37 @@
 'use client';
 import React from 'react';
 
-interface PageContainerProps {
+export interface PageContainerProps {
   children: React.ReactNode;
   title?: string;
   subtitle?: string;
   maxWidth?: string;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function PageContainer({ children, title, subtitle, maxWidth = '1200px' }: PageContainerProps) {
+export default function PageContainer({
+  children,
+  title,
+  subtitle,
+  maxWidth = '1200px',
+  className = '',
+  style = {},
+}: PageContainerProps) {
   return (
-    <div style={{ 
-      maxWidth, margin: '0 auto', padding: '24px', 
-      animation: 'fadeInUp 0.5s ease-out', minHeight: '100vh',
-      color: 'var(--text-primary)', fontFamily: 'Inter'
-    }}>
+    <div
+      className={className}
+      style={{
+        maxWidth,
+        margin: '0 auto',
+        padding: '24px',
+        animation: 'fadeInUp 0.5s ease-out',
+        minHeight: '100vh',
+        color: 'var(--text-primary)',
+        fontFamily: 'Inter',
+        ...style,
+      }}
+    >
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
