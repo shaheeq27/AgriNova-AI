@@ -23,6 +23,7 @@ from app.schemas.disease import (
     DiseaseRecordResponse,
     DiseaseRecordUpdate,
 )
+from app.services.activity_service import ActivityService
 
 
 class DiseaseService:
@@ -123,6 +124,24 @@ class DiseaseService:
         )
         record = await self.repo.create_record(record)
         return DiseaseRecordResponse.model_validate(record)
+
+    async def create_record_with_logging(
+        self, user_id: str, crop_id: str, data: DiseaseRecordCreate
+    ) -> DiseaseRecordResponse:
+        """Create a new disease record with activity logging."""
+        result = await self.create_record(crop_id, data)
+
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="disease_detected",
+            entity_type="disease",
+            entity_id=result.id,
+            description=f"Detected disease '{data.disease_name}'",
+            crop_id=crop_id,
+        )
+
+        return result
 
     async def get_records(self, crop_id: str) -> list[DiseaseRecordResponse]:
         """Get all disease records for a crop."""

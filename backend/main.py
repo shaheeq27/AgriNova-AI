@@ -24,6 +24,13 @@ from app.api.v1.fertilizer import router as fertilizer_router
 from app.api.v1.irrigation import router as irrigation_router
 from app.api.v1.disease import router as disease_router
 
+# V2.0 routers
+from app.api.v1.analytics import router as analytics_router
+from app.api.v1.activity import router as activity_router
+from app.api.v1.scheduler import router as scheduler_router
+from app.api.v1.notifications import router as notifications_router
+from app.api.v1.reports import router as reports_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,7 +45,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     description="AI-Powered Precision Agriculture Platform — from seed to harvest.",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -66,6 +73,13 @@ app.include_router(fertilizer_router, prefix="/api/v1")
 app.include_router(irrigation_router, prefix="/api/v1")
 app.include_router(disease_router, prefix="/api/v1")
 
+# V2.0 routers
+app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(activity_router, prefix="/api/v1")
+app.include_router(scheduler_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
+app.include_router(reports_router, prefix="/api/v1")
+
 
 @app.get("/", tags=["Health"])
 async def health_check():
@@ -73,7 +87,7 @@ async def health_check():
     return {
         "status": "success",
         "message": f"{settings.APP_NAME} API is running",
-        "version": "1.0.0",
+        "version": "2.0.0",
     }
 
 

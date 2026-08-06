@@ -17,6 +17,7 @@ from app.schemas.crop import (
     DailyTaskResponse, DailyTaskUpdate, TaskListResponse,
 )
 from app.services import timeline_service
+from app.services.activity_service import ActivityService
 
 
 class CropService:
@@ -78,6 +79,18 @@ class CropService:
                 crop, expected_harvest_date=stages[-1].end_date
             )
 
+        # Log activity
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="crop_planted",
+            entity_type="crop",
+            entity_id=crop.id,
+            description=f"Planted '{crop.crop_name}' on farm",
+            farm_id=data.farm_id,
+            crop_id=crop.id,
+        )
+
         return CropResponse.model_validate(crop)
 
     async def get_crop(self, user_id: str, crop_id: str) -> CropResponse:
@@ -101,11 +114,37 @@ class CropService:
         crop = await self._check_crop_ownership(user_id, crop_id)
         update_data = data.model_dump(exclude_unset=True)
         crop = await self.repo.update(crop, **update_data)
+
+        # Log activity
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="crop_updated",
+            entity_type="crop",
+            entity_id=crop.id,
+            description=f"Updated crop '{crop.crop_name}'",
+            farm_id=crop.farm_id,
+            crop_id=crop.id,
+        )
+
         return CropResponse.model_validate(crop)
 
     async def delete_crop(self, user_id: str, crop_id: str) -> None:
         """Delete a crop with ownership check."""
         crop = await self._check_crop_ownership(user_id, crop_id)
+
+        # Log activity before deletion
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="crop_deleted",
+            entity_type="crop",
+            entity_id=crop_id,
+            description=f"Deleted crop '{crop.crop_name}'",
+            farm_id=crop.farm_id,
+            crop_id=crop_id,
+        )
+
         await self.repo.delete(crop)
 
     async def get_tasks(

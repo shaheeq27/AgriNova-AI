@@ -20,6 +20,8 @@ from app.models.timeline import CropTimeline, DailyTask
 from app.models.disease import DiseaseRecord, DiseaseImage
 from app.models.irrigation import IrrigationLog
 from app.models.fertilizer import FertilizerLog
+from app.models.activity_log import ActivityLog
+from app.models.notification import Notification
 
 __all__ = [
     "User",
@@ -38,4 +40,6 @@ __all__ = [
     "DiseaseImage",
     "IrrigationLog",
     "FertilizerLog",
+    "ActivityLog",
+    "Notification",
 ]

@@ -10,12 +10,14 @@ from app.core.exceptions import ForbiddenException, NotFoundException
 from app.models.farm import Farm
 from app.repositories.farm_repo import FarmRepository
 from app.schemas.farm import FarmCreate, FarmListResponse, FarmResponse, FarmUpdate
+from app.services.activity_service import ActivityService
 
 
 class FarmService:
     """Farm management business logic."""
 
     def __init__(self, db: AsyncSession):
+        self.db = db
         self.repo = FarmRepository(db)
 
     async def create_farm(self, user_id: str, data: FarmCreate) -> FarmResponse:
@@ -39,6 +41,18 @@ class FarmService:
             description=data.description,
         )
         farm = await self.repo.create(farm)
+
+        # Log activity
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="farm_created",
+            entity_type="farm",
+            entity_id=farm.id,
+            description=f"Created farm '{farm.name}'",
+            farm_id=farm.id,
+        )
+
         return FarmResponse.model_validate(farm)
 
     async def list_farms(self, user_id: str) -> FarmListResponse:
@@ -78,6 +92,18 @@ class FarmService:
 
         update_data = data.model_dump(exclude_unset=True)
         farm = await self.repo.update(farm, **update_data)
+
+        # Log activity
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="farm_updated",
+            entity_type="farm",
+            entity_id=farm.id,
+            description=f"Updated farm '{farm.name}'",
+            farm_id=farm.id,
+        )
+
         return FarmResponse.model_validate(farm)
 
     async def delete_farm(self, user_id: str, farm_id: str) -> None:
@@ -93,3 +119,14 @@ class FarmService:
         if farm.user_id != user_id:
             raise ForbiddenException("You do not have access to this farm")
         await self.repo.soft_delete(farm)
+
+        # Log activity
+        activity = ActivityService(self.db)
+        await activity.log_activity(
+            user_id=user_id,
+            action="farm_deleted",
+            entity_type="farm",
+            entity_id=farm_id,
+            description=f"Deleted farm '{farm.name}'",
+            farm_id=farm_id,
+        )
