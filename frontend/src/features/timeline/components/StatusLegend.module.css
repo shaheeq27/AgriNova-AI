@@ -1,0 +1,45 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+}
+
+.completedDot {
+  display: inline-block;
+  background-color: #ADFF00;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.currentDot {
+  display: inline-block;
+  background-color: #ADFF00;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(173, 255, 0, 0.5);
+}
+
+.upcomingDot {
+  display: inline-block;
+  background-color: transparent;
+  border: 2px solid #4a4d48;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.label {
+  font-size: 13px;
+  color: #8d928c;
+  margin-left: 8px;
+}

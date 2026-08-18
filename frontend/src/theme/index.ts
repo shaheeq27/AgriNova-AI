@@ -1,8 +1,10 @@
 export { colors, type ColorToken } from './colors';
-export { spacing } from './spacing';
-export { typography } from './typography';
-export { radius } from './radius';
-export { shadows } from './shadows';
-export { animation } from './animation';
+export { spacing, type SpacingToken } from './spacing';
+export { typography, type TypographyToken } from './typography';
+export { radius, type RadiusToken } from './radius';
+export { shadows, type ShadowsToken } from './shadows';
+export { animation, type AnimationToken } from './animation';
+export { icons, type IconSize } from './icons';
+export { componentVariants, type ComponentVariantsToken } from './components';
 export { zIndex } from './zIndex';
 export { breakpoints, mediaQueries, type Breakpoint } from './breakpoints';

@@ -35,3 +35,4 @@ class User(Base):
 
     # Relationships
     farms = relationship("Farm", back_populates="owner", lazy="selectin")
+    conversations = relationship("Conversation", back_populates="user", lazy="select")

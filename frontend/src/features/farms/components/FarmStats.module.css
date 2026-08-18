@@ -1,0 +1,82 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statCard {
+  background: rgba(25, 26, 24, 0.75);
+  backdrop-filter: blur(12px);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(173, 255, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: rgba(173, 255, 0, 0.3);
+}
+
+.iconWrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #23351d;
+  border: 1px solid rgba(173, 255, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ADFF00;
+  flex-shrink: 0;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 11px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #8d928c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #f2f0e8;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.unit {
+  font-size: 14px;
+  color: #ADFF00;
+  font-weight: 400;
+}
+
+.subtext {
+  font-size: 10px;
+  color: #8d928c;
+  margin-top: 3px;
+}

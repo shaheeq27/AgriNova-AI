@@ -4,6 +4,10 @@
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  background-image: url('/agri-background.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .shader {

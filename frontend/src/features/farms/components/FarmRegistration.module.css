@@ -1,0 +1,156 @@
+.registrationCard {
+  background: rgba(25, 26, 24, 0.75);
+  backdrop-filter: blur(12px);
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(173, 255, 0, 0.18);
+  margin-bottom: 28px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.headerIcon {
+  color: #ADFF00;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-family: var(--font-headline, 'Source Serif 4', serif);
+  font-weight: 600;
+  color: #f2f0e8;
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .formGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #8d928c;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  background: #131412;
+  border: 1px solid #343533;
+  color: #e4e2e0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input::placeholder {
+  color: #5c615b;
+}
+
+.input:focus {
+  border-color: #ADFF00;
+}
+
+.inputWithIcon {
+  padding-left: 30px;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  color: #8d928c;
+  pointer-events: none;
+}
+
+.select {
+  width: 100%;
+  background: #131412;
+  border: 1px solid #343533;
+  color: #e4e2e0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:focus {
+  border-color: #ADFF00;
+}
+
+.chevronIcon {
+  position: absolute;
+  right: 10px;
+  top: 12px;
+  color: #8d928c;
+  pointer-events: none;
+}
+
+.submitButton {
+  width: 100%;
+  background: #ADFF00;
+  color: #131412;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 12px rgba(173, 255, 0, 0.25);
+  white-space: nowrap;
+}
+
+.submitButton:hover {
+  background: #b8ff1a;
+}
+
+.submitButton:active {
+  transform: scale(0.98);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

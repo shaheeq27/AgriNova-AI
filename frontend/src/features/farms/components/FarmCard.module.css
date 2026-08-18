@@ -1,0 +1,222 @@
+.card {
+  background: rgba(25, 26, 24, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #343533;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.card:hover {
+  border-color: rgba(173, 255, 0, 0.35);
+}
+
+.bannerWrapper {
+  position: relative;
+  height: 150px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.bannerImage {
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.card:hover .bannerImage {
+  transform: scale(1.05);
+}
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #191a18, transparent 60%, rgba(0, 0, 0, 0.25));
+}
+
+.badgeActive {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #388e3c;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.badgeIdle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  font-style: italic;
+  background: rgba(66, 66, 66, 0.75);
+  color: #c4c8c1;
+  backdrop-filter: blur(12px);
+  border: 1px solid #555555;
+}
+
+.cardBody {
+  padding: 16px 18px;
+}
+
+.farmTitle {
+  font-size: 17px;
+  font-family: var(--font-headline, 'Source Serif 4', serif);
+  font-weight: 600;
+  color: #f2f0e8;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 3px 0;
+}
+
+.sproutIcon {
+  color: #ADFF00;
+  flex-shrink: 0;
+}
+
+.location {
+  font-size: 11px;
+  color: #8d928c;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(52, 53, 51, 0.7);
+  margin: 12px 0;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.detailValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f2f0e8;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detailLabel {
+  font-size: 10px;
+  color: #8d928c;
+}
+
+.cropSection {
+  padding-top: 8px;
+  border-top: 1px solid rgba(52, 53, 51, 0.5);
+}
+
+.sectionMetaLabel {
+  font-size: 10px;
+  color: #8d928c;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.cropRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cropName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ADFF00;
+}
+
+.stageName {
+  font-size: 11px;
+  color: #c4c8c1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.idleStatus {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ff9800;
+}
+
+.cardFooter {
+  padding: 14px 18px;
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dayCounter {
+  font-size: 11px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #8d928c;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.openButton {
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: #131412;
+  border: 1px solid #343533;
+  font-size: 12px;
+  font-weight: 500;
+  color: #e4e2e0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.openButton:hover {
+  background: #232522;
+  border-color: rgba(173, 255, 0, 0.4);
+}
+
+.recommendButton {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(173, 255, 0, 0.6);
+  font-size: 12px;
+  font-weight: 500;
+  color: #ADFF00;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.recommendButton:hover {
+  background: rgba(173, 255, 0, 0.1);
+}

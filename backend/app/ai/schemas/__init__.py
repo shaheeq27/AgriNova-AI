@@ -1,0 +1,1 @@
+"""AgriNova AI — AI Schemas."""

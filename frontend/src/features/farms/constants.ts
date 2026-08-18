@@ -1,0 +1,92 @@
+import { Farm } from './types';
+
+export const SOIL_TYPES = [
+  'Loamy Soil',
+  'Silty Clay Loam',
+  'Red Loamy Soil',
+  'Sandy Soil',
+  'Black Cotton Soil',
+  'Alluvial Soil',
+] as const;
+
+export const WATER_SOURCES = [
+  'Automated Drip Irrigation',
+  'Groundwater Aquifer',
+  'Canal Irrigation',
+  'Rain-fed / Natural',
+] as const;
+
+export const CROP_DURATION_KB: Record<string, number> = {
+  maize: 120,
+  corn: 120,
+  rice: 135,
+  paddy: 135,
+  wheat: 120,
+  cotton: 180,
+  tomato: 90,
+  tomatoes: 90,
+  sugarcane: 365,
+  soybean: 100,
+  potato: 110,
+};
+
+export const DEFAULT_FARMS: Farm[] = [
+  {
+    id: 'farm-1',
+    user_id: 'u1',
+    name: 'North Valley Farm',
+    location_city: 'Bangalore, Karnataka',
+    location_state: null,
+    latitude: null,
+    longitude: null,
+    total_area_acres: 24,
+    soil_type: 'Loamy Soil',
+    water_source: 'Automated Drip Irrigation',
+    description: null,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    bannerImage: '/farm_1.jpg',
+    stageName: 'Vegetative Stage',
+    defaultDay: 60,
+    crops: [{ id: 'c1', crop_name: 'Maize', status: 'active', area_acres: 24 }],
+  },
+  {
+    id: 'farm-2',
+    user_id: 'u1',
+    name: 'Green Fields Farm',
+    location_city: 'Hassan, Karnataka',
+    location_state: null,
+    latitude: null,
+    longitude: null,
+    total_area_acres: 12,
+    soil_type: 'Red Loamy Soil',
+    water_source: 'Canal Irrigation',
+    description: null,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    bannerImage: '/farm_2.jpg',
+    stageName: 'Tillering Stage',
+    defaultDay: 32,
+    crops: [{ id: 'c2', crop_name: 'Rice', status: 'active', area_acres: 12 }],
+  },
+  {
+    id: 'farm-3',
+    user_id: 'u1',
+    name: 'Sunshine Farm',
+    location_city: 'Mysore, Karnataka',
+    location_state: null,
+    latitude: null,
+    longitude: null,
+    total_area_acres: 6,
+    soil_type: 'Sandy Soil',
+    water_source: 'Rain-fed / Natural',
+    description: null,
+    is_active: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    bannerImage: '/farm_3.jpg',
+    crops: [], // Idle - No Crop Assigned
+  },
+];

@@ -22,6 +22,7 @@ from app.models.irrigation import IrrigationLog
 from app.models.fertilizer import FertilizerLog
 from app.models.activity_log import ActivityLog
 from app.models.notification import Notification
+from app.models.conversation import Conversation, Message
 
 __all__ = [
     "User",
@@ -42,4 +43,7 @@ __all__ = [
     "FertilizerLog",
     "ActivityLog",
     "Notification",
+    "Conversation",
+    "Message",
 ]
+

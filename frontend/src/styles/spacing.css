@@ -1,39 +1,48 @@
 /* ══════════════════════════════════════════════════════
-   AgriNova AI — Spacing System
-   Premium interfaces breathe.
+   AgriNova AI — Grid & Layout System
+   Extracted from Stitch Design System (8px Grid Scale)
    ══════════════════════════════════════════════════════ */
 
 :root {
-  --space-0: 0;
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
+  /* ── Core Scale ── */
+  --space-0: 0px;
+  --space-1: 4px;       /* 0.5 unit */
+  --space-2: 8px;       /* 1.0 unit */
+  --space-3: 12px;      /* 1.5 units */
+  --space-4: 16px;      /* 2.0 units (Gutter) */
   --space-5: 20px;
-  --space-6: 24px;
+  --space-6: 24px;      /* 3.0 units (Container Padding & Gap) */
   --space-7: 28px;
-  --space-8: 32px;
+  --space-8: 32px;      /* 4.0 units */
   --space-9: 36px;
-  --space-10: 40px;
-  --space-12: 48px;
+  --space-10: 40px;     /* 5.0 units */
+  --space-12: 48px;     /* 6.0 units (Section Gap) */
   --space-14: 56px;
-  --space-16: 64px;
+  --space-16: 64px;     /* 8.0 units */
   --space-20: 80px;
   --space-24: 96px;
 
-  /* Semantic spacing */
-  --space-section: 40px;
-  --space-card-padding: 24px;
-  --space-card-padding-sm: 16px;
-  --space-card-gap: 16px;
-  --space-inline: 8px;
-  --space-stack: 12px;
-  --space-page-x: 32px;
-  --space-page-y: 32px;
+  /* ── Stitch Layout Tokens ── */
+  --spacing-unit: 8px;
+  --spacing-container-padding: 24px;
+  --spacing-gutter: 16px;
+  --spacing-section-gap: 48px;
 
-  /* Layout */
-  --sidebar-width: 260px;
-  --sidebar-collapsed: 72px;
+  /* ── Desktop & Mobile Layout ── */
+  --sidebar-width: 280px;         /* Desktop Sidebar 280px */
+  --sidebar-collapsed: 72px;      /* Tablet Collapsed Sidebar */
+  --content-max-width: 1600px;    /* Max Content Width 1600px */
   --navbar-height: 64px;
-  --bottom-nav-height: 64px;
+  --bottom-nav-height: 64px;      /* Mobile Bottom Bar 64px */
+
+  /* ── Responsive Padding ── */
+  --space-page-x: 24px;
+  --space-page-y: 32px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --space-page-x: 16px;         /* Mobile 16px Padding */
+    --space-page-y: 20px;
+  }
 }

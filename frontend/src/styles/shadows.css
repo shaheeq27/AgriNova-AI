@@ -1,37 +1,46 @@
 /* ══════════════════════════════════════════════════════
-   AgriNova AI — Shadow System (v1.1)
-   Depth via inner shadows · Green glow on important actions only
+   AgriNova AI — Shadow & Glow System
+   Extracted from Stitch Design System
+   Depth via Glassmorphism · Luminous Data Accents
    ══════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Elevation Shadows ── */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.7);
+  /* ── Elevation Shadows (Dark Mode Surface Depth) ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.80);
 
-  /* ── Inner Depth ── */
-  --shadow-inner: inset 0 1px 4px rgba(0, 0, 0, 0.3);
-  --shadow-inner-sm: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-inner-top: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* ── Inner Depth (Soil Topsoil Layer) ── */
+  --shadow-inner: inset 0 1px 4px rgba(0, 0, 0, 0.50);
+  --shadow-inner-sm: inset 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-inner-top: inset 0 2px 6px rgba(0, 0, 0, 0.35);
 
-  /* ── Green Glow — important actions only ── */
-  --shadow-glow-xs: 0 0 4px rgba(102, 255, 136, 0.06);
-  --shadow-glow-sm: 0 0 8px rgba(102, 255, 136, 0.08);
-  --shadow-glow-md: 0 0 16px rgba(102, 255, 136, 0.10);
-  --shadow-glow-lg: 0 0 24px rgba(102, 255, 136, 0.14);
-  --shadow-glow-xl: 0 0 32px rgba(102, 255, 136, 0.18);
+  /* ── Luminous Glow System (Neon Mint #ADFF00) ── */
+  --shadow-glow-xs: 0 0 4px rgba(173, 255, 0, 0.10);
+  --shadow-glow-sm: 0 0 8px rgba(173, 255, 0, 0.15);
+  --shadow-glow-md: 0 0 16px rgba(173, 255, 0, 0.25);
+  --shadow-glow-lg: 0 0 24px rgba(173, 255, 0, 0.35);
+  --shadow-glow-xl: 0 0 36px rgba(173, 255, 0, 0.50);
+
+  /* ── Luminous Glow System (Crystalline Blue #E0F2F1) ── */
+  --shadow-glow-spectral: 0 0 16px rgba(224, 242, 241, 0.15);
+  --shadow-glow-spectral-lg: 0 0 28px rgba(224, 242, 241, 0.25);
+
+  /* ── Luminous Glow System (Data Stream #22C55E) ── */
+  --shadow-glow-telemetry: 0 0 12px rgba(34, 197, 94, 0.25);
 
   /* ── Ambient Edge ── */
-  --shadow-ambient: 0 0 1px rgba(102, 255, 136, 0.04);
-  --shadow-ambient-hover: 0 0 2px rgba(102, 255, 136, 0.08);
+  --shadow-ambient: 0 0 1px rgba(173, 255, 0, 0.05);
+  --shadow-ambient-hover: 0 0 4px rgba(173, 255, 0, 0.12);
 
-  /* ── Card Composite ── */
+  /* ── Card Composite (Layer 2 Lens) ── */
   --shadow-card: var(--shadow-inner), var(--shadow-ambient);
-  --shadow-card-hover: var(--shadow-inner), var(--shadow-glow-md), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-card-active: var(--shadow-inner), var(--shadow-glow-lg), 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: var(--shadow-inner), var(--shadow-glow-md), 0 8px 24px rgba(0, 0, 0, 0.50);
+  --shadow-card-active: var(--shadow-inner), var(--shadow-glow-lg), 0 12px 32px rgba(0, 0, 0, 0.65);
 
   /* ── Focus Ring ── */
-  --shadow-focus: 0 0 0 3px rgba(102, 255, 136, 0.10);
+  --shadow-focus: 0 0 0 2px rgba(173, 255, 0, 0.40);
+  --shadow-focus-blue: 0 0 0 2px rgba(224, 242, 241, 0.30);
 }

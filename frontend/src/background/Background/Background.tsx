@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/utils/cn';
+import { SeedShaderCanvas } from './SeedShaderCanvas';
 import { Fireflies } from '../Fireflies';
 import { SeedParticles } from '../SeedParticles';
 import { Wind } from '../Wind';
@@ -38,7 +39,7 @@ export function Background({
 }: BackgroundProps) {
   return (
     <div className={cn(styles.root, className)} aria-hidden="true">
-      {shader && <div className={styles.shader} />}
+      {shader && <SeedShaderCanvas />}
       {fog && <div className={styles.fog} />}
       {noise && <div className={styles.noise} />}
       {groundGlow && <div className={styles.groundGlow} />}

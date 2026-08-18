@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════════════════════════════
+   AgriNova AI — Disease Detection State Machine Hook
+   Manages the 5-stage workflow: DETECT → UNDERSTAND → TREAT → FOLLOW UP → RESOLVE
+   ══════════════════════════════════════════════════════════════ */
+
+'use client';
+
+import { useState, useCallback, useEffect } from 'react';
+import type {
+  DiseaseDetectionState,
+  FarmOption,
+  TreatmentLogEntry,
+  ResolutionOutcome,
+} from '../types';
+import { MOCK_DIAGNOSIS, STANDALONE_FARM } from '../constants';
+import { farmAPI } from '@/lib/api';
+
+const initialState: DiseaseDetectionState = {
+  stage: 'initial',
+  selectedImage: null,
+  imagePreviewUrl: null,
+  selectedFarm: null,
+  diagnosis: null,
+  treatmentLog: null,
+  showTreatmentForm: false,
+  followUpImage: null,
+  followUpImageUrl: null,
+  resolutionOutcome: null,
+  resolutionNotes: '',
+  isAnalyzing: false,
+  isSaving: false,
+  detectionSaved: false,
+};
+
+export function useDiseaseDetection() {
+  const [state, setState] = useState<DiseaseDetectionState>(initialState);
+  const [farms, setFarms] = useState<FarmOption[]>([]);
+
+  /* ── Load user's farms for dropdown ── */
+  useEffect(() => {
+    farmAPI
+      .list()
+      .then((data) => {
+        const farmOptions: FarmOption[] = data.farms.map((f) => ({
+          id: f.id,
+          name: f.name,
+          isStandalone: false,
+        }));
+        setFarms(farmOptions);
+      })
+      .catch(() => {
+        // Silently fail — farms are optional
+        setFarms([]);
+      });
+  }, []);
+
+  /** All dropdown options: user farms + standalone */
+  const farmOptions: FarmOption[] = [...farms, STANDALONE_FARM];
+
+  /* ── Image Selection ── */
+  const selectImage = useCallback((file: File) => {
+    const url = URL.createObjectURL(file);
+    setState((prev) => ({
+      ...prev,
+      selectedImage: file,
+      imagePreviewUrl: url,
+    }));
+  }, []);
+
+  const clearImage = useCallback(() => {
+    setState((prev) => {
+      if (prev.imagePreviewUrl) URL.revokeObjectURL(prev.imagePreviewUrl);
+      return { ...prev, selectedImage: null, imagePreviewUrl: null };
+    });
+  }, []);
+
+  /* ── Farm Selection ── */
+  const selectFarm = useCallback((farm: FarmOption | null) => {
+    setState((prev) => ({ ...prev, selectedFarm: farm }));
+  }, []);
+
+  /* ── Start Analysis ── */
+  const startAnalysis = useCallback(async () => {
+    setState((prev) => ({ ...prev, stage: 'analyzing', isAnalyzing: true }));
+
+    // Simulate CV model analysis (1.2s delay for snappy UX)
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    setState((prev) => ({
+      ...prev,
+      stage: 'result',
+      isAnalyzing: false,
+      diagnosis: MOCK_DIAGNOSIS,
+      detectionSaved: prev.selectedFarm != null && !prev.selectedFarm.isStandalone,
+    }));
+  }, []);
+
+  /* ── Treatment Form ── */
+  const openTreatmentForm = useCallback(() => {
+    setState((prev) => ({ ...prev, showTreatmentForm: true }));
+  }, []);
+
+  const closeTreatmentForm = useCallback(() => {
+    setState((prev) => ({ ...prev, showTreatmentForm: false }));
+  }, []);
+
+  /* ── Log Treatment ── */
+  const logTreatment = useCallback(async (entry: TreatmentLogEntry) => {
+    setState((prev) => ({ ...prev, isSaving: true }));
+
+    // Simulate API save
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    setState((prev) => ({
+      ...prev,
+      stage: prev.selectedFarm?.isStandalone ? 'result' : 'followup',
+      treatmentLog: entry,
+      showTreatmentForm: false,
+      isSaving: false,
+    }));
+  }, []);
+
+  /* ── Follow-Up Image ── */
+  const uploadFollowUp = useCallback((file: File) => {
+    const url = URL.createObjectURL(file);
+    setState((prev) => ({
+      ...prev,
+      followUpImage: file,
+      followUpImageUrl: url,
+    }));
+  }, []);
+
+  /* ── Proceed to Resolution ── */
+  const proceedToResolve = useCallback(() => {
+    setState((prev) => ({ ...prev, stage: 'resolved' }));
+  }, []);
+
+  /* ── Resolve Case ── */
+  const resolveCase = useCallback(async (outcome: ResolutionOutcome, notes: string) => {
+    setState((prev) => ({ ...prev, isSaving: true }));
+
+    // Simulate API update
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    setState((prev) => ({
+      ...prev,
+      resolutionOutcome: outcome,
+      resolutionNotes: notes,
+      isSaving: false,
+    }));
+  }, []);
+
+  /* ── Reset to initial state ── */
+  const resetDetection = useCallback(() => {
+    setState((prev) => {
+      if (prev.imagePreviewUrl) URL.revokeObjectURL(prev.imagePreviewUrl);
+      if (prev.followUpImageUrl) URL.revokeObjectURL(prev.followUpImageUrl);
+      return { ...initialState };
+    });
+  }, []);
+
+  return {
+    ...state,
+    farms,
+    farmOptions,
+    selectImage,
+    clearImage,
+    selectFarm,
+    startAnalysis,
+    openTreatmentForm,
+    closeTreatmentForm,
+    logTreatment,
+    uploadFollowUp,
+    proceedToResolve,
+    resolveCase,
+    resetDetection,
+  };
+}

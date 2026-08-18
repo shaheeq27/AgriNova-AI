@@ -1,0 +1,274 @@
+/* ══════════════════════════════════════════════════════
+   AgriNova AI — Primitive Component Variant Classes
+   Extracted from Stitch Design System
+   ══════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   1. BUTTON VARIANTS & STATES
+   ══════════════════════════════════════════════════════ */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 24px;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
+  line-height: 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+  text-decoration: none;
+  outline: none;
+  border: none;
+}
+
+/* Hover & Active States (Enforced across all button variants) */
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Button Variants */
+.btn-primary, .btn-neon-mint {
+  background-color: var(--color-neon-mint);
+  color: var(--color-text-on-mint);
+}
+.btn-primary:hover:not(:disabled), .btn-neon-mint:hover:not(:disabled) {
+  box-shadow: var(--shadow-glow-md);
+  filter: brightness(1.05);
+}
+
+.btn-secondary, .btn-ethereal-ghost {
+  background: rgba(31, 32, 31, 0.60);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover:not(:disabled), .btn-ethereal-ghost:hover:not(:disabled) {
+  background: rgba(42, 42, 41, 0.85);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-glow-xs);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  background: var(--color-bg-surface-high);
+}
+
+.btn-danger {
+  background: var(--color-error-container);
+  color: var(--color-error);
+  border: 1px solid rgba(255, 180, 171, 0.20);
+}
+
+.btn-telemetry {
+  background: var(--color-bg-surface-high);
+  color: var(--color-neon-mint);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  border: 1px solid var(--color-border-mint);
+}
+
+/* Button States: Disabled & Loading */
+.btn:disabled, .btn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.80;
+}
+
+/* ══════════════════════════════════════════════════════
+   2. CARD VARIANTS & STATES
+   ══════════════════════════════════════════════════════ */
+
+.card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-container-padding);
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out), border-color var(--duration-normal) var(--ease-out);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-glass, .card-glass-lens {
+  background: rgba(19, 20, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+.card-glass:hover, .card-glass-lens:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-soil, .card-soil-deep {
+  background: var(--color-soil-deep);
+  border: 1px solid rgba(251, 220, 206, 0.08);
+  box-shadow: var(--shadow-inner);
+}
+
+.card-command, .card-command-center {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-mint);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-inner), var(--shadow-glow-sm);
+}
+
+.card-telemetry {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-gutter);
+  font-family: var(--font-mono);
+}
+
+.card.is-selected {
+  border-color: var(--color-neon-mint);
+  box-shadow: var(--shadow-glow-md);
+}
+
+/* ══════════════════════════════════════════════════════
+   3. INPUT VARIANTS & STATES
+   ══════════════════════════════════════════════════════ */
+
+.input-field, .input-lens {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  outline: none;
+}
+
+.input-field:focus, .input-lens:focus {
+  border-color: var(--color-neon-mint);
+  box-shadow: var(--shadow-focus);
+}
+
+.input-field.is-error, .input-lens.is-error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(255, 180, 171, 0.30);
+}
+
+.input-field:disabled, .input-lens:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.input-soil {
+  width: 100%;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.input-soil:focus {
+  border-bottom-color: var(--color-neon-mint);
+}
+
+/* ══════════════════════════════════════════════════════
+   4. BADGE & STATUS VARIANTS
+   ══════════════════════════════════════════════════════ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-full);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+}
+
+.badge-success { background: var(--color-success-bg); color: var(--color-neon-mint); }
+.badge-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge-error { background: var(--color-error-bg); color: var(--color-error); }
+.badge-ai { background: rgba(173, 255, 0, 0.15); color: var(--color-neon-mint); box-shadow: var(--shadow-glow-xs); }
+.badge-offline { background: rgba(141, 146, 140, 0.15); color: var(--color-text-muted); }
+
+/* ══════════════════════════════════════════════════════
+   5. NAVIGATION & SIDEBAR STYLES
+   ══════════════════════════════════════════════════════ */
+
+.nav-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: rgba(19, 20, 18, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--color-border);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) var(--space-4);
+  transition: width var(--duration-normal) var(--ease-out);
+}
+
+.nav-rail.is-collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 12px 16px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.nav-item:hover {
+  background: var(--color-bg-surface-high);
+  color: var(--color-text-primary);
+}
+
+.nav-item.is-active {
+  background: var(--color-bg-surface-highest);
+  color: var(--color-neon-mint);
+  box-shadow: var(--shadow-glow-xs);
+  border-left: 3px solid var(--color-neon-mint);
+}

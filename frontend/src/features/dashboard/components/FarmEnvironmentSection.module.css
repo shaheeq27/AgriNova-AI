@@ -1,0 +1,135 @@
+.container {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  font-family: monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted, #8d928c);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.farmCard {
+  background: var(--color-bg-card, rgba(31, 32, 31, 0.75));
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border, rgba(141, 146, 140, 0.15));
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.farmCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(173, 255, 0, 0.3);
+}
+
+.header {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #e4e2e0);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.dotGreen {
+  background-color: #22c55e;
+  color: #22c55e;
+}
+
+.dotAmber {
+  background-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.dotRed {
+  background-color: #ef4444;
+  color: #ef4444;
+}
+
+.envRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.envRow:last-of-type {
+  margin-bottom: 0;
+}
+
+.envLabel {
+  font-size: 11px;
+  color: var(--color-text-muted, #8d928c);
+  width: 75px;
+}
+
+.envVal {
+  font-family: monospace, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary, #e4e2e0);
+}
+
+.badge {
+  font-size: 10px;
+  font-family: monospace, sans-serif;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.badgeAmber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badgeRed {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.cropTag {
+  font-size: 11px;
+  color: var(--color-text-secondary, #c4c8c1);
+  margin-top: 10px;
+  border-top: 1px solid rgba(141, 146, 140, 0.12);
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sproutIcon {
+  color: #ADFF00;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

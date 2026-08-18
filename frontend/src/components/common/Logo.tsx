@@ -16,12 +16,12 @@ const Logo: React.FC<LogoProps> = ({
   const getMarkSize = () => {
     switch (size) {
       case 'sm':
-        return { box: '24px', font: '12px' };
+        return '24px';
       case 'lg':
-        return { box: '48px', font: '24px' };
+        return '48px';
       case 'md':
       default:
-        return { box: '32px', font: '16px' };
+        return '36px';
     }
   };
 
@@ -30,58 +30,65 @@ const Logo: React.FC<LogoProps> = ({
       case 'sm':
         return '16px';
       case 'lg':
-        return '28px';
+        return '26px';
       case 'md':
       default:
         return '20px';
     }
   };
 
-  const markSize = getMarkSize();
+  const boxSize = getMarkSize();
 
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: size === 'lg' ? '16px' : '12px',
+    gap: size === 'lg' ? '14px' : '10px',
     ...style,
   };
 
   const markStyle: React.CSSProperties = {
-    width: markSize.box,
-    height: markSize.box,
-    borderRadius: size === 'lg' ? '12px' : '8px',
-    background: 'linear-gradient(135deg, var(--accent-muted) 0%, var(--surface-hover) 100%)',
+    width: boxSize,
+    height: boxSize,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '1px solid var(--border)',
-    boxShadow: showGlow ? '0 0 20px var(--accent-glow)' : 'none',
-    fontSize: markSize.font,
+    flexShrink: 0,
   };
 
   const textStyle: React.CSSProperties = {
-    fontFamily: '"Playfair Display", serif',
+    fontFamily: '"Source Serif 4", serif',
     fontSize: getTextSize(),
     fontWeight: 700,
-    color: 'var(--text-primary)',
+    color: '#F2F0E8',
     margin: 0,
     letterSpacing: '0.02em',
   };
 
   const aiStyle: React.CSSProperties = {
-    fontFamily: '"Space Mono", monospace',
+    fontFamily: '"JetBrains Mono", monospace',
     fontSize: size === 'lg' ? '13px' : '10px',
-    color: 'var(--accent-primary)',
+    color: '#ADFF00',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
-    marginLeft: '4px',
+    marginLeft: '6px',
     verticalAlign: 'top',
   };
 
   return (
     <div style={containerStyle} className={className}>
       <div style={markStyle}>
-        🌱
+        <img
+          src="/logo_transparent.png"
+          alt="AgriNova"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            filter: showGlow
+              ? 'drop-shadow(0 0 8px rgba(173,255,0,0.5))'
+              : 'none',
+          }}
+        />
       </div>
       <div style={textStyle}>
         AgriNova<span style={aiStyle}>AI</span>

@@ -1,0 +1,218 @@
+/* ══════════════════════════════════════════════════════════
+   FarmHeader.module.css — Top Actions + Title Banner
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Top Actions Row (Search, Bell, Avatar) ── */
+
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.searchContainer {
+  position: relative;
+  width: 200px;
+}
+
+@media (min-width: 768px) {
+  .searchContainer {
+    width: 240px;
+  }
+}
+
+.searchInput {
+  width: 100%;
+  background: rgba(27, 28, 27, 0.8);
+  border: 1px solid #343533;
+  color: #e4e2e0;
+  border-radius: 10px;
+  padding: 7px 14px;
+  padding-right: 36px;
+  font-size: 13px;
+  outline: none;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: #6b6f6a;
+}
+
+.searchInput:focus {
+  border-color: #ADFF00;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  color: #8d928c;
+  pointer-events: none;
+}
+
+.iconButton {
+  position: relative;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(27, 28, 27, 0.8);
+  border: 1px solid #343533;
+  color: #e4e2e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  border-color: rgba(173, 255, 0, 0.5);
+}
+
+.notificationDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ADFF00;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1b1c1b;
+  border: 1px solid rgba(173, 255, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #ADFF00;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Title Banner — text on left, farmhouse image across banner
+   ══════════════════════════════════════════════════════════ */
+
+.titleBanner {
+  position: relative;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  background: #131412;
+  border: 1px solid rgba(173, 255, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .titleBanner {
+    min-height: 160px;
+  }
+}
+
+/* ── Left: Text Content ── */
+
+.titleContent {
+  position: relative;
+  z-index: 3;
+  max-width: 520px;
+  padding: 24px 28px;
+}
+
+@media (min-width: 768px) {
+  .titleContent {
+    padding: 28px 32px;
+  }
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.sproutIcon {
+  color: #ADFF00;
+  filter: drop-shadow(0 0 6px rgba(173, 255, 0, 0.4));
+}
+
+.titleText {
+  font-size: 28px;
+  font-family: var(--font-headline, 'Source Serif 4', serif);
+  font-weight: 600;
+  color: #f2f0e8;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+@media (min-width: 768px) {
+  .titleText {
+    font-size: 32px;
+  }
+}
+
+.description {
+  font-size: 13px;
+  color: #d1d5cf;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 420px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: 14px;
+  }
+}
+
+/* ── Right/Background: Decorative Farmhouse Landscape Image ── */
+
+.bannerImageWrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bannerImage {
+  object-fit: cover;
+  object-position: center right;
+  opacity: 0.95;
+}
+
+/* Gradient overlays — softer dark gradient on left so the image shows through on the left side while keeping text readable */
+.bannerImageOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      rgba(19, 20, 18, 0.65) 0%,
+      rgba(19, 20, 18, 0.45) 30%,
+      rgba(19, 20, 18, 0.2) 60%,
+      transparent 100%
+    );
+}
+
+@media (max-width: 767px) {
+  .bannerImageOverlay {
+    background:
+      linear-gradient(
+        to right,
+        rgba(19, 20, 18, 0.75) 0%,
+        rgba(19, 20, 18, 0.55) 40%,
+        rgba(19, 20, 18, 0.25) 80%,
+        transparent 100%
+      );
+  }
+}

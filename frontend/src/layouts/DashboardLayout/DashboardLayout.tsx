@@ -7,6 +7,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import MobileHeader from '@/components/layout/MobileHeader';
+import Background from '@/background/Background/Background';
 import { cn } from '@/utils/cn';
 import styles from './DashboardLayout.module.css';
 
@@ -56,6 +57,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className={styles.shell}>
+      <Background
+        shader={true}
+        fog={true}
+        groundGlow={true}
+        noise={true}
+        fireflies={true}
+        fireflyCount={12}
+        seeds={true}
+        seedCount={12}
+      />
       <Sidebar />
       <div className={styles.content} style={{ marginLeft: sidebarWidth }}>
         <MobileHeader />

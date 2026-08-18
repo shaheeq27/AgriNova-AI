@@ -1,0 +1,27 @@
+.emptyCard {
+  background: rgba(25, 26, 24, 0.9);
+  backdrop-filter: blur(12px);
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 24px;
+  border: 1px solid #343533;
+}
+
+.icon {
+  color: #ADFF00;
+  margin: 0 auto 16px auto;
+}
+
+.title {
+  font-size: 18px;
+  font-family: var(--font-headline, 'Source Serif 4', serif);
+  font-weight: 600;
+  color: #f2f0e8;
+  margin: 0 0 8px 0;
+}
+
+.description {
+  font-size: 14px;
+  color: #8d928c;
+  margin: 0;
+}

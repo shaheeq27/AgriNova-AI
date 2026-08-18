@@ -1,0 +1,30 @@
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
+}
+
+.panelExpanded {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+}
+
+.contentWrapper {
+  margin-top: 12px;
+  background: rgba(173, 255, 0, 0.02);
+  border: 1px solid rgba(173, 255, 0, 0.08);
+  border-left: 2px solid rgba(173, 255, 0, 0.15);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.emptyState {
+  font-size: 13px;
+  color: #8d928c;
+  font-style: italic;
+  text-align: center;
+  padding: 8px 0;
+}

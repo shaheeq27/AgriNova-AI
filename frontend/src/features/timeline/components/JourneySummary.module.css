@@ -1,0 +1,90 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.card {
+  flex: 1;
+  min-width: 160px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(173, 255, 0, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.iconRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.label {
+  font-size: 12px;
+  color: #8d928c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.value {
+  font-family: monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #e4e2e0;
+}
+
+.subLabel {
+  font-size: 11px;
+  color: #6b706a;
+  margin-top: 2px;
+}
+
+.progressContainer {
+  height: 4px;
+  background-color: #2a2d29;
+  border-radius: 2px;
+  margin-top: auto;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #ADFF00;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(173, 255, 0, 0.3);
+}
+
+.progressText {
+  font-size: 11px;
+  color: #ADFF00;
+  text-align: right;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .card:first-child {
+    grid-column: 1 / -1;
+  }
+}

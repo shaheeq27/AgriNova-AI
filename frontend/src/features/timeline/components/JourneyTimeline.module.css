@@ -1,0 +1,212 @@
+.timeline {
+  position: relative;
+  padding: 40px 0;
+}
+
+.timelineGrid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  row-gap: 24px;
+  column-gap: 0;
+  position: relative;
+}
+
+.spineContainer {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 60px;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.spine {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 0%, #ADFF00 10%, #ADFF00 90%, transparent 100%);
+  box-shadow: 0 0 10px rgba(173, 255, 0, 0.3), 0 0 20px rgba(173, 255, 0, 0.1);
+  position: relative;
+}
+
+.pastLabel,
+.futureLabel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pastLabel {
+  top: 0;
+  color: #ADFF00;
+}
+
+.futureLabel {
+  bottom: 0;
+  color: #6b706a;
+}
+
+/* ── Milestone Nodes ── */
+
+.nodeCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  min-height: 64px;
+}
+
+.node {
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nodeCompleted {
+  width: 20px;
+  height: 20px;
+  background: #ADFF00;
+  border: 3px solid #131412;
+  color: #131412;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.nodeCurrent {
+  width: 24px;
+  height: 24px;
+  background: #131412;
+  border: 3px solid #ADFF00;
+  box-shadow: 0 0 15px rgba(173, 255, 0, 0.5), 0 0 30px rgba(173, 255, 0, 0.2);
+}
+
+.pulseDot {
+  width: 10px;
+  height: 10px;
+  background: #ADFF00;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.nodeUpcoming {
+  width: 18px;
+  height: 18px;
+  background: #131412;
+  border: 2px solid #4a4d48;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.3);
+  }
+}
+
+/* ── Grid Cells ── */
+
+.leftCell {
+  text-align: right;
+  padding-right: 24px;
+  position: relative;
+}
+
+.rightCell {
+  text-align: left;
+  padding-left: 24px;
+  position: relative;
+}
+
+.emptyCell {
+  /* placeholder to maintain grid structure */
+}
+
+/* ── Connectors ── */
+
+.connectorLeft,
+.connectorRight {
+  position: absolute;
+  top: 32px;
+  height: 2px;
+  background: rgba(173, 255, 0, 0.2);
+  z-index: 1;
+}
+
+.connectorLeft {
+  right: 0;
+  width: 24px;
+}
+
+.connectorRight {
+  left: 0;
+  width: 24px;
+}
+
+.connectorUpcoming {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.connectorCurrent {
+  background: #ADFF00;
+  box-shadow: 0 0 8px rgba(173, 255, 0, 0.5);
+}
+
+/* Desktop: hide mobile-only content */
+.mobileOnly {
+  display: none;
+}
+
+/* ── Mobile Layout ── */
+
+@media (max-width: 767px) {
+  .timelineGrid {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .spineContainer {
+    left: 20px;
+    width: 40px;
+    transform: none;
+  }
+
+  /* On mobile: hide the left column entirely */
+  .leftCell {
+    display: none;
+  }
+
+  /* On mobile: all content renders in the right cell */
+  .rightCell {
+    text-align: left;
+    padding-left: 16px;
+    padding-right: 0;
+  }
+
+  .emptyCell {
+    display: none;
+  }
+
+  /* Show the mobile duplicate of left-side cards */
+  .mobileOnly {
+    display: block;
+  }
+
+  .connectorLeft,
+  .connectorRight {
+    left: 0;
+    right: auto;
+    width: 16px;
+  }
+}

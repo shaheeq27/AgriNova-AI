@@ -1,0 +1,137 @@
+.container {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  font-family: monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted, #8d928c);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconLabel {
+  color: #ffb4ab;
+}
+
+.card {
+  background: var(--color-bg-card, rgba(31, 32, 31, 0.75));
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border, rgba(141, 146, 140, 0.15));
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alertItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.critical {
+  background: rgba(255, 180, 171, 0.08);
+  border: 1px solid rgba(255, 180, 171, 0.25);
+}
+
+.warning {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.info {
+  background: rgba(173, 255, 0, 0.06);
+  border: 1px solid rgba(173, 255, 0, 0.2);
+}
+
+.alertIcon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.critical .alertIcon {
+  color: #ffb4ab;
+}
+
+.warning .alertIcon {
+  color: #f59e0b;
+}
+
+.info .alertIcon {
+  color: #ADFF00;
+}
+
+.content {
+  flex: 1;
+}
+
+.title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary, #e4e2e0);
+  line-height: 1.3;
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--color-text-secondary, #c4c8c1);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.why {
+  font-size: 11px;
+  font-family: monospace, sans-serif;
+  color: var(--color-text-muted, #8d928c);
+  margin-top: 4px;
+}
+
+.actionWrapper {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.btn {
+  font-family: monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-primary, #e4e2e0);
+  border: 1px solid rgba(141, 146, 140, 0.25);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: rgba(173, 255, 0, 0.12);
+  border-color: #ADFF00;
+  color: #ADFF00;
+}
+
+@media (max-width: 640px) {
+  .alertItem {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .actionWrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}

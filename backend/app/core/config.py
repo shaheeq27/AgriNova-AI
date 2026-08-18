@@ -44,6 +44,26 @@ class Settings(BaseSettings):
     # ── ML Models ──
     ML_MODEL_DIR: str = "./ml/models"
 
+    # ── AI Agronomist (V3) ──
+    GEMINI_API_KEY: str = ""
+    AI_MODEL_NAME: str = "gemini-3.5-flash"
+    
+    # ── AI Provider Failover (Phase 9.5) ──
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL_NAME: str = ""
+    AI_PRIMARY_PROVIDER: str = "gemini"
+    AI_ENABLE_FALLBACK: bool = True
+    
+    # ── Rate Limiting ──
+    AI_RATE_LIMIT_WINDOW_SECONDS: int = 60
+    # Global backstop rate limit (e.g., across all IPs/users)
+    AI_GLOBAL_RATE_LIMIT_MAX_REQUESTS: int = 200
+    AI_GLOBAL_RATE_LIMIT_WINDOW_SECONDS: int = 60
+
+    # ── AI Evaluation (Phase 10) ──
+    EVAL_JUDGE_MODEL: str = "gemini-3.5-flash"
+    AI_EVAL_MAX_ESTIMATED_COST: float = 2.0  # Max estimated cost in USD (or arbitrary units) for a test run
+
     @property
     def is_sqlite(self) -> bool:
         """Check if we're using SQLite (for dev convenience)."""
