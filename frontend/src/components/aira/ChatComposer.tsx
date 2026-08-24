@@ -1,79 +1,216 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Square } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import { AlertCircle, Send, Square } from 'lucide-react';
 
 interface ChatComposerProps {
   onSend: (message: string) => void;
   onStop?: () => void;
   isTyping: boolean;
   disabled?: boolean;
+  error?: string | null;
 }
 
-export function ChatComposer({ onSend, onStop, isTyping, disabled = false }: ChatComposerProps) {
+export function ChatComposer({
+  onSend,
+  onStop,
+  isTyping,
+  disabled = false,
+  error,
+}: ChatComposerProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    // Auto-resize textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
-    }
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = '0px';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }, [input]);
 
   const handleSend = () => {
-    if (input.trim() && !isTyping && !disabled) {
-      onSend(input);
-      setInput('');
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
+    const message = input.trim();
+
+    if (!message || isTyping || disabled) return;
+
+    onSend(message);
+    setInput('');
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '0px';
     }
   };
 
   const handleStop = () => {
-    if (onStop) {
-      onStop();
-    }
+    onStop?.();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="w-full bg-[#1B1C1B]/80 backdrop-blur-md p-4 border-t border-white/5 relative z-20">
-      <div className="max-w-4xl mx-auto relative">
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Aira about your farm..."
-          disabled={isTyping || disabled}
-          className="w-full bg-[#2A2A29] text-[#E4E2E0] placeholder-[#8D928C] rounded-2xl py-4 pl-4 pr-14 outline-none border border-white/5 focus:border-[#ADFF00]/40 transition-colors resize-none overflow-y-auto"
-          style={{ minHeight: '56px', maxHeight: '150px' }}
-          rows={1}
-        />
-        {isTyping ? (
-          <button
-            onClick={handleStop}
-            className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-xl bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors active:scale-95"
-            title="Stop generating"
+    <div
+      style={{
+        width: '100%',
+        flexShrink: 0,
+        padding: '0 24px 24px 24px',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '960px',
+          margin: '0 auto',
+          boxSizing: 'border-box',
+        }}
+      >
+        {error && (
+          <div
+            style={{
+              marginBottom: '8px',
+              display: 'flex',
+              width: '100%',
+              alignItems: 'center',
+              gap: '8px',
+              borderRadius: '16px',
+              border: '1px solid rgba(239,68,68,0.2)',
+              background: 'rgba(239,68,68,0.1)',
+              padding: '8px 16px',
+              fontSize: '14px',
+              color: '#f87171',
+              boxSizing: 'border-box',
+            }}
           >
-            <Square size={16} fill="currentColor" />
-          </button>
-        ) : (
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || disabled}
-            className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-xl bg-[#ADFF00] text-[#131412] disabled:opacity-50 disabled:bg-[#343533] disabled:text-[#8D928C] transition-colors hover:bg-[#BDFF33] active:scale-95"
-          >
-            <Send size={20} />
-          </button>
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
+
+            <span
+              style={{
+                minWidth: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {error}
+            </span>
+          </div>
         )}
+
+        <div
+          style={{
+            width: '100%',
+            minHeight: '64px',
+            display: 'flex',
+            alignItems: 'center',
+            boxSizing: 'border-box',
+            borderRadius: '32px',
+            border: '1px solid rgba(255,255,255,0.10)',
+            background: '#1B1C1B',
+            padding: '7px 8px 7px 22px',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
+            transition: 'border-color 200ms ease',
+          }}
+        >
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Aira about your farm..."
+            disabled={isTyping || disabled}
+            rows={1}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              width: '100%',
+              maxHeight: '120px',
+              resize: 'none',
+              overflow: 'hidden',
+              border: 'none',
+              outline: 'none',
+              background: 'transparent',
+              color: '#E4E2E0',
+              fontSize: '15px',
+              lineHeight: '22px',
+              padding: '8px 8px 8px 0',
+              fontFamily: 'inherit',
+              boxSizing: 'border-box',
+            }}
+          />
+
+          <div
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: '8px',
+            }}
+          >
+            {isTyping ? (
+              <button
+                type="button"
+                onClick={handleStop}
+                title="Stop generating"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  background: 'rgba(239,68,68,0.1)',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                }}
+              >
+                <Square size={15} fill="currentColor" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={!input.trim() || disabled}
+                title="Send message"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: input.trim() && !disabled
+                    ? '#ADFF00'
+                    : '#2A2A29',
+                  color: input.trim() && !disabled
+                    ? '#131412'
+                    : '#8D928C',
+                  cursor: input.trim() && !disabled
+                    ? 'pointer'
+                    : 'not-allowed',
+                  boxShadow: input.trim() && !disabled
+                    ? '0 0 10px rgba(173,255,0,0.16)'
+                    : 'none',
+                  margin: 0,
+                }}
+              >
+                <Send size={17} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

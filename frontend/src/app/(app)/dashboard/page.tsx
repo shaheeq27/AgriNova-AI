@@ -18,7 +18,7 @@ export default function DashboardPage() {
         className="anim-page-enter"
         style={{
           padding: '24px',
-          maxWidth: 1400,
+          width: '100%',
           margin: '0 auto',
           position: 'relative',
           zIndex: 10,

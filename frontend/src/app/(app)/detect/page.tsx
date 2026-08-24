@@ -50,7 +50,8 @@ export default function DetectPage() {
 
       {/* Page content wrapper */}
       <div style={{
-        maxWidth: '1040px',
+        width: '100%',
+        maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 16px 48px',
         display: 'flex',

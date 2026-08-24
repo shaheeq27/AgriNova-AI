@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { Bot, User } from 'lucide-react';
 import TypingIndicator from '../ai/TypingIndicator';
@@ -18,17 +19,26 @@ export function MessageBubble({ role, content, isTyping = false, interrupted = f
   const cleanContent = content.replace(/\[[A-Z\s]+\][\s\S]*?\[\/[A-Z\s]+\]/g, '').trim();
 
   return (
-    <div className={`flex w-full ${isAI ? 'justify-start' : 'justify-end'} mb-6 group`}>
-      <div className={`flex gap-4 max-w-[85%] ${isAI ? 'flex-row' : 'flex-row-reverse'}`}>
+    <div className={`flex w-full ${isAI ? 'justify-start' : 'justify-end'} group`}>
+      <div className={`flex gap-4 max-w-[78%] ${isAI ? 'flex-row' : 'flex-row-reverse'}`}>
         
         {/* Avatar */}
         <div className="flex-shrink-0 mt-1">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${
+          <div className={`w-8 h-8 flex items-center justify-center relative overflow-hidden ${
             isAI 
-              ? 'bg-[#1F201F] border-[#ADFF00]/30 text-[#ADFF00]' 
-              : 'bg-[#574238] border-[#FBDFCE]/30 text-[#FBDFCE]'
+              ? 'rounded-full bg-[#1F201F] border border-[#ADFF00]/30 text-[#ADFF00]' 
+              : 'rounded-full bg-[#574238] border border-[#FBDFCE]/30 text-[#FBDFCE]'
           }`}>
-            {isAI ? <Bot size={16} strokeWidth={1.75} /> : <User size={16} strokeWidth={1.75} />}
+            {isAI ? (
+              <Image 
+                src="/aira-icon.jpg" 
+                alt="Aira" 
+                fill 
+                className="object-cover"
+              />
+            ) : (
+              <User size={16} strokeWidth={1.75} />
+            )}
           </div>
         </div>
 

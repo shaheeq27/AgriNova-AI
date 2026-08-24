@@ -53,10 +53,13 @@ class Settings(BaseSettings):
     OPENROUTER_MODEL_NAME: str = ""
     AI_PRIMARY_PROVIDER: str = "gemini"
     AI_ENABLE_FALLBACK: bool = True
-    
+
+
     # ── Rate Limiting ──
+    AI_RATE_LIMIT_MAX_REQUESTS: int = 20
     AI_RATE_LIMIT_WINDOW_SECONDS: int = 60
-    # Global backstop rate limit (e.g., across all IPs/users)
+
+    # Global backstop rate limit
     AI_GLOBAL_RATE_LIMIT_MAX_REQUESTS: int = 200
     AI_GLOBAL_RATE_LIMIT_WINDOW_SECONDS: int = 60
 

@@ -15,16 +15,14 @@ export function MessageList({ messages, isTyping }: MessageListProps) {
   }, [messages, isTyping]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
-      <div className="max-w-4xl mx-auto flex flex-col">
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} role={msg.role} content={msg.content} interrupted={msg.interrupted} />
-        ))}
-        {isTyping && (
-          <MessageBubble role="assistant" content="" isTyping={true} />
-        )}
-        <div ref={bottomRef} />
-      </div>
+    <div className="w-full flex flex-col gap-4 px-6 md:px-12 py-6 pb-4">
+      {messages.map((msg) => (
+        <MessageBubble key={msg.id} role={msg.role} content={msg.content} interrupted={msg.interrupted} />
+      ))}
+      {isTyping && (
+        <MessageBubble role="assistant" content="" isTyping={true} />
+      )}
+      <div ref={bottomRef} className="h-4" />
     </div>
   );
 }
