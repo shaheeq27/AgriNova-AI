@@ -45,8 +45,18 @@ class FertilizerEngine:
         }
 
     async def log_application(
-        self, db: AsyncSession, crop_id: str, data: FertilizerLogCreate
+        self, db: AsyncSession, user_id: str, crop_id: str, data: FertilizerLogCreate
     ) -> FertilizerLogResponse:
+        from app.models.crop import Crop
+        from app.services.activity_service import ActivityService
+        import json
+
+        # Get crop to find farm_id
+        crop_result = await db.execute(select(Crop).where(Crop.id == crop_id))
+        crop = crop_result.scalar_one_or_none()
+        if not crop:
+            raise ValueError(f"Crop not found: {crop_id}")
+            
         log = FertilizerLog(
             crop_id=crop_id,
             date=data.date,
@@ -61,6 +71,29 @@ class FertilizerEngine:
         db.add(log)
         await db.flush()
         await db.refresh(log)
+
+        # Log activity
+        activity_service = ActivityService(db)
+        metadata = {
+            "fertilizer_type": data.fertilizer_type,
+            "quantity": data.quantity,
+            "unit": data.unit,
+            "application_method": data.application_method,
+            "growth_stage": data.growth_stage,
+            "source": "manual",
+            "date": data.date.isoformat() if data.date else None
+        }
+        await activity_service.log_activity(
+            user_id=user_id,
+            action="fertilizer_applied",
+            entity_type="fertilizer",
+            entity_id=log.id,
+            description=f"Applied {data.fertilizer_type} to crop",
+            farm_id=crop.farm_id,
+            crop_id=crop_id,
+            metadata_json=json.dumps(metadata)
+        )
+
         return FertilizerLogResponse.model_validate(log)
 
     async def get_logs(self, db: AsyncSession, crop_id: str) -> list[FertilizerLogResponse]:

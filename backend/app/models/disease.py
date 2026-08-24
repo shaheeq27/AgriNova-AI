@@ -29,6 +29,7 @@ class DiseaseRecord(Base):
     )  # cv_model | manual
     symptoms_observed: Mapped[str | None] = mapped_column(Text, nullable=True)
     treatment_applied: Mapped[str | None] = mapped_column(Text, nullable=True)
+    outcome: Mapped[str | None] = mapped_column(Text, nullable=True)
     severity: Mapped[str] = mapped_column(String(20), default="medium")
     status: Mapped[str] = mapped_column(
         String(20), default="active"

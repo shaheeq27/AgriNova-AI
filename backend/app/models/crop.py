@@ -31,6 +31,9 @@ class Crop(Base):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="planned"
     )  # planned | active | harvested | abandoned
+    variety: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    yield_amount: Mapped[float | None] = mapped_column(Float, nullable=True)
+    yield_unit: Mapped[str | None] = mapped_column(String(20), nullable=True, default="kg")
     recommendation_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     recommendation_source: Mapped[str | None] = mapped_column(
         String(20), nullable=True

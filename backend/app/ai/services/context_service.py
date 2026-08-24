@@ -40,6 +40,8 @@ from app.services.weather_service import WeatherService
 from app.ai.services.knowledge_service import KnowledgeService
 from app.ai.services.intelligence_service import IntelligenceService
 from app.ai.services.intent_router import IntentResult, detect_intent
+from app.ai.services.farm_history_service import FarmHistoryService
+from app.ai.services.historical_insights_service import HistoricalInsightsService
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +66,8 @@ class ContextService:
         self.weather_service = WeatherService()
         self.knowledge_service = KnowledgeService(db)
         self.intelligence_service = IntelligenceService(db)
+        self.history_service = FarmHistoryService(db)
+        self.insights_service = HistoricalInsightsService()
 
     async def build_unified_context(
         self,
@@ -93,11 +97,20 @@ class ContextService:
             farm_context, weather_data, user_message
         )
 
+        # Phase 8 (V4 Phase 1): Retrieve farm history
+        history = await self._build_history(farm)
+
+        # Phase 9 (V4 Phase 1): Deterministic Historical Insights
+        historical_insights = self.insights_service.generate_insights(history) if history else None
+
+        # Build and return the unified context
         return UnifiedContext(
             farm=farm_context,
             weather=weather_data,
             knowledge=knowledge,
             intelligence=intelligence,
+            history=history,
+            historical_insights=historical_insights,
         )
 
     # ── Private builders ─────────────────────────────────────────────────
@@ -257,5 +270,18 @@ class ContextService:
         except Exception:
             logger.warning(
                 "Failed to build intelligence context", exc_info=True
+            )
+            return None
+
+    async def _build_history(self, farm: Farm):
+        """Retrieve historical context for the farm."""
+        if not farm or not farm.id:
+            return None
+            
+        try:
+            return await self.history_service.build_history_context(farm.id)
+        except Exception:
+            logger.warning(
+                "Failed to build history context for farm %s", farm.id, exc_info=True
             )
             return None

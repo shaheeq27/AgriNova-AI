@@ -26,6 +26,7 @@ class IrrigationLog(Base):
     water_amount_liters: Mapped[float | None] = mapped_column(Float, nullable=True)
     duration_minutes: Mapped[float | None] = mapped_column(Float, nullable=True)
     method: Mapped[str | None] = mapped_column(String(100), nullable=True)  # drip | sprinkler | flood | manual
+    growth_stage: Mapped[str | None] = mapped_column(String(100), nullable=True)
     source: Mapped[str] = mapped_column(
         String(20), default="manual"
     )  # manual | recommended | sensor

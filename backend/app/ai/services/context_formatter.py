@@ -47,7 +47,15 @@ def format_context(context: UnifiedContext) -> str:
     if context.intelligence and context.intelligence.crop_outputs:
         intelligence_block = _format_intelligence(context)
 
-    parts = [p for p in [farm_block, knowledge_block, intelligence_block] if p]
+    history_block = ""
+    if context.history:
+        history_block = _format_history(context)
+        
+    insights_block = ""
+    if context.historical_insights:
+        insights_block = _format_historical_insights(context)
+
+    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block, insights_block] if p]
     return "\n\n".join(parts)
 
 
@@ -230,4 +238,97 @@ def _format_intelligence(context: UnifiedContext) -> str:
                     lines.append(f"      Prevention: {dr.prevention}")
 
     lines.append("[/INTELLIGENCE]")
+    return "\n".join(lines)
+
+
+def _format_history(context: UnifiedContext) -> str:
+    """Format historical farm data."""
+    history = context.history
+    lines = ["[FARM HISTORY]"]
+    
+    has_data = False
+
+    if history.past_crops:
+        has_data = True
+        lines.append("\nPast Crops:")
+        for crop in history.past_crops:
+            header = f"  - {crop.crop_name}"
+            if crop.variety:
+                header += f" | Variety: {crop.variety}"
+            if crop.season:
+                header += f" | Season: {crop.season}"
+            lines.append(header)
+            
+            lines.append(f"    Status: {crop.status}")
+            if crop.planting_date:
+                lines.append(f"    Planted: {crop.planting_date.isoformat()}")
+            if crop.harvest_date:
+                lines.append(f"    Harvested: {crop.harvest_date.isoformat()}")
+            if crop.yield_amount is not None and crop.yield_unit:
+                lines.append(f"    Yield: {crop.yield_amount} {crop.yield_unit}")
+                
+            lines.append(f"    Disease records: {crop.disease_count}")
+            lines.append(f"    Fertilizer applications: {crop.fertilizer_applications}")
+            lines.append(f"    Irrigation applications: {crop.irrigation_applications}")
+
+    if history.recent_diseases:
+        has_data = True
+        lines.append("\nRecent Diseases:")
+        for d in history.recent_diseases:
+            lines.append(f"  - {d}")
+
+    if history.seasonal_patterns:
+        has_data = True
+        lines.append("\nSeasonal Patterns:")
+        for pattern in history.seasonal_patterns:
+            lines.append(f"  - {pattern}")
+
+    if history.performance_summary:
+        has_data = True
+        lines.append("\nPerformance Summary:")
+        for line in history.performance_summary.split("\n"):
+            lines.append(f"  {line}")
+
+    if not has_data:
+        lines.append("  No historical data available.")
+
+    lines.append("[/FARM HISTORY]")
+    return "\n".join(lines)
+
+
+def _format_historical_insights(context: UnifiedContext) -> str:
+    """Format structured historical insights."""
+    insights = context.historical_insights
+    lines = ["[HISTORICAL INSIGHTS]"]
+    
+    has_data = False
+    
+    if insights.successful_crops:
+        has_data = True
+        lines.append("\nSuccessfully Harvested Crops:")
+        for crop in insights.successful_crops:
+            lines.append(f"  - {crop}")
+            
+    if insights.recurring_diseases:
+        has_data = True
+        lines.append("\nRecurring Diseases (Multiple Occurrences):")
+        for disease in insights.recurring_diseases:
+            lines.append(f"  - {disease}")
+            
+    if insights.seasonal_crop_patterns:
+        has_data = True
+        lines.append("\nObserved Seasonal Patterns:")
+        for pattern in insights.seasonal_crop_patterns:
+            lines.append(f"  - {pattern}")
+            
+    if insights.historical_yield_observations:
+        has_data = True
+        lines.append("\nHistorical Yield Observations:")
+        for obs in insights.historical_yield_observations:
+            lines.append(f"  - {obs}")
+            
+    if not has_data:
+        lines.append("  No deterministic insights extracted from history.")
+        
+    lines.append("[/HISTORICAL INSIGHTS]")
     return "\n".join(lines)

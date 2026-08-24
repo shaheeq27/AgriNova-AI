@@ -41,22 +41,28 @@ class CropCreate(BaseModel):
     """Request to plant a crop on a farm."""
     farm_id: str
     crop_name: str = Field(..., min_length=2, max_length=100)
+    variety: str | None = Field(None, max_length=100)
     season: str = Field(..., min_length=2, max_length=50)
     area_acres: float = Field(..., gt=0)
     planting_date: date | None = None
     notes: str | None = None
     recommendation_score: float | None = None
     recommendation_source: str | None = None
+    yield_amount: float | None = None
+    yield_unit: str | None = "kg"
 
 
 class CropUpdate(BaseModel):
     """Partial update for a crop."""
     status: str | None = None
+    variety: str | None = Field(None, max_length=100)
     planting_date: date | None = None
     expected_harvest_date: date | None = None
     actual_harvest_date: date | None = None
     area_acres: float | None = None
     notes: str | None = None
+    yield_amount: float | None = None
+    yield_unit: str | None = None
 
 
 class CropResponse(BaseModel):
@@ -66,12 +72,15 @@ class CropResponse(BaseModel):
     id: str
     farm_id: str
     crop_name: str
+    variety: str | None
     season: str
     planting_date: date | None
     expected_harvest_date: date | None
     actual_harvest_date: date | None
     area_acres: float
     status: str
+    yield_amount: float | None
+    yield_unit: str | None
     recommendation_score: float | None
     recommendation_source: str | None
     notes: str | None

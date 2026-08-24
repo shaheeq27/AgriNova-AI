@@ -35,7 +35,7 @@ async def log_fertilizer(
     db: AsyncSession = Depends(get_db),
 ):
     engine = FertilizerEngine()
-    log = await engine.log_application(db, data.crop_id, data)
+    log = await engine.log_application(db, current_user.id, data.crop_id, data)
     return APIResponse.success(data=log.model_dump(), message="Fertilizer log created")
 
 

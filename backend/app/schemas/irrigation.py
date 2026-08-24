@@ -20,6 +20,7 @@ class IrrigationLogCreate(BaseModel):
     water_amount_liters: float | None = None
     duration_minutes: float | None = None
     method: str | None = None
+    growth_stage: str | None = None
     notes: str | None = None
 
 
@@ -30,6 +31,7 @@ class IrrigationLogResponse(BaseModel):
     water_amount_liters: float | None
     duration_minutes: float | None
     method: str | None
+    growth_stage: str | None
     source: str
     notes: str | None
 

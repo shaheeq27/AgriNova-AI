@@ -1,5 +1,70 @@
 # 🌱 AgriNova AI — Release Notes
 
+## v4.0.0-alpha.1 — V4 Phase 1 (Personalized Intelligence)
+**Release Date:** August 24, 2026
+
+### Step 1: Model + Database Foundation
+- Added crop variety/yield tracking to Crop models and schemas
+- Added irrigation growth-stage tracking to IrrigationLog models and schemas
+- Added disease outcome tracking to DiseaseRecord models and schemas
+- Added safe SQLite schema migration mechanism to preserve existing data during schema updates
+
+### Step 2: Complete Farm Activity History
+- Completed farm activity event coverage using existing ActivityLog
+- Added tracking for fertilizer applications and irrigation events
+- Added tracking for disease treatments and disease resolutions
+- Added tracking for crop harvests
+- Implemented robust duplicate-event prevention logic for idempotent updates
+
+### Step 3: History Repository
+- Added farm-level history repository (`HistoryRepository`)
+- Added cross-entity historical retrieval spanning crops, fertilizer, irrigation, and diseases
+- Added activity history retrieval scoped by farm
+- Added farm performance aggregation for yield metrics
+- Added strict farm isolation and SQL-level limit handling
+
+### Step 4: AI History Context Schemas
+- Created `CropHistoryEntry` and `FarmHistoryContext` Pydantic schemas.
+- Extended `UnifiedContext` to seamlessly include backward-compatible `history` fields.
+- Verified robust schema parsing and structure prior to context formatting.
+
+### Step 5: FarmHistoryService
+- Created `FarmHistoryService` to act as the AI transformation layer for historical farm data.
+- Built context builders to map repository records to `FarmHistoryContext`.
+- Extracted dynamic seasonal patterns automatically from historical crops.
+- Produced formatted disease summaries and performance metrics explicitly scoped for LLM integration.
+- Designed service carefully to support farm isolation and safely handle empty history boundaries without panicking.
+
+### Step 6: AI Context Pipeline Integration
+- Integrated `FarmHistoryService` into the existing `ContextService`.
+- Context pipeline now retrieves and embeds farm history into `UnifiedContext`.
+- Verified strict backward compatibility (all pre-existing context schemas and AI behavior remain entirely unaffected).
+- Confirmed error resistance via fallback mechanisms for missing or unpopulated history data.
+
+### Step 7: History Context Formatter
+- Extended the `ContextFormatter` to seamlessly serialize the new `FarmHistoryContext`.
+- Farm History is natively rendered for the LLM delimited by explicit `[FARM HISTORY]` boundaries.
+- Adhered rigidly to pre-existing AI formatter conventions, preventing "JSON dumping" and skipping null objects cleanly.
+- Added a robust formatter test suite safely proving optional variables format optimally without disrupting `UnifiedContext` strings.
+
+### Step 8: AI History Consumption & Reasoning
+- Extracted maximum reasoning value directly out of the primary LLM pipeline by instructing the AI via its System Prompts on exactly how to treat `[FARM HISTORY]`.
+- Enforced constraint that `[FARM HISTORY]` operates as supporting, probabilistic evidence (rather than a deterministic absolute guarantee) when formulating guidance.
+- Proved 100% stable integration passing cleanly through the `AIService` without requiring extraneous secondary agent calls, keeping latency optimally fast and LLM costs identical.
+
+### Step 9: Deterministic Historical Insights
+- Implemented `HistoricalInsightsService` to extract hard, deterministic signals (e.g., successful crops, recurring diseases) purely mathematically before AI reasoning begins.
+- Executed synchronously over the pre-built `FarmHistoryContext` avoiding any N+1 secondary database traversals.
+- Defined explicit rules isolating units natively to strictly prevent incompatible yield averaging, maintaining rigid numerical integrity.
+- Formatted output organically into a distinct `[HISTORICAL INSIGHTS]` payload directly consumed by the AI System Prompt as absolute factual boundaries.
+
+### Step 9: End-to-End History Pipeline Validation
+- Added a comprehensive integration suite testing the full pipeline from database records to the final system prompt.
+- Validated real data propagation (e.g., crops, yields, diseases, logs) through `HistoryRepository`, `FarmHistoryService`, and `ContextFormatter`.
+- Verified strict farm isolation, ensuring Farm B's history never leaks into Farm A's context.
+- Confirmed stable empty-state handling for new users without farms or farms without historical data.
+
+---
 ## v1.0.0 — Core Platform MVP
 **Release Date:** August 5, 2026
 

@@ -127,7 +127,7 @@ async def update_record(
     await verify_crop_ownership(db, current_user.id, record.crop_id)
     
     service = DiseaseService(db)
-    updated_record = await service.update_record(record_id, data)
+    updated_record = await service.update_record(current_user.id, record_id, data)
     return APIResponse.success(
         data=updated_record.model_dump(),
         message="Disease record updated successfully"

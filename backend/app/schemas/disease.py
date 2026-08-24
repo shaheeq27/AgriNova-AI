@@ -48,6 +48,7 @@ class DiseaseRecordUpdate(BaseModel):
 
     status: str | None = Field(None, description="active | treated | resolved")
     treatment_applied: str | None = None
+    outcome: str | None = None
     notes: str | None = None
     resolved_at: datetime | None = None
 
@@ -73,6 +74,7 @@ class DiseaseRecordResponse(BaseModel):
     detection_source: str
     symptoms_observed: str | None = None
     treatment_applied: str | None = None
+    outcome: str | None = None
     severity: str
     status: str
     notes: str | None = None

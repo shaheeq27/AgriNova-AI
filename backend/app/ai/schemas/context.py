@@ -145,6 +145,37 @@ class EngineContext(BaseModel):
     crop_outputs: list[CropEngineOutput] = Field(default_factory=list)
 
 
+# ── History context ──────────────────────────────────────────────────────────
+
+class CropHistoryEntry(BaseModel):
+    crop_name: str
+    variety: str | None = None
+    season: str
+    planting_date: date | None = None
+    harvest_date: date | None = None
+    yield_amount: float | None = None
+    yield_unit: str | None = None
+    status: str
+    disease_count: int = 0
+    fertilizer_applications: int = 0
+    irrigation_applications: int = 0
+
+
+class FarmHistoryContext(BaseModel):
+    past_crops: list[CropHistoryEntry] = Field(default_factory=list)
+    recent_diseases: list[str] = Field(default_factory=list)
+    seasonal_patterns: list[str] = Field(default_factory=list)
+    performance_summary: str | None = None
+
+
+class HistoricalInsights(BaseModel):
+    """Deterministic insights extracted from farm history."""
+    successful_crops: list[str] = Field(default_factory=list)
+    recurring_diseases: list[str] = Field(default_factory=list)
+    seasonal_crop_patterns: list[str] = Field(default_factory=list)
+    historical_yield_observations: list[str] = Field(default_factory=list)
+
+
 # ── Unified Context ─────────────────────────────────────────────────────────
 
 class UnifiedContext(BaseModel):
@@ -153,9 +184,13 @@ class UnifiedContext(BaseModel):
     Phase 3: ``farm`` + ``weather`` are populated.
     Phase 4: ``knowledge`` is populated (structured RAG).
     Phase 6: ``intelligence`` is populated (engine outputs).
+    Phase 8 (V4 Phase 1): ``history`` is populated.
+    Phase 9 (V4 Phase 1): ``historical_insights`` is populated.
     """
 
     farm: FarmContext | None = None
     weather: WeatherData | None = None
     knowledge: RAGContext | None = None
     intelligence: EngineContext | None = None
+    history: FarmHistoryContext | None = None
+    historical_insights: HistoricalInsights | None = None

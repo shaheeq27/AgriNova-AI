@@ -63,20 +63,53 @@ class IrrigationEngine:
         }
 
     async def log_irrigation(
-        self, db: AsyncSession, crop_id: str, data: IrrigationLogCreate
+        self, db: AsyncSession, user_id: str, crop_id: str, data: IrrigationLogCreate
     ) -> IrrigationLogResponse:
+        from app.models.crop import Crop
+        from app.services.activity_service import ActivityService
+        import json
+
+        # Get crop to find farm_id
+        crop_result = await db.execute(select(Crop).where(Crop.id == crop_id))
+        crop = crop_result.scalar_one_or_none()
+        if not crop:
+            raise ValueError(f"Crop not found: {crop_id}")
+
         log = IrrigationLog(
             crop_id=crop_id,
             date=data.date,
             water_amount_liters=data.water_amount_liters,
             duration_minutes=data.duration_minutes,
             method=data.method,
+            growth_stage=data.growth_stage,
             notes=data.notes,
             source="manual"
         )
         db.add(log)
         await db.flush()
         await db.refresh(log)
+
+        # Log activity
+        activity_service = ActivityService(db)
+        metadata = {
+            "water_amount_liters": data.water_amount_liters,
+            "duration_minutes": data.duration_minutes,
+            "method": data.method,
+            "growth_stage": data.growth_stage,
+            "source": "manual",
+            "date": data.date.isoformat() if data.date else None
+        }
+        await activity_service.log_activity(
+            user_id=user_id,
+            action="irrigation_performed",
+            entity_type="irrigation",
+            entity_id=log.id,
+            description=f"Irrigated crop",
+            farm_id=crop.farm_id,
+            crop_id=crop_id,
+            metadata_json=json.dumps(metadata)
+        )
+
         return IrrigationLogResponse.model_validate(log)
 
     async def get_logs(self, db: AsyncSession, crop_id: str) -> list[IrrigationLogResponse]:

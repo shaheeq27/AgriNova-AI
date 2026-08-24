@@ -148,17 +148,64 @@ class DiseaseService:
         records = await self.repo.get_by_crop_id(crop_id)
         return [DiseaseRecordResponse.model_validate(r) for r in records]
 
-    async def update_record(self, record_id: str, data: DiseaseRecordUpdate) -> DiseaseRecordResponse:
+    async def update_record(self, user_id: str, record_id: str, data: DiseaseRecordUpdate) -> DiseaseRecordResponse:
         """Update a disease record."""
         record = await self.repo.get_by_id(record_id)
         if not record:
             raise NotFoundException("DiseaseRecord", record_id)
+
+        from app.models.crop import Crop
+        import json
+        
+        crop_result = await self.db.execute(select(Crop).where(Crop.id == record.crop_id))
+        crop = crop_result.scalar_one_or_none()
+
+        old_status = record.status
+        old_treatment = record.treatment_applied
 
         update_data = data.model_dump(exclude_unset=True)
         if "status" in update_data and update_data["status"] == "resolved" and not record.resolved_at:
             update_data["resolved_at"] = datetime.now(timezone.utc)
             
         record = await self.repo.update_record(record, **update_data)
+
+        activity = ActivityService(self.db)
+        metadata = {
+            "disease_name": record.disease_name,
+            "severity": record.severity,
+            "treatment_applied": record.treatment_applied,
+            "outcome": record.outcome,
+            "status": record.status,
+            "detected_at": record.detected_at.isoformat() if record.detected_at else None,
+            "resolved_at": record.resolved_at.isoformat() if record.resolved_at else None
+        }
+
+        # Log treatment if changed
+        if "treatment_applied" in update_data and update_data["treatment_applied"] != old_treatment:
+            await activity.log_activity(
+                user_id=user_id,
+                action="disease_treated",
+                entity_type="disease",
+                entity_id=record.id,
+                description=f"Applied treatment for {record.disease_name}",
+                farm_id=crop.farm_id if crop else None,
+                crop_id=record.crop_id,
+                metadata_json=json.dumps(metadata)
+            )
+
+        # Log resolution if status changed to resolved
+        if "status" in update_data and update_data["status"] == "resolved" and old_status != "resolved":
+            await activity.log_activity(
+                user_id=user_id,
+                action="disease_resolved",
+                entity_type="disease",
+                entity_id=record.id,
+                description=f"Resolved disease {record.disease_name}",
+                farm_id=crop.farm_id if crop else None,
+                crop_id=record.crop_id,
+                metadata_json=json.dumps(metadata)
+            )
+
         return DiseaseRecordResponse.model_validate(record)
 
     async def get_disease_info(self, disease_name: str) -> dict:

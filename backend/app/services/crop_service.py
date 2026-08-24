@@ -112,20 +112,48 @@ class CropService:
     ) -> CropResponse:
         """Update a crop with ownership check."""
         crop = await self._check_crop_ownership(user_id, crop_id)
+        
+        old_status = crop.status
+
         update_data = data.model_dump(exclude_unset=True)
         crop = await self.repo.update(crop, **update_data)
 
         # Log activity
         activity = ActivityService(self.db)
-        await activity.log_activity(
-            user_id=user_id,
-            action="crop_updated",
-            entity_type="crop",
-            entity_id=crop.id,
-            description=f"Updated crop '{crop.crop_name}'",
-            farm_id=crop.farm_id,
-            crop_id=crop.id,
-        )
+        import json
+
+        if "status" in update_data and update_data["status"] == "harvested" and old_status != "harvested":
+            metadata = {
+                "crop_name": crop.crop_name,
+                "variety": crop.variety,
+                "season": crop.season,
+                "planting_date": crop.planting_date.isoformat() if crop.planting_date else None,
+                "actual_harvest_date": crop.actual_harvest_date.isoformat() if crop.actual_harvest_date else None,
+                "yield_amount": crop.yield_amount,
+                "yield_unit": crop.yield_unit,
+                "area_acres": crop.area_acres,
+                "status": crop.status
+            }
+            await activity.log_activity(
+                user_id=user_id,
+                action="crop_harvested",
+                entity_type="crop",
+                entity_id=crop.id,
+                description=f"Harvested crop '{crop.crop_name}'",
+                farm_id=crop.farm_id,
+                crop_id=crop.id,
+                metadata_json=json.dumps(metadata)
+            )
+        else:
+            await activity.log_activity(
+                user_id=user_id,
+                action="crop_updated",
+                entity_type="crop",
+                entity_id=crop.id,
+                description=f"Updated crop '{crop.crop_name}'",
+                farm_id=crop.farm_id,
+                crop_id=crop.id,
+            )
 
         return CropResponse.model_validate(crop)
 
