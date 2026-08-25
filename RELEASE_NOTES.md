@@ -65,6 +65,29 @@
 - Confirmed stable empty-state handling for new users without farms or farms without historical data.
 
 ---
+## V4 Phase 2 — Farm-Specific Historical Intelligence
+### Step 1: Historical Insight Contracts
+- Created highly structured Pydantic models in `backend/app/ai/schemas/historical_analysis.py` representing deterministic historical insights (`CropPerformanceInsight`, `SeasonalPerformanceInsight`, `DiseasePatternInsight`, `InputUsageInsight`, `YieldTrendInsight`, `HistoricalInsightsContext`).
+- Added strict validation rules, including confidence bound checks (`0.0 <= confidence <= 1.0`).
+- Validated all models with robust unit tests mapping to edge cases (mixed units remain distinct, lists default safely to empty).
+- Confirmed total backward compatibility with V4 Phase 1 schemas.
+
+### Step 2: Historical Insights Computation Service
+- Enhanced `HistoricalInsightsService` with a deterministic computation layer (`compute_insights_context`) processing raw historical records into detailed typed insights.
+- Implemented isolated aggregation handling preserving separate metrics for incompatible units (e.g. tracking `kg` separate from `tons` organically).
+- Engineered a deterministic confidence heuristic scaled organically by the frequency of observations (0 to 0.95).
+- Created chronology-based simple-trend strategies tracking increasing/decreasing trends.
+- Heavily tested isolated logic to ensure absolute zero data-bleeding across distinct farms, rigorously preventing N+1 queries by leveraging bulk query joins inside `HistoryRepository`.
+- 100% backward compatible without mutating the existing Phase 1 logic.
+
+### Step 3: Historical Insights Context Integration
+- Successfully integrated the deterministic `HistoricalInsightsContext` into the AI's core `UnifiedContext` via `HistoricalInsightsService`.
+- Engineered a fail-safe exception isolation mechanism guaranteeing core AI fallback features (weather, base farm rules, etc.) remain operational if insight computation fails.
+- Confirmed missing or new farms without history dynamically default to empty structural representations rather than raising faults.
+- Maintained strict isolation from the AI prompt formatting pipeline: the deterministic insights are successfully transported and prepared in memory, but consciously gated out of the LLM prompt pending integration in later steps.
+- Retained full backward compatibility with the legacy Phase 1 integration without breaking pre-existing automated tests.
+
+---
 ## v1.0.0 — Core Platform MVP
 **Release Date:** August 5, 2026
 

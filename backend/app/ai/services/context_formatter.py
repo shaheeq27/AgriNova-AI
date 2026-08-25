@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.ai.schemas.context import UnifiedContext
+from app.ai.schemas.context import UnifiedContext, HistoricalInsights
 
 
 def format_context(context: UnifiedContext) -> str:
@@ -51,11 +51,7 @@ def format_context(context: UnifiedContext) -> str:
     if context.history:
         history_block = _format_history(context)
         
-    insights_block = ""
-    if context.historical_insights:
-        insights_block = _format_historical_insights(context)
-
-    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block, insights_block] if p]
+    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block] if p]
     return "\n\n".join(parts)
 
 
@@ -293,42 +289,4 @@ def _format_history(context: UnifiedContext) -> str:
         lines.append("  No historical data available.")
 
     lines.append("[/FARM HISTORY]")
-    return "\n".join(lines)
-
-
-def _format_historical_insights(context: UnifiedContext) -> str:
-    """Format structured historical insights."""
-    insights = context.historical_insights
-    lines = ["[HISTORICAL INSIGHTS]"]
-    
-    has_data = False
-    
-    if insights.successful_crops:
-        has_data = True
-        lines.append("\nSuccessfully Harvested Crops:")
-        for crop in insights.successful_crops:
-            lines.append(f"  - {crop}")
-            
-    if insights.recurring_diseases:
-        has_data = True
-        lines.append("\nRecurring Diseases (Multiple Occurrences):")
-        for disease in insights.recurring_diseases:
-            lines.append(f"  - {disease}")
-            
-    if insights.seasonal_crop_patterns:
-        has_data = True
-        lines.append("\nObserved Seasonal Patterns:")
-        for pattern in insights.seasonal_crop_patterns:
-            lines.append(f"  - {pattern}")
-            
-    if insights.historical_yield_observations:
-        has_data = True
-        lines.append("\nHistorical Yield Observations:")
-        for obs in insights.historical_yield_observations:
-            lines.append(f"  - {obs}")
-            
-    if not has_data:
-        lines.append("  No deterministic insights extracted from history.")
-        
-    lines.append("[/HISTORICAL INSIGHTS]")
     return "\n".join(lines)

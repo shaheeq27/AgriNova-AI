@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import date
 
 from pydantic import BaseModel, Field
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 
 
 # ── Crop context ─────────────────────────────────────────────────────────────
@@ -193,4 +194,4 @@ class UnifiedContext(BaseModel):
     knowledge: RAGContext | None = None
     intelligence: EngineContext | None = None
     history: FarmHistoryContext | None = None
-    historical_insights: HistoricalInsights | None = None
+    historical_insights: HistoricalInsightsContext | None = None

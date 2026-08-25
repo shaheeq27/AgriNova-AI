@@ -95,10 +95,6 @@ async def test_ai_service_sends_history_to_llm(db: AsyncSession):
     assert "Rice | Season: Kharif" in system_msg
     assert "Yield: 500.0 kg" in system_msg
 
-    assert "\n[HISTORICAL INSIGHTS]\n" in system_msg
-    assert "Successfully Harvested Crops:" in system_msg
-    assert "Historical Yield Observations:" in system_msg
-    assert "Rice: 500.0 kg" in system_msg
 
 
 @pytest.mark.asyncio
@@ -140,5 +136,3 @@ async def test_ai_service_with_empty_history(db: AsyncSession):
     system_msg = dummy.last_messages[0].content
     assert "\n[FARM HISTORY]\n" in system_msg
     assert "No historical data available." in system_msg
-    assert "\n[HISTORICAL INSIGHTS]\n" in system_msg
-    assert "No deterministic insights extracted from history." in system_msg
