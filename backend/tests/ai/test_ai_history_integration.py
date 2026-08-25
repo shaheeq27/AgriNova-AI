@@ -9,23 +9,37 @@ from app.ai.prompts.system import AIRA_SYSTEM_PROMPT
 def test_system_prompt_includes_farm_history_instructions():
     """Verify that the system prompt natively includes instructions for FARM HISTORY."""
     assert "[FARM HISTORY]" in AIRA_SYSTEM_PROMPT
-    
+
     # Check knowledge grounding instructions
     assert "When [FARM HISTORY] is available:" in AIRA_SYSTEM_PROMPT
     assert "supporting evidence" in AIRA_SYSTEM_PROMPT
     assert "historical context, not an absolute guarantee" in AIRA_SYSTEM_PROMPT
-    
+
     # Check context format instructions
     assert "Data between [FARM HISTORY] and [/FARM HISTORY] contains historical" in AIRA_SYSTEM_PROMPT
     assert "rely on current data for immediate operational decisions" in AIRA_SYSTEM_PROMPT
 
+
+
+def test_system_prompt_includes_historical_insights_instructions():
+    """Verify that the system prompt natively includes instructions for HISTORICAL INSIGHTS."""
+    assert "[HISTORICAL INSIGHTS]" in AIRA_SYSTEM_PROMPT
+
+    # Check knowledge grounding instructions added in Phase 2 Step 4
+    assert "When [HISTORICAL INSIGHTS] is available:" in AIRA_SYSTEM_PROMPT
+    assert "deterministic, mathematically computed historical conclusions" in AIRA_SYSTEM_PROMPT
+    assert "highly reliable analytical signals" in AIRA_SYSTEM_PROMPT
+    assert "Distinguish these computed conclusions from raw observations in [FARM HISTORY]" in AIRA_SYSTEM_PROMPT
+
+    assert "When [HISTORICAL INSIGHTS] is NOT available:" in AIRA_SYSTEM_PROMPT
+    assert "Do NOT invent or hallucinate structured historical insights" in AIRA_SYSTEM_PROMPT
 
 def test_existing_context_blocks_preserved():
     """Verify that instructions for existing blocks are not mangled."""
     assert "[FARM CONTEXT]" in AIRA_SYSTEM_PROMPT
     assert "[KNOWLEDGE]" in AIRA_SYSTEM_PROMPT
     assert "[INTELLIGENCE]" in AIRA_SYSTEM_PROMPT
-    
+
     assert "ground truth for this farmer" in AIRA_SYSTEM_PROMPT
     assert "authoritative reference material" in AIRA_SYSTEM_PROMPT
 
@@ -68,10 +82,10 @@ async def test_ai_service_sends_history_to_llm(db: AsyncSession):
     # Setup Data
     user = User(id="u1", email="a@b.com", hashed_password="x", full_name="A")
     farm = Farm(id="f1", user_id="u1", name="Farm 1", location_city="Pune", soil_type="Black", total_area_acres=10.0)
-    crop = Crop(id="c1", farm_id="f1", crop_name="Rice", season="Kharif", 
-                actual_harvest_date=date(2025, 1, 1), status="harvested", 
+    crop = Crop(id="c1", farm_id="f1", crop_name="Rice", season="Kharif",
+                actual_harvest_date=date(2025, 1, 1), status="harvested",
                 yield_amount=500.0, yield_unit="kg", area_acres=5.0)
-    
+
     db.add_all([user, farm, crop])
     await db.commit()
 
@@ -88,7 +102,7 @@ async def test_ai_service_sends_history_to_llm(db: AsyncSession):
     assert resp.response == "I am a mock response"
     assert hasattr(dummy, "last_messages")
     system_msg = dummy.last_messages[0].content
-    
+
     # Check the data block, not just the instructions
     assert "\n[FARM HISTORY]\n" in system_msg
     assert "Past Crops:" in system_msg
@@ -122,7 +136,7 @@ async def test_ai_service_without_farm_id(db: AsyncSession):
 async def test_ai_service_with_empty_history(db: AsyncSession):
     user = User(id="u3", email="c@b.com", hashed_password="x", full_name="C")
     farm = Farm(id="f3", user_id="u3", name="Farm 3", location_city="Pune", soil_type="Black", total_area_acres=10.0)
-    
+
     db.add_all([user, farm])
     await db.commit()
 

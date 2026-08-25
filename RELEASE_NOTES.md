@@ -64,6 +64,18 @@
 - Verified strict farm isolation, ensuring Farm B's history never leaks into Farm A's context.
 - Confirmed stable empty-state handling for new users without farms or farms without historical data.
 
+### Step 4: Historical Insights Formatting & Prompt Grounding
+- Extended  to seamlessly serialize the  into a clean, deterministic  block.
+- Maintained exact yield/input unit integrity (, , ) during text serialization to prevent LLM hallucinations.
+- Added strict grounding rules to  ensuring the AI accurately weighs computed historical conclusions against raw observational evidence from .
+- Verified formatting edge cases (e.g., omitting the entire block when data is empty) through comprehensive unit testing.
+
+### Step 5: End-to-End Pipeline Validation
+- Added an exhaustive E2E integration suite mapping raw database fixtures entirely through the stack to the intercepted LLM prompt.
+- Proved flawless coexistence between legacy  logs and modern  analytics.
+- Validated rigorous cross-farm data isolation directly at the  provider boundary.
+- Formally concluded V4 Phase 2.
+
 ---
 ## V4 Phase 2 — Farm-Specific Historical Intelligence
 ### Step 1: Historical Insight Contracts
@@ -86,6 +98,18 @@
 - Confirmed missing or new farms without history dynamically default to empty structural representations rather than raising faults.
 - Maintained strict isolation from the AI prompt formatting pipeline: the deterministic insights are successfully transported and prepared in memory, but consciously gated out of the LLM prompt pending integration in later steps.
 - Retained full backward compatibility with the legacy Phase 1 integration without breaking pre-existing automated tests.
+
+### Step 4: Historical Insights Formatting & Prompt Grounding
+- Extended `ContextFormatter` to seamlessly serialize the `HistoricalInsightsContext` into a clean, deterministic `[HISTORICAL INSIGHTS]` block.
+- Maintained exact yield/input unit integrity (`kg`, `tons`, `liters`) during text serialization to prevent LLM hallucinations.
+- Added strict grounding rules to `AIRA_SYSTEM_PROMPT` ensuring the AI accurately weighs computed historical conclusions against raw observational evidence from `[FARM HISTORY]`.
+- Verified formatting edge cases (e.g., omitting the entire block when data is empty) through comprehensive unit testing.
+
+### Step 5: End-to-End Pipeline Validation
+- Added an exhaustive E2E integration suite mapping raw database fixtures entirely through the stack to the intercepted LLM prompt.
+- Proved flawless coexistence between legacy `[FARM HISTORY]` logs and modern `[HISTORICAL INSIGHTS]` analytics.
+- Validated rigorous cross-farm data isolation directly at the `AIService` provider boundary.
+- Formally concluded V4 Phase 2.
 
 ---
 ## v1.0.0 — Core Platform MVP
