@@ -50,8 +50,12 @@ def format_context(context: UnifiedContext) -> str:
     history_block = ""
     if context.history:
         history_block = _format_history(context)
-        
-    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block] if p]
+
+    historical_insights_block = ""
+    if context.historical_insights:
+        historical_insights_block = _format_historical_insights(context)
+
+    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block, historical_insights_block] if p]
     return "\n\n".join(parts)
 
 
@@ -241,7 +245,7 @@ def _format_history(context: UnifiedContext) -> str:
     """Format historical farm data."""
     history = context.history
     lines = ["[FARM HISTORY]"]
-    
+
     has_data = False
 
     if history.past_crops:
@@ -254,7 +258,7 @@ def _format_history(context: UnifiedContext) -> str:
             if crop.season:
                 header += f" | Season: {crop.season}"
             lines.append(header)
-            
+
             lines.append(f"    Status: {crop.status}")
             if crop.planting_date:
                 lines.append(f"    Planted: {crop.planting_date.isoformat()}")
@@ -262,7 +266,7 @@ def _format_history(context: UnifiedContext) -> str:
                 lines.append(f"    Harvested: {crop.harvest_date.isoformat()}")
             if crop.yield_amount is not None and crop.yield_unit:
                 lines.append(f"    Yield: {crop.yield_amount} {crop.yield_unit}")
-                
+
             lines.append(f"    Disease records: {crop.disease_count}")
             lines.append(f"    Fertilizer applications: {crop.fertilizer_applications}")
             lines.append(f"    Irrigation applications: {crop.irrigation_applications}")
@@ -289,4 +293,97 @@ def _format_history(context: UnifiedContext) -> str:
         lines.append("  No historical data available.")
 
     lines.append("[/FARM HISTORY]")
+    return "\n".join(lines)
+
+
+
+def _format_historical_insights(context: UnifiedContext) -> str:
+    """Format deterministic historical insights."""
+    insights = context.historical_insights
+    if not insights:
+        return ""
+
+    lines = ["[HISTORICAL INSIGHTS]"]
+    has_data = False
+
+    if insights.crop_performance:
+        has_data = True
+        lines.append("\nCrop Performance:")
+        for cp in insights.crop_performance:
+            header = f"  - {cp.crop_name}"
+            if cp.variety:
+                header += f" ({cp.variety})"
+            lines.append(header)
+            lines.append(f"    Observed: {cp.crops_observed} planted, {cp.harvested_count} harvested")
+            if cp.seasons_observed:
+                lines.append(f"    Seasons: {', '.join(cp.seasons_observed)}")
+            if cp.average_yield is not None and cp.yield_unit:
+                lines.append(f"    Avg Yield: {cp.average_yield} {cp.yield_unit}")
+            if cp.best_yield is not None and cp.yield_unit:
+                lines.append(f"    Best Yield: {cp.best_yield} {cp.yield_unit}")
+            if cp.worst_yield is not None and cp.yield_unit:
+                lines.append(f"    Worst Yield: {cp.worst_yield} {cp.yield_unit}")
+            if cp.disease_records > 0:
+                lines.append(f"    Disease Records: {cp.disease_records}")
+            if cp.confidence is not None:
+                lines.append(f"    Confidence: {int(cp.confidence * 100)}%")
+
+    if insights.yield_trends:
+        has_data = True
+        lines.append("\nYield Trends:")
+        for yt in insights.yield_trends:
+            lines.append(f"  - {yt.crop_name} ({yt.yield_unit})")
+            if yt.trend_direction:
+                lines.append(f"    Trend: {yt.trend_direction}")
+            lines.append(f"    Observations: {yt.observations}")
+            if yt.average_yield is not None:
+                lines.append(f"    Avg: {yt.average_yield}")
+            if yt.highest_yield is not None:
+                lines.append(f"    High: {yt.highest_yield}")
+            if yt.lowest_yield is not None:
+                lines.append(f"    Low: {yt.lowest_yield}")
+            if yt.confidence is not None:
+                lines.append(f"    Confidence: {int(yt.confidence * 100)}%")
+
+    if insights.seasonal_performance:
+        has_data = True
+        lines.append("\nSeasonal Performance:")
+        for sp in insights.seasonal_performance:
+            lines.append(f"  - Season: {sp.season}")
+            lines.append(f"    Observed: {sp.crops_observed} planted, {sp.harvested_crops} harvested")
+            if sp.average_yield is not None and sp.yield_unit:
+                lines.append(f"    Avg Yield: {sp.average_yield} {sp.yield_unit}")
+            if sp.confidence is not None:
+                lines.append(f"    Confidence: {int(sp.confidence * 100)}%")
+
+    if insights.disease_patterns:
+        has_data = True
+        lines.append("\nDisease Patterns:")
+        for dp in insights.disease_patterns:
+            lines.append(f"  - {dp.disease_name} (on {dp.affected_crop})")
+            lines.append(f"    Occurrences: {dp.occurrence_count} ({dp.resolved_count} resolved, {dp.active_count} active)")
+            if dp.common_severity:
+                lines.append(f"    Common Severity: {dp.common_severity}")
+            if dp.treatment_observed:
+                lines.append(f"    Common Treatment: {dp.treatment_observed}")
+            if dp.confidence is not None:
+                lines.append(f"    Confidence: {int(dp.confidence * 100)}%")
+
+    if insights.input_usage:
+        has_data = True
+        lines.append("\nInput Usage:")
+        for iu in insights.input_usage:
+            lines.append(f"  - {iu.input_type} on {iu.crop_name}")
+            lines.append(f"    Applications: {iu.application_count}")
+            if iu.total_quantity is not None and iu.quantity_unit:
+                lines.append(f"    Total Quantity: {iu.total_quantity} {iu.quantity_unit}")
+            if iu.common_application_method:
+                lines.append(f"    Common Method: {iu.common_application_method}")
+            if iu.confidence is not None:
+                lines.append(f"    Confidence: {int(iu.confidence * 100)}%")
+
+    if not has_data:
+        return ""
+
+    lines.append("[/HISTORICAL INSIGHTS]")
     return "\n".join(lines)
