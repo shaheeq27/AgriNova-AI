@@ -46,7 +46,7 @@ class FertilizerEngine:
 
         if historical_insights and historical_insights.input_usage:
             for usage in historical_insights.input_usage:
-                if usage.crop_name.lower() == crop_name.lower() and usage.input_type == "fertilizer":
+                if usage.crop_name.lower() == crop_name.lower() and usage.input_type.lower() != "irrigation":
                     # Rule 1: Check confidence. If low/None, do not personalize.
                     if usage.confidence is None or usage.confidence < 0.6:
                         continue

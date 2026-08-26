@@ -252,6 +252,8 @@ class IntelligenceService:
                     prevention=m.prevention,
                     severity=m.severity,
                     explanation=m.explanation,
+                    historically_adjusted=getattr(m, "historically_adjusted", False),
+                    personalization_rationale=getattr(m, "personalization_rationale", None)
                 )
                 for m in matches
             ]

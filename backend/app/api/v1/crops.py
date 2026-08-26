@@ -20,6 +20,7 @@ from app.schemas.crop import (
 )
 from app.services.crop_service import CropService
 from app.services import crop_recommendation_service, timeline_service
+from app.ai.services.historical_insights_service import HistoricalInsightsService
 
 router = APIRouter(prefix="/crops", tags=["Crops"])
 
@@ -33,6 +34,11 @@ async def recommend_crops(
     db: AsyncSession = Depends(get_db),
 ):
     """Get AI-powered crop recommendations based on environmental conditions."""
+    historical_insights = None
+    if data.farm_id:
+        insights_service = HistoricalInsightsService()
+        historical_insights = await insights_service.compute_insights_context(db, data.farm_id)
+
     recommendations = await crop_recommendation_service.recommend_crops(
         db=db,
         temperature=data.temperature,
@@ -43,6 +49,7 @@ async def recommend_crops(
         p=data.p,
         k=data.k,
         ph=data.ph,
+        historical_insights=historical_insights,
     )
     return APIResponse.success(
         data={

@@ -19,6 +19,7 @@ class CropRecommendationRequest(BaseModel):
     p: float = Field(35, ge=0, description="Phosphorus content")
     k: float = Field(35, ge=0, description="Potassium content")
     ph: float = Field(6.5, ge=3.0, le=10.0, description="Soil pH")
+    farm_id: str | None = Field(None, description="Farm ID for personalized historical adjustments")
 
 
 class CropRecommendation(BaseModel):

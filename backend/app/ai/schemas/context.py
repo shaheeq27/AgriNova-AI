@@ -128,6 +128,8 @@ class DiseaseResult(BaseModel):
     prevention: str | None = None
     severity: str | None = None
     explanation: str | None = None
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class CropEngineOutput(BaseModel):
