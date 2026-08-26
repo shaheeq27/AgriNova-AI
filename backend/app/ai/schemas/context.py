@@ -101,6 +101,8 @@ class IrrigationResult(BaseModel):
     method: str
     explanation: str
     weather_adjusted: bool = False
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class FertilizerResult(BaseModel):
@@ -112,6 +114,8 @@ class FertilizerResult(BaseModel):
     timing: str
     application_method: str
     explanation: str
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class DiseaseResult(BaseModel):

@@ -56,12 +56,43 @@ class IrrigationEngine:
                     explanation += " Reduced amount due to high humidity."
                     weather_adjusted = True
 
+        # V4 Phase 3: Deterministic Historical Personalization
+        historically_adjusted = False
+        personalization_rationale = None
+
+        if historical_insights and historical_insights.input_usage:
+            for usage in historical_insights.input_usage:
+                if usage.crop_name.lower() == crop_name.lower() and usage.input_type == "irrigation":
+                    # Rule 1: Check confidence
+                    if usage.confidence is None or usage.confidence < 0.6:
+                        continue
+                        
+                    # Rule 2: Determine proportional, bounded adjustment
+                    # e.g., anything above 4 irrigations starts reducing the next recommendation.
+                    excess_applications = max(0, usage.application_count - 4)
+                    
+                    if excess_applications > 0:
+                        # Max bounded adjustment of 10% (0.10)
+                        penalty_pct = min(0.10, excess_applications * 0.05)
+                        
+                        if penalty_pct > 0 and water_req > 0:
+                            new_water_req = max(1.0, water_req * (1.0 - penalty_pct))
+                            water_req = round(new_water_req, 2)
+                            historically_adjusted = True
+                            
+                            pct_str = int(penalty_pct * 100)
+                            personalization_rationale = f"Recommendation conservatively reduced by {pct_str}% based on repeated historical irrigation usage for this crop (confidence: {usage.confidence:.2f})."
+                            
+                    break
+
         return {
             "water_requirement_mm": water_req,
             "frequency": freq,
             "method": method,
             "explanation": explanation,
-            "weather_adjusted": weather_adjusted
+            "weather_adjusted": weather_adjusted,
+            "historically_adjusted": historically_adjusted,
+            "personalization_rationale": personalization_rationale
         }
 
     async def log_irrigation(

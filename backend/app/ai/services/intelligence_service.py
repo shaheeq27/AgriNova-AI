@@ -195,6 +195,8 @@ class IntelligenceService:
                 method=raw["method"],
                 explanation=raw["explanation"],
                 weather_adjusted=raw.get("weather_adjusted", False),
+                historically_adjusted=raw.get("historically_adjusted", False),
+                personalization_rationale=raw.get("personalization_rationale"),
             )
         except Exception:
             logger.warning(
@@ -221,6 +223,8 @@ class IntelligenceService:
                 timing=raw["timing"],
                 application_method=raw["application_method"],
                 explanation=raw["explanation"],
+                historically_adjusted=raw.get("historically_adjusted", False),
+                personalization_rationale=raw.get("personalization_rationale"),
             )
         except Exception:
             logger.warning(

@@ -26,24 +26,59 @@ class FertilizerEngine:
 
         if not lib:
             # Fallback basic recommendation
-            return {
-                "fertilizer_type": "NPK 19:19:19",
-                "quantity_per_acre": 50.0,
-                "unit": "kg",
-                "timing": "Morning",
-                "application_method": "Broadcasting",
-                "explanation": f"During {growth_stage}, {crop_name} benefits from NPK 19:19:19 at 50.0 kg/acre because it supports general growth."
-            }
+            fertilizer_type = "NPK 19:19:19"
+            quantity_per_acre = 50.0
+            unit = "kg"
+            timing = "Morning"
+            application_method = "Broadcasting"
+            explanation = f"During {growth_stage}, {crop_name} benefits from NPK 19:19:19 at 50.0 kg/acre because it supports general growth."
+        else:
+            fertilizer_type = lib.fertilizer_type
+            quantity_per_acre = lib.quantity_per_acre
+            unit = lib.unit
+            timing = lib.timing
+            application_method = lib.application_method
+            explanation = f"During {lib.stage_name}, {lib.crop_name} benefits from {lib.fertilizer_type} at {lib.quantity_per_acre} {lib.unit}/acre because it optimizes nutrient uptake."
 
-        explanation = f"During {lib.stage_name}, {lib.crop_name} benefits from {lib.fertilizer_type} at {lib.quantity_per_acre} {lib.unit}/acre because it optimizes nutrient uptake."
-        
+        # V4 Phase 3: Deterministic Historical Personalization
+        historically_adjusted = False
+        personalization_rationale = None
+
+        if historical_insights and historical_insights.input_usage:
+            for usage in historical_insights.input_usage:
+                if usage.crop_name.lower() == crop_name.lower() and usage.input_type == "fertilizer":
+                    # Rule 1: Check confidence. If low/None, do not personalize.
+                    if usage.confidence is None or usage.confidence < 0.6:
+                        continue
+                        
+                    # Rule 2: Determine proportional, bounded adjustment based on historical count.
+                    # e.g., anything above 2 applications starts reducing the next recommendation.
+                    excess_applications = max(0, usage.application_count - 2)
+                    
+                    if excess_applications > 0:
+                        # Max bounded adjustment of 10% (0.10)
+                        penalty_pct = min(0.10, excess_applications * 0.05)
+                        
+                        if penalty_pct > 0 and quantity_per_acre > 0:
+                            # Do not let recommendation go to zero if originally positive
+                            new_quantity = max(1.0, quantity_per_acre * (1.0 - penalty_pct))
+                            quantity_per_acre = round(new_quantity, 2)
+                            historically_adjusted = True
+                            
+                            pct_str = int(penalty_pct * 100)
+                            personalization_rationale = f"Recommendation conservatively reduced by {pct_str}% based on repeated historical fertilizer usage for this crop (confidence: {usage.confidence:.2f})."
+                    
+                    break
+
         return {
-            "fertilizer_type": lib.fertilizer_type,
-            "quantity_per_acre": lib.quantity_per_acre,
-            "unit": lib.unit,
-            "timing": lib.timing,
-            "application_method": lib.application_method,
-            "explanation": explanation
+            "fertilizer_type": fertilizer_type,
+            "quantity_per_acre": quantity_per_acre,
+            "unit": unit,
+            "timing": timing,
+            "application_method": application_method,
+            "explanation": explanation,
+            "historically_adjusted": historically_adjusted,
+            "personalization_rationale": personalization_rationale
         }
 
     async def log_application(
@@ -58,7 +93,7 @@ class FertilizerEngine:
         crop = crop_result.scalar_one_or_none()
         if not crop:
             raise ValueError(f"Crop not found: {crop_id}")
-            
+
         log = FertilizerLog(
             crop_id=crop_id,
             date=data.date,
