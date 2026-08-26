@@ -296,3 +296,74 @@ def test_format_historical_insights_coexistence():
     assert "[HISTORICAL INSIGHTS]" in result
     assert "- Rice" in result
     assert "Confidence: 50%" in result
+
+
+from app.ai.schemas.context import EngineContext, CropEngineOutput, FertilizerResult, IrrigationResult, DiseaseResult
+
+def test_format_intelligence_personalization():
+    """Verify historical personalization metadata is formatted in intelligence block."""
+    fr = FertilizerResult(
+        fertilizer_type="Urea",
+        quantity_per_acre=45.0,
+        unit="kg",
+        timing="Morning",
+        application_method="Broadcast",
+        explanation="Needs nitrogen",
+        historically_adjusted=True,
+        personalization_rationale="Reduced by 10% due to historical overuse."
+    )
+
+    ir = IrrigationResult(
+        water_requirement_mm=20.0,
+        method="Drip",
+        frequency="Daily",
+        weather_adjusted=False,
+        explanation="Dry soil",
+        historically_adjusted=True,
+        personalization_rationale="Reduced volume based on historical waterlogging."
+    )
+
+    dr = DiseaseResult(
+        disease_name="Rust",
+        confidence=0.9,
+        symptoms=["spots"],
+        treatment="Fungicide",
+        prevention="Spacing",
+        severity="High",
+        historically_adjusted=True,
+        personalization_rationale="Confidence boosted due to frequent historical recurrence."
+    )
+
+    # Test A: True and rationale provided
+    out_a = CropEngineOutput(crop_name="Wheat", fertilizer=fr, irrigation=ir, diseases=[dr])
+    ctx_a = UnifiedContext(intelligence=EngineContext(crop_outputs=[out_a]))
+    result_a = format_context(ctx_a)
+
+    assert "Personalization: Adjusted based on farm history - Reduced by 10% due to historical overuse." in result_a
+    assert "Personalization: Adjusted based on farm history - Reduced volume based on historical waterlogging." in result_a
+    assert "Personalization: Adjusted based on farm history - Confidence boosted due to frequent historical recurrence." in result_a
+
+    # Test B: False (should not appear)
+    fr.historically_adjusted = False
+    ir.historically_adjusted = False
+    dr.historically_adjusted = False
+
+    out_b = CropEngineOutput(crop_name="Wheat", fertilizer=fr, irrigation=ir, diseases=[dr])
+    ctx_b = UnifiedContext(intelligence=EngineContext(crop_outputs=[out_b]))
+    result_b = format_context(ctx_b)
+
+    assert "Personalization: Adjusted based on farm history" not in result_b
+
+    # Test C: True but rationale is None (should not appear)
+    fr.historically_adjusted = True
+    fr.personalization_rationale = None
+    ir.historically_adjusted = True
+    ir.personalization_rationale = None
+    dr.historically_adjusted = True
+    dr.personalization_rationale = None
+
+    out_c = CropEngineOutput(crop_name="Wheat", fertilizer=fr, irrigation=ir, diseases=[dr])
+    ctx_c = UnifiedContext(intelligence=EngineContext(crop_outputs=[out_c]))
+    result_c = format_context(ctx_c)
+
+    assert "Personalization: Adjusted based on farm history" not in result_c

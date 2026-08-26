@@ -217,6 +217,8 @@ def _format_intelligence(context: UnifiedContext) -> str:
                 parts.append("(weather-adjusted)")
             lines.append(f"  Irrigation Recommendation: {', '.join(parts)}")
             lines.append(f"    Reason: {ir.explanation}")
+            if getattr(ir, "historically_adjusted", False) and getattr(ir, "personalization_rationale", None):
+                lines.append(f"    Personalization: Adjusted based on farm history - {ir.personalization_rationale}")
 
         if co.fertilizer:
             fr = co.fertilizer
@@ -226,6 +228,8 @@ def _format_intelligence(context: UnifiedContext) -> str:
                 f" {fr.timing} ({fr.application_method})"
             )
             lines.append(f"    Reason: {fr.explanation}")
+            if getattr(fr, "historically_adjusted", False) and getattr(fr, "personalization_rationale", None):
+                lines.append(f"    Personalization: Adjusted based on farm history - {fr.personalization_rationale}")
 
         if co.diseases:
             lines.append("  Disease Analysis:")
@@ -236,6 +240,8 @@ def _format_intelligence(context: UnifiedContext) -> str:
                     lines.append(f"      Treatment: {dr.treatment}")
                 if dr.prevention:
                     lines.append(f"      Prevention: {dr.prevention}")
+                if getattr(dr, "historically_adjusted", False) and getattr(dr, "personalization_rationale", None):
+                    lines.append(f"      Personalization: Adjusted based on farm history - {dr.personalization_rationale}")
 
     lines.append("[/INTELLIGENCE]")
     return "\n".join(lines)

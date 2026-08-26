@@ -150,3 +150,96 @@ async def test_ai_service_with_empty_history(db: AsyncSession):
     system_msg = dummy.last_messages[0].content
     assert "\n[FARM HISTORY]\n" in system_msg
     assert "No historical data available." in system_msg
+
+from app.ai.schemas.context import EngineContext, CropEngineOutput, FertilizerResult, UnifiedContext
+from app.ai.services.context_formatter import format_context
+from app.ai.services.ai_service import AIService
+
+@pytest.mark.asyncio
+async def test_personalization_metadata_survives_to_prompt(db: AsyncSession, monkeypatch):
+    """Verify that personalization metadata flows from engine to LLM prompt."""
+
+    # 1. Mock ContextService to return a UnifiedContext with personalized intelligence
+    fr = FertilizerResult(
+        fertilizer_type="Urea",
+        quantity_per_acre=45.0,
+        unit="kg",
+        timing="Morning",
+        application_method="Broadcast",
+        explanation="Needs nitrogen",
+        historically_adjusted=True,
+        personalization_rationale="Reduced by 10% due to historical overuse."
+    )
+
+    out = CropEngineOutput(crop_name="Wheat", fertilizer=fr)
+    ctx = UnifiedContext(intelligence=EngineContext(crop_outputs=[out]))
+
+    # Check formatter first
+    formatted_ctx = format_context(ctx)
+    assert "Personalization: Adjusted based on farm history - Reduced by 10% due to historical overuse." in formatted_ctx
+
+    # Mock context service to return this context
+    from app.ai.services.context_service import ContextService
+    async def mock_build(*args, **kwargs):
+        return ctx
+    monkeypatch.setattr(ContextService, "build_unified_context", mock_build)
+
+    # 2. Call AIService and intercept LLM messages
+    service = AIService(db)
+
+    # Mock repo
+    from app.repositories.conversation_repo import ConversationRepository
+    from app.models.conversation import Conversation
+
+    async def mock_resolve_conversation(*args, **kwargs):
+        return Conversation(id="c1", user_id="u1")
+
+    async def mock_resolve_farm(*args, **kwargs):
+        from app.models.farm import Farm
+        return Farm(id="f1", user_id="u1")
+
+    async def mock_get_messages(*args, **kwargs):
+        return []
+
+    async def mock_add_message(*args, **kwargs):
+        pass
+
+    async def mock_update_title(*args, **kwargs):
+        pass
+
+    async def mock_commit():
+        pass
+
+    monkeypatch.setattr(service, "_resolve_conversation", mock_resolve_conversation)
+    monkeypatch.setattr(service, "_resolve_farm", mock_resolve_farm)
+    monkeypatch.setattr(service.repo, "get_messages", mock_get_messages)
+    monkeypatch.setattr(service.repo, "add_message", mock_add_message)
+    monkeypatch.setattr(service.repo, "update_title", mock_update_title)
+    monkeypatch.setattr(service.db, "commit", mock_commit)
+
+    # Intercept _build_messages
+    intercepted_messages = []
+    original_build_messages = service._build_messages
+
+    def mock_build_messages(existing, new_msg, context_string):
+        msgs = original_build_messages(existing, new_msg, context_string)
+        intercepted_messages.extend(msgs)
+        return msgs
+
+    monkeypatch.setattr(service, "_build_messages", mock_build_messages)
+
+    # Mock Provider
+    class DummyManager:
+        async def generate_response(self, msgs):
+            return "Hello!"
+
+    monkeypatch.setattr(service, "_get_provider_manager", lambda: DummyManager())
+
+    from app.ai.schemas.chat import ChatRequest
+    await service.chat("u1", ChatRequest(message="Test", farm_id="f1"))
+
+    assert len(intercepted_messages) > 0
+    system_prompt = intercepted_messages[0].content
+
+    assert "Personalization: Adjusted based on farm history - Reduced by 10% due to historical overuse." in system_prompt
+    assert "Some engine recommendations may contain a historical personalization rationale" in system_prompt
