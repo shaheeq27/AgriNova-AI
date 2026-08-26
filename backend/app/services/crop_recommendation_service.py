@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 
 from app.models.knowledge import CropProfile
 
@@ -49,6 +50,7 @@ async def recommend_crops(
     k: float = 35,
     ph: float = 6.5,
     top_k: int = 5,
+    historical_insights: HistoricalInsightsContext | None = None
 ) -> list[dict[str, Any]]:
     """Get top-K crop recommendations with explainable reasoning.
 

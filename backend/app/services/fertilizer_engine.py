@@ -8,11 +8,13 @@ from sqlalchemy import select
 from app.models.knowledge import FertilizerLibrary
 from app.models.fertilizer import FertilizerLog
 from app.schemas.fertilizer import FertilizerLogCreate, FertilizerLogResponse
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 
 
 class FertilizerEngine:
     async def get_recommendation(
-        self, db: AsyncSession, crop_name: str, growth_stage: str, soil_type: str
+        self, db: AsyncSession, crop_name: str, growth_stage: str, soil_type: str,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> dict:
         result = await db.execute(
             select(FertilizerLibrary).where(

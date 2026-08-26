@@ -8,11 +8,13 @@ from sqlalchemy import select
 from app.models.knowledge import IrrigationGuideline
 from app.models.irrigation import IrrigationLog
 from app.schemas.irrigation import IrrigationLogCreate, IrrigationLogResponse
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 
 
 class IrrigationEngine:
     async def get_recommendation(
-        self, db: AsyncSession, crop_name: str, growth_stage: str, soil_type: str, current_weather: dict | None = None
+        self, db: AsyncSession, crop_name: str, growth_stage: str, soil_type: str, current_weather: dict | None = None,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> dict:
         result = await db.execute(
             select(IrrigationGuideline).where(

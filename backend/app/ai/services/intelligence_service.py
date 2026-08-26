@@ -61,6 +61,7 @@ class IntelligenceService:
         farm_context: FarmContext,
         weather_data: WeatherData | None,
         intent: IntentResult,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> EngineContext | None:
         """Build engine outputs for the relevant crops.
 
@@ -91,6 +92,7 @@ class IntelligenceService:
                 soil_type=farm_context.soil_type,
                 weather_data=weather_data,
                 intent=intent,
+                historical_insights=historical_insights,
             )
 
             if output:
@@ -110,6 +112,7 @@ class IntelligenceService:
         soil_type: str,
         weather_data: WeatherData | None,
         intent: IntentResult,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> CropEngineOutput | None:
         """Build engine outputs for a single crop."""
 
@@ -128,23 +131,23 @@ class IntelligenceService:
             weather_dict = self._extract_weather_dict(weather_data)
             if weather_dict is not None:
                 irrigation = await self._get_irrigation(
-                    crop_name, current_stage, soil_type, weather_dict
+                    crop_name, current_stage, soil_type, weather_dict, historical_insights
                 )
             else:
                 # No weather → call without weather adjustment
                 irrigation = await self._get_irrigation(
-                    crop_name, current_stage, soil_type, None
+                    crop_name, current_stage, soil_type, None, historical_insights
                 )
 
         # Step 3: Fertilizer engine
         if intent.fertilizer and current_stage:
             fertilizer = await self._get_fertilizer(
-                crop_name, current_stage, soil_type
+                crop_name, current_stage, soil_type, historical_insights
             )
 
         # Step 4: Disease detection (only when symptoms provided)
         if intent.disease and intent.symptoms:
-            diseases = await self._get_diseases(crop_name, intent.symptoms)
+            diseases = await self._get_diseases(crop_name, intent.symptoms, historical_insights)
 
         # Only return an output if something was computed
         has_data = current_stage or irrigation or fertilizer or diseases
@@ -179,11 +182,12 @@ class IntelligenceService:
         growth_stage: str,
         soil_type: str,
         weather_dict: dict | None,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> IrrigationResult | None:
         """Call the irrigation engine and convert to structured result."""
         try:
             raw = await self.irrigation_engine.get_recommendation(
-                self.db, crop_name, growth_stage, soil_type, weather_dict
+                self.db, crop_name, growth_stage, soil_type, weather_dict, historical_insights
             )
             return IrrigationResult(
                 water_requirement_mm=raw["water_requirement_mm"],
@@ -203,11 +207,12 @@ class IntelligenceService:
         crop_name: str,
         growth_stage: str,
         soil_type: str,
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> FertilizerResult | None:
         """Call the fertilizer engine and convert to structured result."""
         try:
             raw = await self.fertilizer_engine.get_recommendation(
-                self.db, crop_name, growth_stage, soil_type
+                self.db, crop_name, growth_stage, soil_type, historical_insights
             )
             return FertilizerResult(
                 fertilizer_type=raw["fertilizer_type"],
@@ -227,11 +232,12 @@ class IntelligenceService:
         self,
         crop_name: str,
         symptoms: list[str],
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> list[DiseaseResult]:
         """Call the disease service and convert to structured results."""
         try:
             matches = await self.disease_service.detect_from_symptoms(
-                crop_name, symptoms
+                crop_name, symptoms, historical_insights
             )
             return [
                 DiseaseResult(

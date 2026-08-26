@@ -12,6 +12,7 @@ import aiofiles
 from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 
 from app.core.exceptions import NotFoundException, AgriNovaException
 from app.models.disease import DiseaseImage, DiseaseRecord
@@ -44,7 +45,8 @@ class DiseaseService:
         return len(intersection) / len(union)
 
     async def detect_from_symptoms(
-        self, crop_name: str, symptoms: list[str]
+        self, crop_name: str, symptoms: list[str],
+        historical_insights: HistoricalInsightsContext | None = None
     ) -> list[DiseaseMatch]:
         """Detect diseases based on symptoms matching with the Knowledge Base."""
         # Fetch diseases for this crop
