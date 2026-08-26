@@ -26,6 +26,7 @@ from datetime import date, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 from app.ai.schemas.context import (
     CropContext,
     FarmContext,
@@ -92,16 +93,17 @@ class ContextService:
         # Phase 4: Retrieve structured knowledge for the farmer's crops
         knowledge = await self._build_knowledge(farm_context, farm.soil_type)
 
-        # Phase 6: Run intelligence engines based on user intent
-        intelligence = await self._build_intelligence(
-            farm_context, weather_data, user_message
-        )
-
         # Phase 8 (V4 Phase 1): Retrieve farm history
         history = await self._build_history(farm)
 
-        # Phase 9 (V4 Phase 1): Deterministic Historical Insights
+        # Phase 9 (V4 Phase 1 & 2): Deterministic Historical Insights
+        # (Must be built BEFORE intelligence engines so they can personalize)
         historical_insights = await self._build_historical_insights(farm)
+
+        # Phase 6 / V4 Phase 3: Run intelligence engines based on user intent + history
+        intelligence = await self._build_intelligence(
+            farm_context, weather_data, user_message, historical_insights
+        )
 
         # Build and return the unified context
         return UnifiedContext(
@@ -185,7 +187,6 @@ class ContextService:
             ]
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             logger.warning(
                 "Failed to load historical weather for farm %s", farm_id, exc_info=True
             )
@@ -224,7 +225,6 @@ class ContextService:
             ]
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             logger.warning(
                 "Failed to fetch forecast for farm %s", farm.id, exc_info=True
             )
@@ -243,7 +243,6 @@ class ContextService:
             )
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             logger.warning(
                 "Failed to build knowledge context", exc_info=True
             )
@@ -254,6 +253,7 @@ class ContextService:
         farm_context: FarmContext,
         weather_data: WeatherData | None,
         user_message: str,
+        historical_insights: HistoricalInsightsContext | None = None,
     ):
         """Run intelligence engines based on the user's intent.
 
@@ -272,10 +272,10 @@ class ContextService:
                 farm_context=farm_context,
                 weather_data=weather_data,
                 intent=intent,
+                historical_insights=historical_insights,
             )
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             logger.warning(
                 "Failed to build intelligence context", exc_info=True
             )
@@ -290,7 +290,6 @@ class ContextService:
             return await self.history_service.build_history_context(farm.id)
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             logger.warning(
                 "Failed to build history context for farm %s", farm.id, exc_info=True
             )
@@ -303,5 +302,4 @@ class ContextService:
             return await self.insights_service.compute_insights_context(self.db, farm.id)
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
-            import traceback; traceback.print_exc()
             return None
