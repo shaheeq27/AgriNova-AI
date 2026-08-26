@@ -220,3 +220,22 @@ First major release delivering the complete crop lifecycle platform with ML-powe
 - Verified that heavy farm history triggers deterministic personalization in all 4 engines.
 - Proved that the modified outputs successfully bubble up through the `UnifiedContext` to the final AI prompt.
 - Passed full regression suite (0 regressions).
+
+---
+## V4 Phase 4 — AI Integration
+### Step 1: Architecture Inspection
+- Mapped the full V3 AI Agronomist pipeline from `AIService` -> `ContextService` -> `IntelligenceService` -> `ContextFormatter`.
+- Pinpointed the exact architectural boundary where `historically_adjusted` and `personalization_rationale` were being dropped before reaching the LLM's system prompt.
+
+### Step 2: Historical Personalization Context Formatting
+- Upgraded `ContextFormatter` to properly append `Personalization: Adjusted based on farm history - <rationale>` exactly when the deterministic engine outputs flag `historically_adjusted`.
+- Expanded the AI system instructions (`AIRA_SYSTEM_PROMPT`) mandating the LLM only narrate these provided adjustments, explicitly forbidding it from inventing, overriding, or calculating its own personalizations.
+
+### Step 3: AI Behavior Validation
+- Added 6 critical AI behavior validation scenarios ensuring the AI narrator obeys the deterministic boundaries.
+- Verified exact numerical output authority, no-personalization transparency, and irrelevant-history ignorance without executing real external LLM API calls.
+
+### Step 4: Full V4 Personalization Integration
+- Built and validated a comprehensive E2E integration test proving the complete end-to-end V4 architecture: `Farm History -> Insights -> Deterministic Engines -> Unified Context -> Formatter -> AI Prompt`.
+- Proved identical inputs yield uniquely personalized prompts for heavily historical farms while maintaining baseline integrity for normal farms.
+- Passed full backend regression suite with 130 successful tests and 0 regressions.

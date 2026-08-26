@@ -139,6 +139,27 @@ Includes
 Deliverable
 ✓ Farm-specific AI intelligence.
 
+✓ V4.0 — Architecture & Data Model
+→ define what history we need
+
+✓ V4.1 — Farm History
+→ store and retrieve historical events
+
+✓ V4.2 — Personalized Context Engine
+→ convert farm history into AI-ready context
+
+✓ V4.3 — Personalized Recommendations
+→ fertilizer, irrigation, crop and disease recommendations use history
+
+✓ V4.4 — AI Integration
+→ connect personalization with the V3 AI Agronomist
+
+V4.5 — UI
+→ history, insights, personalized recommendations
+
+V4.6 — Testing & Polish
+→ verify personalization end-to-end
+
 ═══════════════════════════════════════════════════════════════
 
 VERSION 5 — CONNECTED PLATFORM
