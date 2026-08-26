@@ -23,6 +23,8 @@ class DiseaseMatch(BaseModel):
     prevention: str
     severity: str
     explanation: str
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class DiseaseDetectionResponse(BaseModel):

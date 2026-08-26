@@ -76,6 +76,21 @@ class DiseaseService:
                     )
                 )
 
+        # V4 Phase 3: Deterministic Historical Personalization
+        if historical_insights and historical_insights.disease_patterns:
+            for match in matches:
+                for pattern in historical_insights.disease_patterns:
+                    if pattern.disease_name.lower() == match.disease_name.lower() and pattern.affected_crop.lower() == crop_name.lower():
+                        if pattern.confidence is None or pattern.confidence < 0.6:
+                            continue
+                        if pattern.occurrence_count >= 1:
+                            # Max 5% boost for historical recurrence, bounded
+                            boost = min(0.05, pattern.occurrence_count * 0.025)
+                            match.confidence = min(1.0, match.confidence + boost)
+                            match.historically_adjusted = True
+                            match.personalization_rationale = f"Confidence increased by {int(boost*100)}% due to historical recurrence of this disease on this crop (confidence: {pattern.confidence:.2f})."
+                        break
+
         # Sort matches by confidence descending
         matches.sort(key=lambda x: x.confidence, reverse=True)
         return matches[:3]  # Return top 3 matches

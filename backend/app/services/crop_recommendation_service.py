@@ -62,10 +62,35 @@ async def recommend_crops(
     bundle = _load_model()
 
     if bundle is not None:
-        return _recommend_ml(bundle, temperature, humidity, rainfall, soil_type, n, p, k, ph, top_k)
+        results = _recommend_ml(bundle, temperature, humidity, rainfall, soil_type, n, p, k, ph, top_k)
+    else:
+        results = await _recommend_rules(db, temperature, humidity, rainfall, soil_type, top_k)
 
-    # Fallback: rule-based from KB
-    return await _recommend_rules(db, temperature, humidity, rainfall, soil_type, top_k)
+    for res in results:
+        res["historically_adjusted"] = False
+        res["personalization_rationale"] = None
+
+    if historical_insights and historical_insights.yield_trends:
+        for res in results:
+            for trend in historical_insights.yield_trends:
+                if trend.crop_name.lower() == res["crop_name"].lower():
+                    if trend.confidence is None or trend.confidence < 0.6:
+                        continue
+
+                    if trend.trend_direction == "increasing":
+                        boost = 0.05
+                        res["confidence"] = round(min(1.0, res["confidence"] + boost), 4)
+                        res["historically_adjusted"] = True
+                        res["personalization_rationale"] = f"Score increased by {int(boost*100)}% due to strong historical yield trends on this farm (confidence: {trend.confidence:.2f})."
+                    elif trend.trend_direction == "decreasing":
+                        penalty = 0.05
+                        res["confidence"] = round(max(0.01, res["confidence"] - penalty), 4)
+                        res["historically_adjusted"] = True
+                        res["personalization_rationale"] = f"Score decreased by {int(penalty*100)}% due to declining historical yield trends on this farm (confidence: {trend.confidence:.2f})."
+                    break
+
+    results.sort(key=lambda x: x["confidence"], reverse=True)
+    return results[:top_k]
 
 
 def _recommend_ml(
@@ -94,7 +119,8 @@ def _recommend_ml(
 
     # Get probabilities
     probas = model.predict_proba(features)[0]
-    top_indices = np.argsort(probas)[::-1][:top_k]
+    # Score all crops first, filtering happens in caller
+    top_indices = np.argsort(probas)[::-1]
 
     results = []
     for idx in top_indices:
@@ -223,4 +249,4 @@ async def _recommend_rules(
         })
 
     scored.sort(key=lambda x: x["confidence"], reverse=True)
-    return scored[:top_k]
+    return scored
