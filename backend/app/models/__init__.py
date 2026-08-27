@@ -23,6 +23,7 @@ from app.models.fertilizer import FertilizerLog
 from app.models.activity_log import ActivityLog
 from app.models.notification import Notification
 from app.models.conversation import Conversation, Message
+from app.models.market_price import MarketPrice
 
 __all__ = [
     "User",
@@ -45,5 +46,7 @@ __all__ = [
     "Notification",
     "Conversation",
     "Message",
+    "MarketPrice",
 ]
+
 

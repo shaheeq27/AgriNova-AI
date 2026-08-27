@@ -14,7 +14,8 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
-  Bot
+  Bot,
+  TrendingUp
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { label: 'My Farms', href: '/farms', Icon: MapPin },
   { label: 'Crops', href: '/crops', Icon: Sprout },
   { label: 'Weather', href: '/weather', Icon: Cloud },
+  { label: 'Market', href: '/market', Icon: TrendingUp },
   { label: 'Aira', href: '/aira', Icon: Bot },
   { label: 'Knowledge Base', href: '/knowledge', Icon: BookOpen },
 ];

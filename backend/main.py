@@ -23,6 +23,7 @@ from app.api.v1.weather import router as weather_router
 from app.api.v1.fertilizer import router as fertilizer_router
 from app.api.v1.irrigation import router as irrigation_router
 from app.api.v1.disease import router as disease_router
+from app.api.v1.market import router as market_router
 
 # V2.0 routers
 from app.api.v1.analytics import router as analytics_router
@@ -75,6 +76,7 @@ app.include_router(weather_router, prefix="/api/v1")
 app.include_router(fertilizer_router, prefix="/api/v1")
 app.include_router(irrigation_router, prefix="/api/v1")
 app.include_router(disease_router, prefix="/api/v1")
+app.include_router(market_router, prefix="/api/v1")
 
 # V2.0 routers
 app.include_router(analytics_router, prefix="/api/v1")

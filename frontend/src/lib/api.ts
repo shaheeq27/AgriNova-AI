@@ -30,7 +30,7 @@ export function getToken(): string | null {
   return localStorage.getItem("agrinova_token");
 }
 
-async function request<T>(
+export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {

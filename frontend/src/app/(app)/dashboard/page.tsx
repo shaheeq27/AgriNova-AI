@@ -1,15 +1,46 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { farmAPI } from '@/lib/api';
 import {
   NeedsAttentionSection,
   FarmEnvironmentSection,
   ActivitiesAndOverdueSection,
   AIInsightsSection,
   FarmPerformanceSection,
+  MarketSummarySection,
 } from '@/features/dashboard';
 
 export default function DashboardPage() {
+  const [activeCropNames, setActiveCropNames] = useState<string[]>([]);
+  const [loadingCrops, setLoadingCrops] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchFarms() {
+      try {
+        const farms = await farmAPI.list();
+        if (isMounted && farms) {
+          const crops = new Set<string>();
+          farms.farms.forEach(farm => {
+            farm.crops?.forEach(crop => {
+              if (crop.status !== 'harvested' && crop.status !== 'failed') {
+                crops.add(crop.crop_name);
+              }
+            });
+          });
+          setActiveCropNames(Array.from(crops));
+        }
+      } catch (err) {
+        console.error('Failed to fetch farms for market summary', err);
+      } finally {
+        if (isMounted) setLoadingCrops(false);
+      }
+    }
+    fetchFarms();
+    return () => { isMounted = false; };
+  }, []);
+
   return (
     <>
 
@@ -56,6 +87,11 @@ export default function DashboardPage() {
 
         {/* 2. Farm Environment */}
         <FarmEnvironmentSection />
+
+        {/* 2.5. Market Watch (V5) */}
+        <div style={{ marginBottom: '24px' }}>
+          <MarketSummarySection activeCropNames={activeCropNames} isLoadingCrops={loadingCrops} />
+        </div>
 
         {/* 3. Upcoming Activities + Overdue */}
         <ActivitiesAndOverdueSection />
