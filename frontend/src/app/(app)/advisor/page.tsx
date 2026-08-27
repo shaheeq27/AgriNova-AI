@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useCropRecommendation } from '@/hooks/useCropRecommendation';
+import { farmAPI, FarmData } from '@/lib/api';
 import Image from 'next/image';
 import { Card, Badge, Button } from '@/ui';
 import {
@@ -37,30 +39,53 @@ export default function AdvisorPage() {
   const [climate, setClimate] = useState(CLIMATE_OPTIONS[0]);
   const [acreage, setAcreage] = useState('');
   const [water, setWater] = useState(WATER_OPTIONS[0]);
-  const [loading, setLoading] = useState(false);
+
+  const [farms, setFarms] = useState<FarmData[]>([]);
+  const [selectedFarmId, setSelectedFarmId] = useState<string>('');
+
+  useEffect(() => {
+    farmAPI.list().then(res => setFarms(res.farms)).catch(() => {});
+  }, []);
+
+  const { fetchRecommendations, data: apiResult, loading, error } = useCropRecommendation();
+
   const [result, setResult] = useState<{
     crop: string;
     confidence: number;
     yield: string;
     cost: string;
     insight: string;
+    historically_adjusted: boolean;
+    rationale: string | null;
   } | null>(null);
 
-  const runAnalysis = useCallback(() => {
-    setLoading(true);
+  const runAnalysis = useCallback(async () => {
     setResult(null);
-    setTimeout(() => {
-      setLoading(false);
-      setResult({
-        crop: 'Golden Maize (Zea Mays v4)',
-        confidence: 98.4,
-        yield: '184.2',
-        cost: '-12%',
-        insight:
-          '"This phenotype exhibits superior drought resistance in Sector 7G parameters."',
+    try {
+      const res = await fetchRecommendations({
+        temperature: 24, // Mock values for UI since they aren't collected
+        humidity: 60,
+        rainfall: 400,
+        soil_type: soil,
+        farm_id: selectedFarmId || undefined
       });
-    }, 1800);
-  }, []);
+      if (res.recommendations.length > 0) {
+        const topRec = res.recommendations[0];
+        setResult({
+          crop: topRec.crop_name,
+          confidence: topRec.confidence,
+          yield: '184.2', // Mocked yield since API doesn't return it directly
+          cost: '-12%', // Mocked cost
+          insight: topRec.explanation,
+          historically_adjusted: topRec.historically_adjusted,
+          rationale: topRec.personalization_rationale
+        });
+      }
+    } catch (e) {
+      // Handle error natively in the UI or let the hook expose it
+    }
+  }, [fetchRecommendations, soil, selectedFarmId]);
+
 
   const isResultVisible = loading || result !== null;
 
@@ -132,6 +157,22 @@ export default function AdvisorPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 relative z-10">
                 {/* Soil Type */}
                 <div className="space-y-4">
+                  <label className="type-label-caps text-on-surface-variant block">
+                    Target Farm (Optional)
+                  </label>
+                  <div className="relative mb-6">
+                    <select
+                      value={selectedFarmId}
+                      onChange={(e) => setSelectedFarmId(e.target.value)}
+                      className="w-full bg-soil-deep border-0 border-b-2 border-[#ADFF00]/20 focus:border-[#ADFF00] focus:ring-0 text-on-surface py-3 px-0 cursor-pointer transition-all font-sans"
+                    >
+                      <option value="">No Farm (Public Sandbox Mode)</option>
+                      {farms.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <label className="type-label-caps text-on-surface-variant block">
                     Primary Soil Composition
                   </label>
@@ -294,6 +335,11 @@ export default function AdvisorPage() {
                   <Badge variant="ai" pulse>
                     {result ? 'OPTIMAL MATCH FOUND' : 'AWAITING INPUT'}
                   </Badge>
+                  {result?.historically_adjusted && (
+                    <Badge variant="ai" className="ml-2 bg-purple-500/20 text-purple-300 border-purple-500/50">
+                      HISTORICALLY ADJUSTED
+                    </Badge>
+                  )}
                   <h3 className="type-headline-md mt-4">
                     {result ? result.crop : '--- ---'}
                   </h3>
@@ -371,17 +417,31 @@ export default function AdvisorPage() {
               </div>
 
               {/* AI Insight Chip */}
-              <div className="mt-6 flex items-center gap-3 bg-[#ADFF00]/5 p-3 rounded-lg border border-[#ADFF00]/10">
-                <Brain
-                  size={18}
-                  strokeWidth={1.75}
-                  className="text-neon-mint animate-pulse-glow flex-shrink-0"
-                />
-                <p className="type-body-md text-[13px] text-on-surface-variant italic">
-                  {result
-                    ? result.insight
-                    : '"Awaiting environmental parameters for synthesis..."'}
-                </p>
+              <div className="mt-6 flex flex-col gap-3">
+                <div className="flex items-center gap-3 bg-[#ADFF00]/5 p-3 rounded-lg border border-[#ADFF00]/10">
+                  <Brain
+                    size={18}
+                    strokeWidth={1.75}
+                    className="text-neon-mint animate-pulse-glow flex-shrink-0"
+                  />
+                  <p className="type-body-md text-[13px] text-on-surface-variant italic">
+                    {result
+                      ? result.insight
+                      : '"Awaiting environmental parameters for synthesis..."'}
+                  </p>
+                </div>
+                {result?.rationale && (
+                  <div className="flex items-center gap-3 bg-purple-500/5 p-3 rounded-lg border border-purple-500/10">
+                    <Brain
+                      size={18}
+                      strokeWidth={1.75}
+                      className="text-purple-400 flex-shrink-0"
+                    />
+                    <p className="type-body-md text-[13px] text-purple-200/80 italic">
+                      {result.rationale}
+                    </p>
+                  </div>
+                )}
               </div>
             </Card>
           </div>

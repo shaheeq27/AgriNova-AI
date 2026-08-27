@@ -161,5 +161,196 @@ export const knowledgeAPI = {
     request<unknown[]>(`/knowledge/irrigation${crop ? `?crop_name=${crop}` : ""}`),
 };
 
+
+// ── Farm Insights API ──
+export interface CropPerformanceInsight {
+  crop_name: string;
+  variety: string | null;
+  seasons_observed: string[];
+  crops_observed: number;
+  harvested_count: number;
+  average_yield: number | null;
+  yield_unit: string | null;
+  best_yield: number | null;
+  worst_yield: number | null;
+  disease_records: number;
+  fertilizer_applications: number;
+  irrigation_applications: number;
+  confidence: number | null;
+}
+
+export interface SeasonalPerformanceInsight {
+  season: string;
+  crops_observed: number;
+  harvested_crops: number;
+  average_yield: number | null;
+  yield_unit: string | null;
+  confidence: number | null;
+}
+
+export interface DiseasePatternInsight {
+  disease_name: string;
+  affected_crop: string;
+  occurrence_count: number;
+  resolved_count: number;
+  active_count: number;
+  common_severity: string | null;
+  treatment_observed: string | null;
+  confidence: number | null;
+}
+
+export interface InputUsageInsight {
+  input_type: string;
+  crop_name: string;
+  application_count: number;
+  total_quantity: number | null;
+  quantity_unit: string | null;
+  common_application_method: string | null;
+  confidence: number | null;
+}
+
+export interface YieldTrendInsight {
+  crop_name: string;
+  yield_unit: string;
+  observations: number;
+  average_yield: number | null;
+  highest_yield: number | null;
+  lowest_yield: number | null;
+  trend_direction: string | null;
+  confidence: number | null;
+}
+
+export interface FarmInsightsResponse {
+  crop_performance: CropPerformanceInsight[];
+  seasonal_performance: SeasonalPerformanceInsight[];
+  disease_patterns: DiseasePatternInsight[];
+  input_usage: InputUsageInsight[];
+  yield_trends: YieldTrendInsight[];
+}
+
+export const historyAPI = {
+  getInsights: (farmId: string) => request<FarmInsightsResponse>(`/farms/${farmId}/insights`),
+};
+
+// ── Recommendations API ──
+export interface CropRecommendation {
+  crop_name: string;
+  confidence: number;
+  explanation: string;
+  model_version: string;
+  historically_adjusted: boolean;
+  personalization_rationale: string | null;
+}
+
+
+export interface CropResponse {
+  id: string;
+  farm_id: string;
+  crop_name: string;
+  variety: string | null;
+  season: string;
+  planting_date: string | null;
+  expected_harvest_date: string | null;
+  actual_harvest_date: string | null;
+  area_acres: number;
+  status: string;
+  yield_amount: number | null;
+  yield_unit: string | null;
+  created_at: string;
+}
+
+export interface CropListResponse {
+  crops: CropResponse[];
+  total: number;
+}
+
+export interface CropRecommendationRequest {
+  temperature: number;
+  humidity: number;
+  rainfall: number;
+  soil_type: string;
+  n?: number;
+  p?: number;
+  k?: number;
+  ph?: number;
+  farm_id?: string;
+}
+
+export interface CropRecommendationResponse {
+  recommendations: CropRecommendation[];
+  input_conditions: Record<string, unknown>;
+}
+
+export const cropsAPI = {
+  listByFarm: (farmId: string) => request<CropListResponse>(`/crops/farm/${farmId}`),
+  recommend: (data: CropRecommendationRequest) =>
+    request<CropRecommendationResponse>("/crops/recommend", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};
+
+export interface FertilizerRecommendation {
+  fertilizer_type: string;
+  quantity_per_acre: number;
+  unit: string;
+  timing: string;
+  application_method: string | null;
+  explanation: string;
+  historically_adjusted: boolean;
+  personalization_rationale: string | null;
+}
+
+export const fertilizerAPI = {
+  recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
+    let url = `/fertilizer/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
+    if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
+    return request<FertilizerRecommendation>(url);
+  },
+};
+
+export interface IrrigationRecommendation {
+  water_requirement_mm: number;
+  frequency: string;
+  method: string | null;
+  explanation: string;
+  weather_adjusted: boolean;
+  historically_adjusted: boolean;
+  personalization_rationale: string | null;
+}
+
+export const irrigationAPI = {
+  recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
+    let url = `/irrigation/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
+    if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
+    return request<IrrigationRecommendation>(url);
+  },
+};
+
+// ── Disease Detection API ──
+export interface DiseaseMatch {
+  disease_name: string;
+  confidence: number;
+  symptoms: string[];
+  treatment: string;
+  prevention: string;
+  severity: string;
+  explanation: string;
+  historically_adjusted: boolean;
+  personalization_rationale: string | null;
+}
+
+export interface DiseaseDetectionResponse {
+  matches: DiseaseMatch[];
+}
+
+export const diseaseAPI = {
+  detect: (cropName: string, symptoms: string[], farmId?: string) =>
+    request<DiseaseDetectionResponse>("/disease/detect", {
+      method: "POST",
+      body: JSON.stringify({ crop_name: cropName, symptoms, farm_id: farmId }),
+    }),
+};
+
 export { ApiError };
 export default request;

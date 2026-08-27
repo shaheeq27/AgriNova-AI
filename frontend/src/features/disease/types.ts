@@ -30,6 +30,7 @@ export interface DiagnosisData {
   whyRecommendation: string;
   treatment: TreatmentInfo;
   naturalTreatment: NaturalTreatmentInfo | null;
+  historicallyAdjusted?: boolean;
 }
 
 /** Chemical/main treatment details */
@@ -78,4 +79,5 @@ export interface DiseaseDetectionState {
   isAnalyzing: boolean;
   isSaving: boolean;
   detectionSaved: boolean;
+  error: string | null;
 }
