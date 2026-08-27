@@ -11,6 +11,7 @@ class DiseaseDetectionRequest(BaseModel):
 
     crop_name: str = Field(..., min_length=2, max_length=100)
     symptoms: list[str] = Field(..., min_length=1)
+    farm_id: str | None = Field(None, description="Farm ID for personalized historical adjustments")
 
 
 class DiseaseMatch(BaseModel):

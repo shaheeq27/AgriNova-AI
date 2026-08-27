@@ -38,7 +38,9 @@ async def get_irrigation_recommendation(
     db: AsyncSession = Depends(get_db),
 ):
     current_weather = None
+    historical_insights = None
     if farm_id:
+        from app.services.farm_service import FarmService
         farm_service = FarmService(db)
         try:
             farm = await farm_service.get_farm(current_user.id, farm_id)
@@ -47,14 +49,18 @@ async def get_irrigation_recommendation(
             if lat is None or lng is None:
                 coords = CITY_COORDS.get(farm.location_city, (20.5937, 78.9629))
                 lat, lng = coords
-            
+
             weather_service = WeatherService()
             current_weather = await weather_service.get_current_weather(lat, lng)
+
+            from app.ai.services.historical_insights_service import HistoricalInsightsService
+            insights_service = HistoricalInsightsService()
+            historical_insights = await insights_service.compute_insights_context(db, farm_id)
         except Exception:
             pass
 
     engine = IrrigationEngine()
-    recommendation = await engine.get_recommendation(db, crop_name, stage, soil_type, current_weather)
+    recommendation = await engine.get_recommendation(db, crop_name, stage, soil_type, current_weather, historical_insights)
     return APIResponse.success(data=recommendation)
 
 

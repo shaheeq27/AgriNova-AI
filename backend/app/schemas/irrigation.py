@@ -12,6 +12,8 @@ class IrrigationRecommendation(BaseModel):
     method: str | None
     explanation: str
     weather_adjusted: bool
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class IrrigationLogCreate(BaseModel):

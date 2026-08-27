@@ -38,7 +38,7 @@ async def test_e2e_pipeline_applies_historical_adjustments(db: AsyncSession, mon
     # Setup Farm with heavy history to trigger personalization
     user = User(id="u1_e2e_p3", email="e2ep3@test.com", hashed_password="x", full_name="User")
     farm = Farm(id="f1_e2e_p3", user_id="u1_e2e_p3", name="E2E Farm", location_city="Pune", soil_type="Loam", total_area_acres=10.0)
-    
+
     # Active crop for intelligence engines
     crop_active = Crop(id="c1_e2e_p3", farm_id="f1_e2e_p3", crop_name="Wheat", variety="A", season="Rabi",
                        planting_date=date(2025, 1, 1), status="active", area_acres=5.0)
@@ -67,7 +67,7 @@ async def test_e2e_pipeline_applies_historical_adjustments(db: AsyncSession, mon
             IrrigationLog(id=f"ilog_{i}", crop_id=prev_crops[0].id, water_amount_liters=20.0,
                           date=date(2024, 1, i+1), growth_stage="Seedling")
         )
-        
+
     # 3 Disease Records (triggers recurrence personalization)
     dis = []
     for i in range(3):
@@ -78,7 +78,7 @@ async def test_e2e_pipeline_applies_historical_adjustments(db: AsyncSession, mon
 
     # Add timeline so it knows current_stage
     event = CropTimeline(id="te1", crop_id="c1_e2e_p3", stage_name="Seedling", stage_order=1, start_date=date.today().replace(month=1, day=1), end_date=date.today().replace(month=12, day=31), status="in_progress")
-    
+
     # Add knowledge base entries so DiseaseService and CropRecommendationService don't return empty
     dl = DiseaseLibrary(disease_name="Rust", affected_crops="Wheat", symptoms="yellow spots, brown spots", treatment="Fungicide", prevention="Spacing", severity="high")
     cp = CropProfile(crop_name="Wheat", temp_min=10, temp_max=25, humidity_min=40, humidity_max=60, rain_min=200, rain_max=500, ideal_soil_types="Loam, Clay", growing_season="Rabi")
@@ -91,29 +91,29 @@ async def test_e2e_pipeline_applies_historical_adjustments(db: AsyncSession, mon
 
     # --- 1. Test the AI Context Service (Fertilizer, Irrigation, Disease) ---
     context_service = ContextService(db)
-    
+
     # "What fertilizer and irrigation for Wheat? Also I see yellow spots (Rust symptom)."
     msg = "I need fertilizer and irrigation advice for my Wheat. I also see yellow spots and brown spots."
-    
+
     # The IntentRouter should catch: fertilizer, irrigation, disease, and symptoms.
     unified_ctx = await context_service.build_unified_context(farm_loaded, user_message=msg)
 
     assert unified_ctx.historical_insights is not None
     assert unified_ctx.intelligence is not None
     assert len(unified_ctx.intelligence.crop_outputs) == 1
-    
+
     crop_out = unified_ctx.intelligence.crop_outputs[0]
-    
+
     # Fertilizer
     assert crop_out.fertilizer is not None
     assert crop_out.fertilizer.historically_adjusted is True
     assert "reduced" in crop_out.fertilizer.personalization_rationale.lower()
-    
+
     # Irrigation
     assert crop_out.irrigation is not None
     assert crop_out.irrigation.historically_adjusted is True
     assert "reduced" in crop_out.irrigation.personalization_rationale.lower()
-    
+
     # Disease
     assert len(crop_out.diseases) > 0
     rust_match = next((d for d in crop_out.diseases if d.disease_name == "Rust"), None)
@@ -129,10 +129,16 @@ async def test_e2e_pipeline_applies_historical_adjustments(db: AsyncSession, mon
         soil_type="Loam",
         farm_id="f1_e2e_p3" # Passing the farm_id
     )
-    response = await recommend_crops(data=request, db=db)
+    from fastapi.security import HTTPAuthorizationCredentials
+    class FakeCreds:
+        credentials = "fake"
+
+    # Mock decode_access_token
+    monkeypatch.setattr("app.api.v1.crops.decode_access_token", lambda x: {"sub": "u1_e2e_p3"})
+    response = await recommend_crops(data=request, db=db, credentials=FakeCreds())
     assert isinstance(response, APIResponse)
     recs = response.data["recommendations"]
-    
+
     # Check if Wheat was historically adjusted (increased due to trend)
     wheat_rec = next((r for r in recs if r["crop_name"] == "Wheat"), None)
     if wheat_rec:

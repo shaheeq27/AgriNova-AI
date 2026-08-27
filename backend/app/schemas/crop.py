@@ -28,6 +28,8 @@ class CropRecommendation(BaseModel):
     confidence: float
     explanation: str
     model_version: str
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class CropRecommendationResponse(BaseModel):

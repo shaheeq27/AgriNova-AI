@@ -69,3 +69,19 @@ class FarmListResponse(BaseModel):
 
     farms: list[FarmResponse]
     total: int
+
+from app.ai.schemas.historical_analysis import (
+    CropPerformanceInsight,
+    SeasonalPerformanceInsight,
+    DiseasePatternInsight,
+    InputUsageInsight,
+    YieldTrendInsight,
+)
+
+class FarmInsightsResponse(BaseModel):
+    """Schema for returning historical farm insights to the frontend."""
+    crop_performance: list[CropPerformanceInsight]
+    seasonal_performance: list[SeasonalPerformanceInsight]
+    disease_patterns: list[DiseasePatternInsight]
+    input_usage: list[InputUsageInsight]
+    yield_trends: list[YieldTrendInsight]

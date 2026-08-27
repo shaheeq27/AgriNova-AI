@@ -62,6 +62,24 @@ async def update_farm(
     return APIResponse.success(data=farm.model_dump(), message="Farm updated successfully")
 
 
+@router.get("/{farm_id}/insights", response_model=APIResponse)
+async def get_farm_insights(
+    farm_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get historical AI insights for a specific farm."""
+    service = FarmService(db)
+    # Validates ownership and raises 403/404 if not authorized
+    await service.get_farm(current_user.id, farm_id)
+
+    from app.ai.services.historical_insights_service import HistoricalInsightsService
+    insights_service = HistoricalInsightsService()
+    insights_ctx = await insights_service.compute_insights_context(db, farm_id)
+
+    # Return as dict, which will validate against FarmInsightsResponse in the frontend
+    return APIResponse.success(data=insights_ctx.model_dump())
+
 @router.delete("/{farm_id}", response_model=APIResponse)
 async def delete_farm(
     farm_id: str,

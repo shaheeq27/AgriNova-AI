@@ -13,6 +13,8 @@ class FertilizerRecommendation(BaseModel):
     timing: str
     application_method: str | None
     explanation: str
+    historically_adjusted: bool = False
+    personalization_rationale: str | None = None
 
 
 class FertilizerLogCreate(BaseModel):

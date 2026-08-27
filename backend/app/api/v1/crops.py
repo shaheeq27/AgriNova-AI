@@ -28,14 +28,42 @@ router = APIRouter(prefix="/crops", tags=["Crops"])
 # ── Recommendation ──
 
 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.core.security import decode_access_token
+from app.repositories.user_repo import UserRepository
+from fastapi import HTTPException, status, Security
+
+security_optional = HTTPBearer(auto_error=False)
+
+async def get_optional_user(db: AsyncSession, credentials: HTTPAuthorizationCredentials | None) -> User | None:
+    if not credentials or not hasattr(credentials, 'credentials'):
+        return None
+    payload = decode_access_token(credentials.credentials)
+    if not payload or "sub" not in payload:
+        return None
+    repo = UserRepository(db)
+    user = await repo.get_by_id(payload["sub"])
+    if not user or not user.is_active:
+        return None
+    return user
+
 @router.post("/recommend")
 async def recommend_crops(
     data: CropRecommendationRequest,
+    credentials: HTTPAuthorizationCredentials | None = Security(security_optional),
     db: AsyncSession = Depends(get_db),
 ):
     """Get AI-powered crop recommendations based on environmental conditions."""
     historical_insights = None
     if data.farm_id:
+        user = await get_optional_user(db, credentials)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Must be logged in to use farm context")
+
+        from app.services.farm_service import FarmService
+        farm_service = FarmService(db)
+        await farm_service.get_farm(user.id, data.farm_id) # validates ownership
+
         insights_service = HistoricalInsightsService()
         historical_insights = await insights_service.compute_insights_context(db, data.farm_id)
 

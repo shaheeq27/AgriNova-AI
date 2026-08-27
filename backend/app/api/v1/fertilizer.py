@@ -20,11 +20,22 @@ async def get_fertilizer_recommendation(
     crop_name: str,
     stage: str = Query(..., description="Growth stage"),
     soil_type: str = Query(..., description="Soil type"),
+    farm_id: str | None = Query(None, description="Optional farm ID for personalization"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    historical_insights = None
+    if farm_id:
+        from app.services.farm_service import FarmService
+        farm_service = FarmService(db)
+        await farm_service.get_farm(current_user.id, farm_id)  # validates ownership
+
+        from app.ai.services.historical_insights_service import HistoricalInsightsService
+        insights_service = HistoricalInsightsService()
+        historical_insights = await insights_service.compute_insights_context(db, farm_id)
+
     engine = FertilizerEngine()
-    recommendation = await engine.get_recommendation(db, crop_name, stage, soil_type)
+    recommendation = await engine.get_recommendation(db, crop_name, stage, soil_type, historical_insights)
     return APIResponse.success(data=recommendation)
 
 
