@@ -55,7 +55,11 @@ def format_context(context: UnifiedContext) -> str:
     if context.historical_insights:
         historical_insights_block = _format_historical_insights(context)
 
-    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block, historical_insights_block] if p]
+    market_block = ""
+    if context.market and context.market.prices:
+        market_block = _format_market(context)
+
+    parts = [p for p in [farm_block, knowledge_block, intelligence_block, history_block, historical_insights_block, market_block] if p]
     return "\n\n".join(parts)
 
 
@@ -392,4 +396,45 @@ def _format_historical_insights(context: UnifiedContext) -> str:
         return ""
 
     lines.append("[/HISTORICAL INSIGHTS]")
+    return "\n".join(lines)
+
+
+def _format_market(context: UnifiedContext) -> str:
+    """Format market intelligence for the farmer's active crops."""
+    market = context.market
+    if not market or not market.prices:
+        return ""
+        
+    lines = ["[MARKET DATA]"]
+
+    if market.last_updated:
+        try:
+            from zoneinfo import ZoneInfo
+            dt = market.last_updated.astimezone(ZoneInfo("Asia/Kolkata"))
+            lines.append(f"Last Updated: {dt.strftime('%d %b %Y %H:%M')} IST")
+        except Exception:
+            lines.append(f"Last Updated: {market.last_updated.strftime('%d %b %Y %H:%M')} UTC")
+
+    for price in market.prices:
+        lines.append(f"{price.commodity}:")
+        
+        price_str = ""
+        if price.min_price is not None and price.max_price is not None:
+            price_str = f"₹{price.min_price:,.0f}–₹{price.max_price:,.0f}/quintal (modal: ₹{price.modal_price:,.0f})"
+        else:
+            price_str = f"₹{price.modal_price:,.0f}/quintal"
+            
+        market_str = f"{price.market_name}: " if price.market_name else ""
+        date_str = f" — {price.price_date.strftime('%d %b %Y')}" if price.price_date else ""
+        
+        lines.append(f"  {market_str}{price_str}{date_str}")
+        
+        if price.price_change_pct is not None:
+            sign = "+" if price.price_change_pct > 0 else ""
+            lines.append(f"  Price Change: {sign}{price.price_change_pct:.1f}%")
+
+    status = market.data_status.capitalize() if market.data_status else "Unknown"
+    lines.append(f"Data Status: {status}")
+    lines.append("[/MARKET DATA]")
+    
     return "\n".join(lines)

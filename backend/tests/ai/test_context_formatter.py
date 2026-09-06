@@ -2,13 +2,15 @@
 Tests for ContextFormatter, focusing on V4 Phase 1 Step 7 historical formatting.
 """
 
-from datetime import date
+from datetime import date, datetime, timezone
 from app.ai.schemas.context import (
     UnifiedContext,
     FarmHistoryContext,
     CropHistoryEntry,
     FarmContext,
     CropContext,
+    MarketContext,
+    MarketPriceContext,
 )
 from app.ai.services.context_formatter import format_context
 
@@ -367,3 +369,107 @@ def test_format_intelligence_personalization():
     result_c = format_context(ctx_c)
 
     assert "Personalization: Adjusted based on farm history" not in result_c
+
+
+class TestFormatMarket:
+    def test_format_market_single_price(self):
+        ctx = UnifiedContext(
+            market=MarketContext(
+                prices=[
+                    MarketPriceContext(
+                        commodity="Wheat",
+                        market_name="Azadpur (Delhi)",
+                        modal_price=2800.0,
+                        min_price=2500.0,
+                        max_price=3200.0,
+                        price_date=date(2026, 8, 27),
+                        price_change_pct=8.2
+                    )
+                ],
+                last_updated=datetime(2026, 8, 27, 9, 0, tzinfo=timezone.utc),
+                data_status="live"
+            )
+        )
+        result = format_context(ctx)
+        
+        assert "[MARKET DATA]" in result
+        assert "[/MARKET DATA]" in result
+        assert "Last Updated: 27 Aug 2026 14:30 IST" in result
+        assert "Wheat:" in result
+        assert "Azadpur (Delhi): ₹2,500–₹3,200/quintal (modal: ₹2,800) — 27 Aug 2026" in result
+        assert "Price Change: +8.2%" in result
+        assert "Data Status: Live" in result
+
+    def test_format_market_multiple_commodities(self):
+        ctx = UnifiedContext(
+            market=MarketContext(
+                prices=[
+                    MarketPriceContext(commodity="Tomato", modal_price=1500.0),
+                    MarketPriceContext(commodity="Rice", modal_price=3200.0)
+                ]
+            )
+        )
+        result = format_context(ctx)
+        assert "Tomato:" in result
+        assert "Rice:" in result
+
+    def test_format_market_negative_price_change(self):
+        ctx = UnifiedContext(
+            market=MarketContext(
+                prices=[
+                    MarketPriceContext(commodity="Rice", modal_price=3200.0, price_change_pct=-2.1)
+                ]
+            )
+        )
+        result = format_context(ctx)
+        assert "Price Change: -2.1%" in result
+
+    def test_format_market_no_price_change(self):
+        ctx = UnifiedContext(
+            market=MarketContext(
+                prices=[
+                    MarketPriceContext(commodity="Rice", modal_price=3200.0, price_change_pct=None)
+                ]
+            )
+        )
+        result = format_context(ctx)
+        assert "Price Change:" not in result
+
+    def test_format_market_none(self):
+        ctx = UnifiedContext(market=None)
+        result = format_context(ctx)
+        assert "[MARKET DATA]" not in result
+
+    def test_format_market_empty_prices(self):
+        ctx = UnifiedContext(
+            market=MarketContext(prices=[])
+        )
+        result = format_context(ctx)
+        assert "[MARKET DATA]" not in result
+        
+    def test_format_market_status_preservation(self):
+        ctx = UnifiedContext(
+            market=MarketContext(
+                prices=[MarketPriceContext(commodity="Rice", modal_price=3200.0)],
+                data_status="cached"
+            )
+        )
+        result = format_context(ctx)
+        assert "Data Status: Cached" in result
+
+    def test_format_does_not_disrupt_existing_blocks(self):
+        ctx = UnifiedContext(
+            farm=FarmContext(
+                name="Old Farm", location_city="Delhi",
+                soil_type="Loamy", total_area_acres=8.0,
+            ),
+            market=MarketContext(
+                prices=[MarketPriceContext(commodity="Wheat", modal_price=2500.0)],
+                data_status="live",
+            ),
+        )
+        result = format_context(ctx)
+        assert "[FARM CONTEXT]" in result
+        assert "[/FARM CONTEXT]" in result
+        assert "[MARKET DATA]" in result
+        assert "[/MARKET DATA]" in result
