@@ -8,7 +8,7 @@ Phase 6: + intelligence (engine outputs).
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 from app.ai.schemas.historical_analysis import HistoricalInsightsContext
@@ -183,6 +183,26 @@ class HistoricalInsights(BaseModel):
     historical_yield_observations: list[str] = Field(default_factory=list)
 
 
+# ── Market context (V5.3) ───────────────────────────────────────────────────
+
+class MarketPriceContext(BaseModel):
+    """Market price data for a single commodity."""
+    commodity: str
+    market_name: str | None = None
+    modal_price: float
+    min_price: float | None = None
+    max_price: float | None = None
+    price_date: date | None = None
+    price_change_pct: float | None = None
+
+
+class MarketContext(BaseModel):
+    """Market intelligence for the farmer's crops."""
+    prices: list[MarketPriceContext] = Field(default_factory=list)
+    last_updated: datetime | None = None
+    data_status: str = "live"
+
+
 # ── Unified Context ─────────────────────────────────────────────────────────
 
 class UnifiedContext(BaseModel):
@@ -193,6 +213,7 @@ class UnifiedContext(BaseModel):
     Phase 6: ``intelligence`` is populated (engine outputs).
     Phase 8 (V4 Phase 1): ``history`` is populated.
     Phase 9 (V4 Phase 1): ``historical_insights`` is populated.
+    V5.3: ``market`` is populated (market intelligence).
     """
 
     farm: FarmContext | None = None
@@ -201,3 +222,4 @@ class UnifiedContext(BaseModel):
     intelligence: EngineContext | None = None
     history: FarmHistoryContext | None = None
     historical_insights: HistoricalInsightsContext | None = None
+    market: MarketContext | None = None

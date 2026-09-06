@@ -30,6 +30,8 @@ from app.ai.schemas.historical_analysis import HistoricalInsightsContext
 from app.ai.schemas.context import (
     CropContext,
     FarmContext,
+    MarketContext,
+    MarketPriceContext,
     UnifiedContext,
     WeatherContext,
     WeatherData,
@@ -43,6 +45,7 @@ from app.ai.services.intelligence_service import IntelligenceService
 from app.ai.services.intent_router import IntentResult, detect_intent
 from app.ai.services.farm_history_service import FarmHistoryService
 from app.ai.services.historical_insights_service import HistoricalInsightsService
+from app.services.market_service import MarketService
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +72,7 @@ class ContextService:
         self.intelligence_service = IntelligenceService(db)
         self.history_service = FarmHistoryService(db)
         self.insights_service = HistoricalInsightsService()
+        self.market_service = MarketService(db)
 
     async def build_unified_context(
         self,
@@ -105,6 +109,9 @@ class ContextService:
             farm_context, weather_data, user_message, historical_insights
         )
 
+        # V5.3: Retrieve market intelligence for the farmer's active crops
+        market = await self._build_market_context(farm)
+
         # Build and return the unified context
         return UnifiedContext(
             farm=farm_context,
@@ -113,6 +120,7 @@ class ContextService:
             intelligence=intelligence,
             history=history,
             historical_insights=historical_insights,
+            market=market,
         )
 
     # ── Private builders ─────────────────────────────────────────────────
@@ -302,4 +310,63 @@ class ContextService:
             return await self.insights_service.compute_insights_context(self.db, farm.id)
         except Exception as e:
             print('EXCEPTION IN HISTORICAL INSIGHTS:', e)
+            return None
+
+    async def _build_market_context(self, farm: Farm) -> MarketContext | None:
+        """Retrieve market intelligence for the farmer's active crops.
+
+        V5.3: Uses the existing ``MarketService.get_dashboard_summary``
+        which already handles commodity lookup, price change computation,
+        and trend detection.  Only looks up crops with status "active"
+        or "planned" to avoid wasting context tokens on historical crops.
+
+        Returns ``None`` if no active crops or if the market service fails.
+        """
+        if not farm or not (farm.crops or []):
+            return None
+
+        # Filter to crops that the farmer actually cares about right now
+        active_crop_names = [
+            crop.crop_name.lower()
+            for crop in farm.crops
+            if crop.status in ("active", "planned")
+        ]
+
+        if not active_crop_names:
+            return None
+
+        try:
+            summary = await self.market_service.get_dashboard_summary(active_crop_names)
+
+            if not summary.items:
+                return MarketContext(
+                    prices=[],
+                    last_updated=summary.last_updated,
+                    data_status=summary.data_status.value,
+                )
+
+            prices = [
+                MarketPriceContext(
+                    commodity=item.commodity,
+                    market_name=item.market_name,
+                    modal_price=item.modal_price,
+                    min_price=None,  # Not in summary
+                    max_price=None,  # Not in summary
+                    price_date=item.price_date,
+                    price_change_pct=item.price_change_pct,
+                )
+                for item in summary.items
+            ]
+
+            return MarketContext(
+                prices=prices,
+                last_updated=summary.last_updated,
+                data_status=summary.data_status.value,
+            )
+        except Exception:
+            logger.warning(
+                "Failed to build market context for farm %s",
+                getattr(farm, 'id', 'unknown'),
+                exc_info=True,
+            )
             return None
