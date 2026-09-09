@@ -13,11 +13,17 @@ router = APIRouter(prefix="/notifications", tags=["Notifications"])
 @router.get("")
 async def list_notifications(
     unread_only: bool = Query(False),
+    category: Optional[str] = Query(None, description="Filter by category (weather, irrigation, fertilizer, market, ai, system)"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if category and category not in ["weather", "irrigation", "fertilizer", "market", "ai", "system"]:
+        raise HTTPException(status_code=422, detail="Invalid category")
+        
     service = NotificationService()
-    items = await service.get_notifications(db, current_user.id, unread_only)
+    items = await service.get_notifications(db, current_user.id, unread_only, skip, limit, category)
     unread_count = await service.get_unread_count(db, current_user.id)
     return APIResponse.success({
         "items": items,
@@ -50,7 +56,7 @@ async def mark_read(
     current_user: User = Depends(get_current_user)
 ):
     service = NotificationService()
-    n = await service.mark_read(db, notification_id)
+    n = await service.mark_read(db, notification_id, current_user.id)
     if not n:
         raise HTTPException(status_code=404, detail="Notification not found")
     return APIResponse.success(n)

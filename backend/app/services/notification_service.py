@@ -6,6 +6,12 @@ from app.models.notification import Notification
 from app.models.timeline import DailyTask, CropTimeline
 from app.models.weather import WeatherRecord
 from app.models.farm import Farm
+from app.services.email_service import EmailService
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class NotificationService:
     def __init__(self):
@@ -13,6 +19,7 @@ class NotificationService:
 
     async def generate_notifications(self, db: AsyncSession, user_id: str) -> list[dict]:
         repo = NotificationRepository(db)
+        email_service = EmailService(db)
         generated = []
         today = datetime.now(timezone.utc).date()
         
@@ -45,6 +52,7 @@ class NotificationService:
                 )
                 generated.append(n)
                 existing_keys.add(key)
+                # task_overdue is NOT in EMAIL_ELIGIBLE_TYPES → no email
 
         # 2. DailyTask Irrigation & Fertilizer
         tasks_today_query = select(DailyTask).where(
@@ -58,7 +66,7 @@ class NotificationService:
                 ntype = 'irrigation_reminder'
                 title = "Irrigation Due"
             elif task.category == 'fertilizer':
-                ntype = 'fertilizer_due'
+                ntype = 'fertilizer_reminder'
                 title = "Fertilizer Due"
             
             if ntype:
@@ -75,6 +83,15 @@ class NotificationService:
                     )
                     generated.append(n)
                     existing_keys.add(key)
+
+                    # Email sidecar — only if eligible + enabled + opted in
+                    await email_service.maybe_send_email(
+                        user_id=user_id,
+                        notification_type=ntype,
+                        title=title,
+                        message=f"Task '{task.title}' is scheduled for today.",
+                        template_data={"task_title": task.title},
+                    )
 
         # 4. Harvest Reminder
         harvest_query = select(CropTimeline).where(
@@ -96,6 +113,7 @@ class NotificationService:
                 )
                 generated.append(n)
                 existing_keys.add(key)
+                # harvest_reminder is NOT in EMAIL_ELIGIBLE_TYPES → no email
 
         # 5. Weather Alert
         weather_query = select(WeatherRecord).join(Farm).where(
@@ -107,10 +125,12 @@ class NotificationService:
             key = f"weather_alert_{weather.farm_id}"
             if key not in existing_keys:
                 if weather.temp_avg and (weather.temp_avg > 35 or weather.temp_avg < 0):
+                    title = "Weather Alert"
+                    message = f"Extreme temperature detected: {weather.temp_avg}°C"
                     n = await repo.create(
                         user_id=user_id,
-                        title="Weather Alert",
-                        message=f"Extreme temperature detected: {weather.temp_avg}°C",
+                        title=title,
+                        message=message,
                         type="weather_alert",
                         severity="critical",
                         related_entity_type="farm",
@@ -118,6 +138,20 @@ class NotificationService:
                     )
                     generated.append(n)
                     existing_keys.add(key)
+
+                    # Email sidecar for weather alerts
+                    await email_service.maybe_send_email(
+                        user_id=user_id,
+                        notification_type="weather_alert",
+                        title=title,
+                        message=message,
+                        template_data={
+                            "farm_name": "Your Farm",
+                            "severity": "critical",
+                            "condition": "Extreme Temperature",
+                            "temperature": weather.temp_avg,
+                        },
+                    )
         
         return [
             {
@@ -133,9 +167,90 @@ class NotificationService:
             } for g in generated
         ]
 
-    async def get_notifications(self, db: AsyncSession, user_id: str, unread_only: bool = False) -> list[dict]:
+    async def create_market_alert(
+        self,
+        db: AsyncSession,
+        user_id: str,
+        commodity: str,
+        market_name: str,
+        modal_price: float,
+        price_change_pct: float,
+        min_price: float | None = None,
+        max_price: float | None = None,
+    ) -> dict | None:
+        """Create a market price alert notification with optional email.
+
+        Called by MarketService when a price change exceeds the threshold.
+        Returns the created notification dict, or None if duplicate.
+        """
         repo = NotificationRepository(db)
-        items = await repo.get_all(user_id, unread_only)
+        today = datetime.now(timezone.utc).date()
+
+        # Dedup key: one alert per commodity per market per day
+        dedup_key = f"market_alert_{commodity}_{market_name}"
+        existing_query = select(Notification).where(
+            Notification.user_id == user_id,
+            Notification.type == "market_alert",
+            func.date(Notification.created_at) == today
+        )
+        existing_res = await db.execute(existing_query)
+        existing_keys = set(
+            f"market_alert_{n.related_entity_type}_{n.related_entity_id}"
+            for n in existing_res.scalars().all()
+        )
+        if dedup_key in existing_keys:
+            return None
+
+        direction = "up" if price_change_pct > 0 else "down"
+        title = f"{commodity} price {direction} {abs(price_change_pct):.1f}%"
+        message = (
+            f"{commodity} at {market_name}: ₹{modal_price}/q "
+            f"({'↑' if price_change_pct > 0 else '↓'}{abs(price_change_pct):.1f}% vs yesterday)"
+        )
+
+        # In-app notification
+        n = await repo.create(
+            user_id=user_id,
+            title=title,
+            message=message,
+            type="market_alert",
+            severity="warning" if abs(price_change_pct) > 15 else "info",
+            related_entity_type=commodity,
+            related_entity_id=market_name,
+        )
+
+        # Email sidecar
+        email_service = EmailService(db)
+        await email_service.maybe_send_email(
+            user_id=user_id,
+            notification_type="market_alert",
+            title=title,
+            message=message,
+            template_data={
+                "commodity": commodity,
+                "market_name": market_name,
+                "modal_price": modal_price,
+                "price_change_pct": price_change_pct,
+                "min_price": min_price,
+                "max_price": max_price,
+            },
+        )
+
+        return {
+            "id": n.id,
+            "title": n.title,
+            "message": n.message,
+            "type": n.type,
+            "severity": n.severity,
+            "is_read": n.is_read,
+            "related_entity_type": n.related_entity_type,
+            "related_entity_id": n.related_entity_id,
+            "created_at": n.created_at,
+        }
+
+    async def get_notifications(self, db: AsyncSession, user_id: str, unread_only: bool = False, skip: int = 0, limit: int = 50, category: str = None) -> list[dict]:
+        repo = NotificationRepository(db)
+        items = await repo.get_all(user_id, unread_only, skip, limit, category)
         return [
             {
                 "id": n.id,
@@ -150,9 +265,9 @@ class NotificationService:
             } for n in items
         ]
 
-    async def mark_read(self, db: AsyncSession, notification_id: str) -> dict:
+    async def mark_read(self, db: AsyncSession, notification_id: str, user_id: str) -> dict:
         repo = NotificationRepository(db)
-        n = await repo.mark_read(notification_id)
+        n = await repo.mark_read(notification_id, user_id)
         if not n:
             return None
         return {

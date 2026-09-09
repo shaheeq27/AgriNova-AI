@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Weather Alert — {{ app_name }}{% endblock %}
+{% block header_subtitle %}Weather Alert{% endblock %}
+
+{% block content %}
+<h2>⚠️ Weather Alert</h2>
+<p>We detected unusual weather conditions at <strong>{{ farm_name }}</strong> that may affect your crops.</p>
+
+<div class="badge badge-{{ severity }}">{{ severity | upper }}</div>
+
+<div style="margin-top: 24px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px;">
+  <div class="data-row">
+    <span class="data-label">Condition</span>
+    <span class="data-value">{{ condition }}</span>
+  </div>
+  {% if temperature %}
+  <div class="data-row">
+    <span class="data-label">Temperature</span>
+    <span class="data-value">{{ temperature }}°C</span>
+  </div>
+  {% endif %}
+  {% if humidity %}
+  <div class="data-row">
+    <span class="data-label">Humidity</span>
+    <span class="data-value">{{ humidity }}%</span>
+  </div>
+  {% endif %}
+  {% if rainfall %}
+  <div class="data-row">
+    <span class="data-label">Rainfall</span>
+    <span class="data-value">{{ rainfall }} mm</span>
+  </div>
+  {% endif %}
+</div>
+
+{% if recommendation %}
+<p style="margin-top: 24px;"><strong>Recommendation:</strong> {{ recommendation }}</p>
+{% endif %}
+{% endblock %}

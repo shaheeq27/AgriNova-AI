@@ -30,6 +30,7 @@ from app.api.v1.analytics import router as analytics_router
 from app.api.v1.activity import router as activity_router
 from app.api.v1.scheduler import router as scheduler_router
 from app.api.v1.notifications import router as notifications_router
+from app.api.v1.preferences import router as preferences_router
 from app.api.v1.reports import router as reports_router
 
 # V3.0 routers
@@ -83,6 +84,7 @@ app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(activity_router, prefix="/api/v1")
 app.include_router(scheduler_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
+app.include_router(preferences_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 
 # V3.0 routers

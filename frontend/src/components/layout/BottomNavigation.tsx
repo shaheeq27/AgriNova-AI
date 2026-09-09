@@ -3,10 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Calendar, Scan, Brain, Bot } from 'lucide-react';
+import { Home, Calendar, Scan, Brain, Bot } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard', Icon: LayoutGrid },
+  { label: 'Home', href: '/home', Icon: Home },
   { label: 'Timeline', href: '/timeline', Icon: Calendar },
   { label: 'Detect', href: '/detect', Icon: Scan },
   { label: 'Advisor', href: '/advisor', Icon: Brain },

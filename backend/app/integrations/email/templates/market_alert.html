@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Market Price Alert — {{ app_name }}{% endblock %}
+{% block header_subtitle %}Market Intelligence{% endblock %}
+
+{% block content %}
+<h2>📊 Market Price Alert</h2>
+<p>A significant price change was detected for one of your crops.</p>
+
+<div style="margin-top: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px;">
+  <div class="data-row">
+    <span class="data-label">Commodity</span>
+    <span class="data-value">{{ commodity }}</span>
+  </div>
+  <div class="data-row">
+    <span class="data-label">Market</span>
+    <span class="data-value">{{ market_name }}</span>
+  </div>
+  <div class="data-row">
+    <span class="data-label">Modal Price</span>
+    <span class="data-value">₹{{ modal_price }}/q</span>
+  </div>
+  {% if price_change_pct is defined and price_change_pct is not none %}
+  <div class="data-row">
+    <span class="data-label">Change</span>
+    <span class="data-value" style="color: {{ '#adff00' if price_change_pct > 0 else '#ef5350' }};">
+      {{ '↑' if price_change_pct > 0 else '↓' }} {{ price_change_pct | abs }}%
+    </span>
+  </div>
+  {% endif %}
+  {% if min_price and max_price %}
+  <div class="data-row">
+    <span class="data-label">Range</span>
+    <span class="data-value">₹{{ min_price }} — ₹{{ max_price }}</span>
+  </div>
+  {% endif %}
+</div>
+
+<p style="margin-top: 24px; color: #8d928c; font-size: 13px;">
+  Alert threshold: {{ threshold_pct | default('10') }}% day-over-day change.
+  You can adjust this in your notification preferences.
+</p>
+{% endblock %}

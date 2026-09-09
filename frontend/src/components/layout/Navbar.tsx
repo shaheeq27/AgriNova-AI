@@ -4,12 +4,16 @@
  * AgriNova AI — Top Navbar
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { PanelLeft } from 'lucide-react';
+import { NotificationDrawer } from '../notifications/NotificationDrawer';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const handleToggleSidebar = () => {
     window.dispatchEvent(new CustomEvent('toggle-sidebar'));
@@ -80,39 +84,61 @@ export default function Navbar() {
       {/* Right: User section */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {/* Notification bell */}
-        <button
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            padding: '8px',
-            borderRadius: 'var(--radius-md)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--text-primary)';
-            e.currentTarget.style.background = 'var(--surface-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--text-muted)';
-            e.currentTarget.style.background = 'none';
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: 'var(--radius-md)',
+              transition: 'all 0.2s ease',
+              position: 'relative'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.background = 'var(--surface-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.background = 'none';
+            }}
           >
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 01-3.46 0" />
-          </svg>
-        </button>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '4px',
+                right: '4px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#ADFF00',
+                borderRadius: '50%',
+                boxShadow: '0 0 0 2px #131412'
+              }} />
+            )}
+          </button>
+          
+          <NotificationDrawer 
+            isOpen={isDrawerOpen} 
+            onClose={() => setIsDrawerOpen(false)} 
+          />
+        </div>
 
         {/* User avatar & name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

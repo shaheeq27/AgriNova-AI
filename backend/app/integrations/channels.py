@@ -150,7 +150,15 @@ class NotificationDispatcher:
         # System notifications are always delivered
         if payload.category != NotificationCategory.SYSTEM:
             if user_preferences is not None:
-                category_key = f"{payload.category.value}_alerts" if payload.category == NotificationCategory.WEATHER else f"{payload.category.value}_reminders" if payload.category in (NotificationCategory.IRRIGATION, NotificationCategory.FERTILIZER) else f"{payload.category.value}_alerts"
+                # Map category enum to preference column names
+                category_to_pref = {
+                    NotificationCategory.WEATHER: "weather_alerts",
+                    NotificationCategory.IRRIGATION: "irrigation_reminders",
+                    NotificationCategory.FERTILIZER: "fertilizer_reminders",
+                    NotificationCategory.MARKET: "market_alerts",
+                    NotificationCategory.AI: "ai_insights",
+                }
+                category_key = category_to_pref.get(payload.category, f"{payload.category.value}_alerts")
                 
                 # Check category-specific preference
                 if not user_preferences.get(category_key, True):

@@ -24,6 +24,8 @@ from app.models.activity_log import ActivityLog
 from app.models.notification import Notification
 from app.models.conversation import Conversation, Message
 from app.models.market_price import MarketPrice
+from app.models.notification_preference import NotificationPreference
+from app.models.email_log import EmailLog
 
 __all__ = [
     "User",
@@ -47,6 +49,8 @@ __all__ = [
     "Conversation",
     "Message",
     "MarketPrice",
+    "NotificationPreference",
+    "EmailLog",
 ]
 
 

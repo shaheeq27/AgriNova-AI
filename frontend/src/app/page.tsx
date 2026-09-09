@@ -17,7 +17,7 @@ export default function WelcomePage() {
 
     // Complete route transition at 5.9s (6 seconds total)
     const redirectTimer = setTimeout(() => {
-      router.push('/dashboard');
+      router.push('/home');
     }, 5900);
 
     return () => {

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Fertilizer Reminder — {{ app_name }}{% endblock %}
+{% block header_subtitle %}Fertilizer Reminder{% endblock %}
+
+{% block content %}
+<h2>🌿 Fertilizer Application Due</h2>
+<p>Your scheduled fertilizer task is ready for today.</p>
+
+<div style="margin-top: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px;">
+  <div class="data-row">
+    <span class="data-label">Task</span>
+    <span class="data-value">{{ task_title }}</span>
+  </div>
+  {% if crop_name %}
+  <div class="data-row">
+    <span class="data-label">Crop</span>
+    <span class="data-value">{{ crop_name }}</span>
+  </div>
+  {% endif %}
+  {% if farm_name %}
+  <div class="data-row">
+    <span class="data-label">Farm</span>
+    <span class="data-value">{{ farm_name }}</span>
+  </div>
+  {% endif %}
+</div>
+
+<p style="margin-top: 24px; color: #8d928c; font-size: 13px;">
+  Proper fertilization timing is critical for maximizing yield and soil health.
+</p>
+{% endblock %}

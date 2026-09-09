@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
+  Home,
   LayoutGrid,
   MapPin,
   Sprout,
@@ -15,10 +16,12 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Bot,
-  TrendingUp
+  TrendingUp,
+  Settings
 } from 'lucide-react';
 
 const NAV_ITEMS = [
+  { label: 'Home', href: '/home', Icon: Home },
   { label: 'Dashboard', href: '/dashboard', Icon: LayoutGrid },
   { label: 'My Farms', href: '/farms', Icon: MapPin },
   { label: 'Crops', href: '/crops', Icon: Sprout },
@@ -26,6 +29,7 @@ const NAV_ITEMS = [
   { label: 'Market', href: '/market', Icon: TrendingUp },
   { label: 'Aira', href: '/aira', Icon: Bot },
   { label: 'Knowledge Base', href: '/knowledge', Icon: BookOpen },
+  { label: 'Settings', href: '/settings', Icon: Settings },
 ];
 
 export default function Sidebar() {

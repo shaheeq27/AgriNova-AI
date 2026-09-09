@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}AI Recommendation — {{ app_name }}{% endblock %}
+{% block header_subtitle %}AI Insights{% endblock %}
+
+{% block content %}
+<h2>🤖 AI Recommendation</h2>
+<p>{{ app_name }}'s AI agronomist has a new insight for your farm.</p>
+
+<div style="margin-top: 16px; background: rgba(173,255,0,0.04); border: 1px solid rgba(173,255,0,0.1); border-radius: 12px; padding: 20px;">
+  {% if recommendation_title %}
+  <p style="margin: 0 0 8px; font-weight: 600; color: #f2f0e8;">{{ recommendation_title }}</p>
+  {% endif %}
+  <p style="margin: 0; color: #c4c8c0; line-height: 1.6;">{{ recommendation_text }}</p>
+</div>
+
+{% if crop_name or farm_name %}
+<div style="margin-top: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px;">
+  {% if crop_name %}
+  <div class="data-row">
+    <span class="data-label">Crop</span>
+    <span class="data-value">{{ crop_name }}</span>
+  </div>
+  {% endif %}
+  {% if farm_name %}
+  <div class="data-row">
+    <span class="data-label">Farm</span>
+    <span class="data-value">{{ farm_name }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<p style="margin-top: 24px; color: #8d928c; font-size: 13px;">
+  AI recommendations are personalized based on your farm history, crop data, and local conditions.
+</p>
+{% endblock %}
