@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -76,63 +76,28 @@ const AIRA_QUESTIONS = [
   'Give me a farming tip for this season.',
 ];
 
-/* ───────── Seedling SVG ───────── */
-function SeedlingSvg() {
-  return (
-    <svg
-      width="140"
-      height="200"
-      viewBox="0 0 140 200"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={styles.seedlingSvg}
-    >
-      {/* Stem */}
-      <path
-        d="M70 200 L70 100"
-        stroke="url(#stemGrad)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      {/* Left leaf */}
-      <path
-        d="M70 130 C45 120, 25 90, 30 60 C35 55, 50 65, 60 85 C65 100, 68 115, 70 130Z"
-        fill="url(#leafGrad)"
-        opacity="0.9"
-      />
-      {/* Right leaf */}
-      <path
-        d="M70 110 C95 100, 115 70, 110 40 C105 35, 90 45, 80 65 C75 80, 72 95, 70 110Z"
-        fill="url(#leafGrad)"
-        opacity="0.85"
-      />
-      {/* Small sprout leaf */}
-      <path
-        d="M70 100 C58 88, 50 70, 55 52 C58 50, 62 55, 66 68 C68 78, 69 90, 70 100Z"
-        fill="url(#leafGrad)"
-        opacity="0.7"
-      />
-      {/* Soil/ground */}
-      <ellipse cx="70" cy="198" rx="35" ry="6" fill="rgba(34, 80, 30, 0.4)" />
-      {/* Gradients */}
-      <defs>
-        <linearGradient id="stemGrad" x1="70" y1="200" x2="70" y2="100" gradientUnits="userSpaceOnUse">
-          <stop stopColor="rgba(34,120,50,0.6)" />
-          <stop offset="1" stopColor="#ADFF00" stopOpacity="0.8" />
-        </linearGradient>
-        <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop stopColor="#ADFF00" stopOpacity="0.85" />
-          <stop offset="1" stopColor="#22C55E" stopOpacity="0.6" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
-
 /* ───────── Page Component ───────── */
 export default function HomePage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
+
+  const footerRef = useRef<HTMLElement>(null);
+  const [footerVisible, setFooterVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -166,7 +131,9 @@ export default function HomePage() {
       <section className={styles.hero}>
         {/* Left — Text */}
         <div className={styles.heroText}>
-          <p className={styles.eyebrow}>Intelligence for a Greener Tomorrow</p>
+          <p className={styles.tagline}>
+            Where <span className={styles.taglineAccent}>Nature</span> Meets <span className={styles.taglineAccent}>Technology</span>
+          </p>
           <h1 className={styles.heroHeading}>
             Smarter Farming
             <br />
@@ -191,12 +158,50 @@ export default function HomePage() {
 
         {/* Right — Visual */}
         <div className={styles.heroVisual}>
-          {/* Glow behind seedling */}
-          <div className={styles.seedlingGlow} />
-
-          {/* Seedling SVG */}
-          <div className={styles.seedlingContainer}>
-            <SeedlingSvg />
+          {/* Crop Image */}
+          <div className={styles.heroCropContainer}>
+            <img src="/hero-crop.png" alt="Agriculture crop" className={styles.heroCropImage} />
+            
+            {/* Butterflies */}
+            <div className={`${styles.butterfly} ${styles.butterfly1}`}>
+              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g className={styles.wingLeft} transform-origin="16 16">
+                  <path d="M15 14C10 8 4 6 4 14C4 18 10 20 15 16Z" fill="#FDB813" />
+                  <path d="M14 16C10 18 7 22 9 26C11 28 14 24 15 20Z" fill="#D47A11" />
+                </g>
+                <g className={styles.wingRight} transform-origin="16 16">
+                  <path d="M17 14C22 8 28 6 28 14C28 18 22 20 17 16Z" fill="#FDB813" />
+                  <path d="M18 16C22 18 25 22 23 26C21 28 18 24 17 20Z" fill="#D47A11" />
+                </g>
+                <path d="M15 12C15 10 17 10 17 12C17 15 16.5 22 16 22C15.5 22 15 15 15 12Z" fill="#4A3018" />
+              </svg>
+            </div>
+            <div className={`${styles.butterfly} ${styles.butterfly2}`}>
+              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g className={styles.wingLeft} transform-origin="16 16">
+                  <path d="M15 14C10 8 4 6 4 14C4 18 10 20 15 16Z" fill="#FDB813" />
+                  <path d="M14 16C10 18 7 22 9 26C11 28 14 24 15 20Z" fill="#D47A11" />
+                </g>
+                <g className={styles.wingRight} transform-origin="16 16">
+                  <path d="M17 14C22 8 28 6 28 14C28 18 22 20 17 16Z" fill="#FDB813" />
+                  <path d="M18 16C22 18 25 22 23 26C21 28 18 24 17 20Z" fill="#D47A11" />
+                </g>
+                <path d="M15 12C15 10 17 10 17 12C17 15 16.5 22 16 22C15.5 22 15 15 15 12Z" fill="#4A3018" />
+              </svg>
+            </div>
+            <div className={`${styles.butterfly} ${styles.butterfly3}`}>
+              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g className={styles.wingLeft} transform-origin="16 16">
+                  <path d="M15 14C10 8 4 6 4 14C4 18 10 20 15 16Z" fill="#FDB813" />
+                  <path d="M14 16C10 18 7 22 9 26C11 28 14 24 15 20Z" fill="#D47A11" />
+                </g>
+                <g className={styles.wingRight} transform-origin="16 16">
+                  <path d="M17 14C22 8 28 6 28 14C28 18 22 20 17 16Z" fill="#FDB813" />
+                  <path d="M18 16C22 18 25 22 23 26C21 28 18 24 17 20Z" fill="#D47A11" />
+                </g>
+                <path d="M15 12C15 10 17 10 17 12C17 15 16.5 22 16 22C15.5 22 15 15 15 12Z" fill="#4A3018" />
+              </svg>
+            </div>
           </div>
 
           {/* Floating Info Cards */}
@@ -246,7 +251,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ EXPLORE AGRINOVA ═══════════ */}
-      <section className={styles.section}>
+      <section className={styles.section} id="features">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionHeaderLeft}>
             <h2 className={styles.sectionTitle}>Explore AgriNova</h2>
@@ -254,7 +259,14 @@ export default function HomePage() {
               Everything you need for modern, data-driven farming.
             </p>
           </div>
-          <Link href="/dashboard" className={styles.sectionLink}>
+          <Link 
+            href="#features" 
+            className={styles.sectionLink}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
             View All Features
             <ArrowRight size={14} strokeWidth={2} />
           </Link>
@@ -385,6 +397,31 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ═══════════ FOOTER ═══════════ */}
+      <div className={styles.footerTrigger} />
+      <footer 
+        ref={footerRef} 
+        className={`${styles.footer} ${footerVisible ? styles.footerVisible : ''}`}
+      >
+        <div className={styles.footerContent}>
+          <div className={styles.footerLeft}>
+            <div className={styles.footerLogo}>
+              <Leaf size={18} className={styles.footerLogoIcon} />
+              <span className={styles.footerLogoText}>AgriNova</span>
+            </div>
+            <p className={styles.footerTagline}>Where Nature Meets Technology</p>
+          </div>
+          <div className={styles.footerRight}>
+            <div className={styles.footerLinks}>
+              <Link href="#">Privacy Policy</Link>
+              <Link href="#">Terms of Service</Link>
+              <Link href="#">Contact Support</Link>
+            </div>
+            <p className={styles.footerCopyright}>&copy; {new Date().getFullYear()} AgriNova AI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
