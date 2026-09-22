@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styles from './TreatmentPlan.module.css';
-import { DiagnosisData, TreatmentLogEntry, DosageUnit } from '../types';
+import { ImageAnalysisResponse, TreatmentLogEntry, DosageUnit } from '../types';
 import { DOSAGE_UNITS } from '../constants';
 import { Card } from '@/ui/Card';
 import { Button } from '@/ui/Button';
 import { Pill } from 'lucide-react';
 
 interface TreatmentPlanProps {
-  diagnosis: DiagnosisData;
+  analysisResult: ImageAnalysisResponse;
   showTreatmentForm: boolean;
   isSaving: boolean;
   onOpenForm: () => void;
@@ -18,7 +18,7 @@ interface TreatmentPlanProps {
 }
 
 export const TreatmentPlan: React.FC<TreatmentPlanProps> = ({
-  diagnosis,
+  analysisResult,
   showTreatmentForm,
   isSaving,
   onOpenForm,
@@ -27,7 +27,7 @@ export const TreatmentPlan: React.FC<TreatmentPlanProps> = ({
   isStandalone,
   onReset,
 }) => {
-  const [treatmentUsed, setTreatmentUsed] = useState(diagnosis.treatment.productName);
+  const [treatmentUsed, setTreatmentUsed] = useState('');
   const [dateApplied, setDateApplied] = useState('');
   const [quantity, setQuantity] = useState<number | ''>('');
   const [unit, setUnit] = useState<DosageUnit>('ml');
@@ -51,55 +51,16 @@ export const TreatmentPlan: React.FC<TreatmentPlanProps> = ({
           <Pill size={24} className={styles.icon} />
           <h2 className={styles.title}>Treatment</h2>
         </div>
-        
+
         <div className={styles.productSection}>
-          <h3 className={styles.productName}>{diagnosis.treatment.productName}</h3>
-          
           <div className={styles.detailsGrid}>
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Dosage:</span>
-              <span className={styles.detailValue}>{diagnosis.treatment.dosage}</span>
+              <span className={styles.detailLabel}>Recommended Action:</span>
+              <span className={styles.detailValue}>{analysisResult.knowledge_base_evidence?.treatment}</span>
             </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Application:</span>
-              <span className={styles.detailValue}>{diagnosis.treatment.applicationMethod}</span>
-            </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Instructions:</span>
-              <span className={styles.detailValue}>{diagnosis.treatment.instructions}</span>
-            </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Urgency:</span>
-              <span className={styles.detailUrgency}>{diagnosis.actionUrgency}</span>
-            </div>
-          </div>
-          
-          <div className={styles.whySection}>
-            <h4 className={styles.whyTitle}>Why this recommendation?</h4>
-            <p className={styles.whyText}>{diagnosis.whyRecommendation}</p>
           </div>
         </div>
       </Card>
-
-      {diagnosis.naturalTreatment && (
-        <Card className={styles.naturalCard}>
-          <h3 className={styles.naturalTitle}>Natural Treatment</h3>
-          <div className={styles.detailsGrid}>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Name:</span>
-              <span className={styles.detailValue}>{diagnosis.naturalTreatment.name}</span>
-            </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Method:</span>
-              <span className={styles.detailValue}>{diagnosis.naturalTreatment.method}</span>
-            </div>
-            <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Effectiveness:</span>
-              <span className={styles.detailValue}>{diagnosis.naturalTreatment.effectiveness}</span>
-            </div>
-          </div>
-        </Card>
-      )}
 
       {!showTreatmentForm ? (
         <Card className={styles.actionCard}>
@@ -139,7 +100,7 @@ export const TreatmentPlan: React.FC<TreatmentPlanProps> = ({
                 className={styles.input}
               />
             </div>
-            
+
             <div className={styles.formGroup}>
               <label>Date Applied</label>
               <input

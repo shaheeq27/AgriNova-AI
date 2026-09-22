@@ -18,34 +18,24 @@ export type ResolutionOutcome = 'resolved' | 'partially_resolved' | 'recurring';
 /** Dosage unit options for combined quantity+unit control */
 export type DosageUnit = 'ml' | 'L' | 'g' | 'kg';
 
-/** Diagnosis data returned after analysis */
-export interface DiagnosisData {
-  diseaseName: string;
-  scientificName: string;
+export interface MLModelPrediction {
+  predicted_crop: string;
+  predicted_disease: string;
+  model_probability: number;
+  is_healthy: boolean;
+}
+
+export interface KBDiseaseInfo {
+  disease_name: string;
+  symptoms: string;
+  treatment: string;
+  prevention: string;
   severity: SeverityLevel;
-  symptoms: [string, string]; // Exactly 2 major symptoms
-  description: string;
-  recommendedAction: string;
-  actionUrgency: string;
-  whyRecommendation: string;
-  treatment: TreatmentInfo;
-  naturalTreatment: NaturalTreatmentInfo | null;
-  historicallyAdjusted?: boolean;
 }
 
-/** Chemical/main treatment details */
-export interface TreatmentInfo {
-  productName: string;
-  dosage: string;
-  applicationMethod: string;
-  instructions: string;
-}
-
-/** Natural treatment (only shown when genuinely effective) */
-export interface NaturalTreatmentInfo {
-  name: string;
-  method: string;
-  effectiveness: string;
+export interface ImageAnalysisResponse {
+  model_prediction: MLModelPrediction;
+  knowledge_base_evidence: KBDiseaseInfo | null;
 }
 
 /** Treatment log entry submitted by the farmer */
@@ -69,7 +59,7 @@ export interface DiseaseDetectionState {
   selectedImage: File | null;
   imagePreviewUrl: string | null;
   selectedFarm: FarmOption | null;
-  diagnosis: DiagnosisData | null;
+  analysisResult: ImageAnalysisResponse | null;
   treatmentLog: TreatmentLogEntry | null;
   showTreatmentForm: boolean;
   followUpImage: File | null;

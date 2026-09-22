@@ -21,6 +21,8 @@ class CropProfileResponse(BaseModel):
     ideal_ph_min: float | None = None
     ideal_ph_max: float | None = None
     growing_season: str
+    botanical_family: str | None = None
+    water_requirement_mm: float | None = None
     total_duration_days: int | None = None
     image_url: str | None = None
 

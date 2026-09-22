@@ -3,10 +3,11 @@ AgriNova AI — Disease History Adjuster.
 """
 from app.services.crop_recommendation.context import RecommendationContext
 from app.services.crop_recommendation.adjusters.tracker import AdjustmentTracker
+from app.schemas.crop_v6_domain import BiologicalRisk, RiskLevel
 
 class DiseaseHistoryAdjuster:
     """
-    Penalizes crops based on historical disease patterns on the farm.
+    Evaluates biological risk based on historical disease patterns on the farm.
     """
 
     def apply(self, trackers: list[AdjustmentTracker], context: RecommendationContext):
@@ -16,18 +17,27 @@ class DiseaseHistoryAdjuster:
         for tracker in trackers:
             if tracker.is_filtered:
                 continue
-                
-            crop_name = tracker.crop.crop_name
-            
+
+            crop_name = tracker.crop.crop_name.lower()
+
             # Find relevant disease insights
             for insight in context.disease_history:
-                # Disease matching is performed exactly at the crop level
-                # using the singular affected_crop field.
-                is_affected = (crop_name.lower() == insight.affected_crop.lower())
-                
-                if is_affected and insight.occurrence_count > 1:
+                affected_crop = insight.affected_crop.lower()
+
+                # Match only if it's the exact same crop.
+                # Family-level disease propagation is explicitly omitted because the system
+                # currently lacks a strict pathogen-host relationship knowledge graph.
+                if crop_name == affected_crop and insight.occurrence_count > 1:
                     sev = (insight.common_severity or "").lower()
+
+                    risk_level = RiskLevel.MEDIUM
                     if sev == "critical":
-                        tracker.apply_multiplier(0.80, f"Critical historical disease risk ({insight.disease_name})")
-                    elif sev == "high":
-                        tracker.apply_multiplier(0.90, f"High historical disease risk ({insight.disease_name})")
+                        risk_level = RiskLevel.HIGH
+
+                    risk = BiologicalRisk(
+                        level=risk_level,
+                        factors=[f"Historical presence of {insight.disease_name} (Severity: {sev.title()}). Exact crop match ({insight.affected_crop})."],
+                        explanation=f"Farm history indicates recurring {insight.disease_name}, posing a {risk_level.value} biological risk.",
+                        is_farm_history_based=True
+                    )
+                    tracker.biological_risks.append(risk)

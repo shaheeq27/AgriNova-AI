@@ -43,10 +43,10 @@ async def test_candidate_generation(mock_profiles):
     mock_result = MagicMock()
     mock_result.scalars.return_value.all.return_value = mock_profiles
     mock_db.execute.return_value = mock_result
-    
+
     generator = CandidateGenerator(mock_db)
     candidates = await generator.get_candidates()
-    
+
     assert len(candidates) == 3
     assert candidates[0].crop_name == "Wheat"
     assert candidates[1].crop_name == "Rice"
@@ -61,11 +61,11 @@ async def test_rule_scorer_perfect_match(mock_profiles):
     )
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
+
     # Rice should be perfect
-    assert scores["Rice"] == 1.0
+    assert scores["Rice"][0] == 1.0
     # Wheat should be penalized
-    assert scores["Wheat"] < 1.0
+    assert scores["Wheat"][0] < 1.0
 
 @pytest.mark.asyncio
 async def test_rule_scorer_partial_match(mock_profiles):
@@ -77,11 +77,11 @@ async def test_rule_scorer_partial_match(mock_profiles):
     )
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
-    wheat_score = scores["Wheat"]
+
+    wheat_score = scores["Wheat"][0]
     # Temp=0.8, Hum=1.0, Rain=1.0, Soil=1.0 -> 3.8/4 = 0.95
     assert wheat_score == 0.95
-    
+
 @pytest.mark.asyncio
 async def test_rule_scorer_soil_mismatch(mock_profiles):
     context = RecommendationContext(
@@ -92,11 +92,11 @@ async def test_rule_scorer_soil_mismatch(mock_profiles):
     )
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
+
     # Tomato has Sandy
-    assert scores["Tomato"] == 1.0
+    assert scores["Tomato"][0] == 1.0
     # Rice does not have Sandy
-    assert scores["Rice"] < 1.0 # Rice misses soil, temp (within range -> 1), rain misses heavily
+    assert scores["Rice"][0] < 1.0 # Rice misses soil, temp (within range -> 1), rain misses heavily
 
 @pytest.mark.asyncio
 async def test_rule_scorer_missing_weather(mock_profiles):
@@ -104,13 +104,13 @@ async def test_rule_scorer_missing_weather(mock_profiles):
     context = RecommendationContext(soil_type="Clay")
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
-    # Score should only be based on soil.
+
+    # Score should only be based on soil, no evidence cap penalty on final score.
     # Rice has Clay -> 1.0/1.0 = 1.0
     # Wheat has Clay -> 1.0/1.0 = 1.0
     # Tomato does not have Clay -> 0.0/1.0 = 0.0
-    assert scores["Rice"] == 1.0
-    assert scores["Tomato"] == 0.0
+    assert scores["Rice"][0] == 1.0
+    assert scores["Tomato"][0] == 0.0
 
 @pytest.mark.asyncio
 async def test_rule_scorer_current_weather_fallback(mock_profiles):
@@ -118,37 +118,53 @@ async def test_rule_scorer_current_weather_fallback(mock_profiles):
     context = RecommendationContext(soil_type="Clay", current_weather=weather)
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
-    assert scores["Rice"] == 1.0
+
+    assert scores["Rice"][0] == 1.0
+
+from app.services.crop_recommendation.adjusters.tracker import AdjustmentTracker
+from app.schemas.crop_v6_domain import EligibilityStatus
 
 def test_season_filter_matching(mock_profiles):
     filter_obj = SeasonFilter()
-    
+
     # Rabi target
     context = RecommendationContext(soil_type="Clay", season="Rabi")
-    filtered = filter_obj.filter_candidates(mock_profiles, context)
-    names = [p.crop_name for p in filtered]
-    
-    assert "Wheat" in names
-    assert "Tomato" in names # "All" is always kept
-    assert "Rice" not in names # Kharif is excluded
+    trackers = [AdjustmentTracker(crop=p, base_score=1.0) for p in mock_profiles]
+    filter_obj.apply(trackers, context)
+
+    wheat_t = next(t for t in trackers if t.crop.crop_name == "Wheat")
+    tomato_t = next(t for t in trackers if t.crop.crop_name == "Tomato")
+    rice_t = next(t for t in trackers if t.crop.crop_name == "Rice")
+
+    assert wheat_t.eligibility_constraints[-1].status == EligibilityStatus.ELIGIBLE
+    assert tomato_t.eligibility_constraints[-1].status == EligibilityStatus.ELIGIBLE
+    assert rice_t.eligibility_constraints[-1].status == EligibilityStatus.INELIGIBLE
+    assert rice_t.is_filtered
 
 def test_season_filter_no_target(mock_profiles):
     filter_obj = SeasonFilter()
     context = RecommendationContext(soil_type="Clay")
-    filtered = filter_obj.filter_candidates(mock_profiles, context)
-    
-    assert len(filtered) == 3
+    trackers = [AdjustmentTracker(crop=p, base_score=1.0) for p in mock_profiles]
+    filter_obj.apply(trackers, context)
+
+    for t in trackers:
+        assert t.eligibility_constraints[-1].status == EligibilityStatus.ELIGIBLE
+        assert not t.is_filtered
 
 def test_season_filter_case_insensitive(mock_profiles):
     filter_obj = SeasonFilter()
     context = RecommendationContext(soil_type="Clay", season=" kharif ")
-    filtered = filter_obj.filter_candidates(mock_profiles, context)
-    names = [p.crop_name for p in filtered]
-    
-    assert "Rice" in names
-    assert "Tomato" in names
-    assert "Wheat" not in names
+    trackers = [AdjustmentTracker(crop=p, base_score=1.0) for p in mock_profiles]
+    filter_obj.apply(trackers, context)
+
+    wheat_t = next(t for t in trackers if t.crop.crop_name == "Wheat")
+    tomato_t = next(t for t in trackers if t.crop.crop_name == "Tomato")
+    rice_t = next(t for t in trackers if t.crop.crop_name == "Rice")
+
+    assert rice_t.eligibility_constraints[-1].status == EligibilityStatus.ELIGIBLE
+    assert tomato_t.eligibility_constraints[-1].status == EligibilityStatus.ELIGIBLE
+    assert wheat_t.eligibility_constraints[-1].status == EligibilityStatus.INELIGIBLE
+    assert wheat_t.is_filtered
 
 @pytest.mark.asyncio
 async def test_rule_scorer_score_bounds(mock_profiles):
@@ -161,6 +177,6 @@ async def test_rule_scorer_score_bounds(mock_profiles):
     )
     scorer = RuleBasedScorer()
     scores = await scorer.score_candidates(mock_profiles, context)
-    
-    for crop, score in scores.items():
-        assert 0.0 <= score <= 1.0
+
+    for crop, data in scores.items():
+        assert 0.0 <= data[0] <= 1.0

@@ -12,6 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
 from app.schemas.common import APIResponse
+
+from app.schemas.crop_v6 import CropRecommendationRequestV6, CropRecommendationResponseV6
+from app.services.crop_recommendation.orchestrator import RecommendationOrchestrator
 from app.schemas.crop import (
     CropCreate,
     CropRecommendationRequest,
@@ -87,6 +90,28 @@ async def recommend_crops(
         message=f"Found {len(recommendations)} crop recommendations",
     )
 
+
+@router.post("/v6/recommend", response_model=APIResponse)
+async def recommend_crops_v6(
+    request: CropRecommendationRequestV6,
+    credentials: HTTPAuthorizationCredentials | None = Security(security_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get AI-powered crop recommendations using the advanced V6 engine."""
+    user = await get_optional_user(db, credentials)
+
+    orchestrator = RecommendationOrchestrator(db)
+
+    try:
+        response = await orchestrator.recommend(request, user)
+        return APIResponse.success(
+            data=response.model_dump(mode="json"),
+            message=f"Found {len(response.recommendations)} crop recommendations"
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except Exception as e:
+        raise
 
 # ── Crop CRUD ──
 

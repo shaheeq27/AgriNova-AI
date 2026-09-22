@@ -36,6 +36,8 @@ class CropProfile(Base):
     ideal_ph_min: Mapped[float | None] = mapped_column(Float, nullable=True)
     ideal_ph_max: Mapped[float | None] = mapped_column(Float, nullable=True)
     growing_season: Mapped[str] = mapped_column(String(50), nullable=False)
+    botanical_family: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    water_requirement_mm: Mapped[float | None] = mapped_column(Float, nullable=True)
     total_duration_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(

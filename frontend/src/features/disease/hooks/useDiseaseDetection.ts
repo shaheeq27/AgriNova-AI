@@ -11,18 +11,17 @@ import type {
   FarmOption,
   TreatmentLogEntry,
   ResolutionOutcome,
-  DiagnosisData,
-  SeverityLevel
+  ImageAnalysisResponse
 } from '../types';
-import { MOCK_DIAGNOSIS, STANDALONE_FARM } from '../constants';
-import { farmAPI, diseaseAPI } from '@/lib/api';
+import { STANDALONE_FARM } from '../constants';
+import { farmAPI, diseaseAPI, ApiError } from '@/lib/api';
 
 const initialState: DiseaseDetectionState = {
   stage: 'initial',
   selectedImage: null,
   imagePreviewUrl: null,
   selectedFarm: null,
-  diagnosis: null,
+  analysisResult: null,
   treatmentLog: null,
   showTreatmentForm: false,
   followUpImage: null,
@@ -30,7 +29,7 @@ const initialState: DiseaseDetectionState = {
   resolutionOutcome: null,
   resolutionNotes: '',
   isAnalyzing: false,
-        isSaving: false,
+  isSaving: false,
   detectionSaved: false,
   error: null,
 };
@@ -67,65 +66,56 @@ export function useDiseaseDetection() {
       ...prev,
       selectedImage: file,
       imagePreviewUrl: url,
+      error: null,
     }));
   }, []);
 
   const clearImage = useCallback(() => {
     setState((prev) => {
       if (prev.imagePreviewUrl) URL.revokeObjectURL(prev.imagePreviewUrl);
-      return { ...prev, selectedImage: null, imagePreviewUrl: null };
+      return { ...prev, selectedImage: null, imagePreviewUrl: null, error: null };
     });
   }, []);
 
   /* ── Farm Selection ── */
   const selectFarm = useCallback((farm: FarmOption | null) => {
-    setState((prev) => ({ ...prev, selectedFarm: farm }));
+    setState((prev) => ({ ...prev, selectedFarm: farm, error: null }));
   }, []);
 
   /* ── Start Analysis ── */
   const startAnalysis = useCallback(async () => {
+    if (!state.selectedImage) return;
+
     setState((prev) => ({ ...prev, stage: 'analyzing', isAnalyzing: true, error: null }));
 
     try {
-      // Connect to the real backend using a hardcoded crop and symptoms for this demo CV flow
-      const farmId = state.selectedFarm?.isStandalone ? undefined : state.selectedFarm?.id;
-      const res = await diseaseAPI.detect("Wheat", ["yellow spots", "brown spots"], farmId);
-
-      const bestMatch = res.matches[0];
-
-      // Map the backend response to the frontend's DiagnosisData shape
-      const mappedDiagnosis = {
-        ...MOCK_DIAGNOSIS,
-        diseaseName: bestMatch?.disease_name || MOCK_DIAGNOSIS.diseaseName,
-        severity: (bestMatch?.severity?.toLowerCase() as SeverityLevel) || MOCK_DIAGNOSIS.severity,
-        symptoms: bestMatch?.symptoms ? [bestMatch.symptoms[0] || '', bestMatch.symptoms[1] || ''] : MOCK_DIAGNOSIS.symptoms,
-        description: bestMatch?.explanation || MOCK_DIAGNOSIS.description,
-        recommendedAction: bestMatch?.treatment || MOCK_DIAGNOSIS.recommendedAction,
-        whyRecommendation: bestMatch?.personalization_rationale || MOCK_DIAGNOSIS.whyRecommendation,
-        historicallyAdjusted: bestMatch?.historically_adjusted || false,
-      };
+      // Hit the ML image analysis endpoint
+      const res: ImageAnalysisResponse = await diseaseAPI.analyzeImage(state.selectedImage);
 
       setState((prev) => ({
         ...prev,
         stage: 'result',
         isAnalyzing: false,
         error: null,
-        diagnosis: mappedDiagnosis as DiagnosisData,
+        analysisResult: res,
         detectionSaved: prev.selectedFarm != null && !prev.selectedFarm.isStandalone,
       }));
     } catch (err) {
       console.error("Disease detection failed", err);
-      // Fallback to mock on error just to keep UI somewhat functional if API fails, or just show error.
-      // Instructions say: "Do not silently swallow API errors. Expose errors through the existing frontend API/hook pattern. ... personalization failure should not crash unrelated UI state"
-      // Wait, there is no error state in the current hook. I'll add one.
+      let errorMessage = 'Failed to analyze image. Please try again.';
+      if (err instanceof ApiError) {
+        errorMessage = err.message || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
       setState((prev) => ({
         ...prev,
-        stage: 'initial',
+        stage: 'initial', // Revert to initial to show error and allow re-upload
         isAnalyzing: false,
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: errorMessage,
       }));
     }
-  }, [state.selectedFarm]);
+  }, [state.selectedImage, state.selectedFarm]);
 
   /* ── Treatment Form ── */
   const openTreatmentForm = useCallback(() => {

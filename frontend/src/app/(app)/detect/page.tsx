@@ -23,7 +23,8 @@ export default function DetectPage() {
     imagePreviewUrl,
     farmOptions,
     selectedFarm,
-    diagnosis,
+    analysisResult,
+    error,
     treatmentLog,
     showTreatmentForm,
     followUpImageUrl,
@@ -75,7 +76,29 @@ export default function DetectPage() {
             flexDirection: 'column',
             gap: '24px'
           }}>
-            <DetectionHeader />
+
+        {error && (
+          <div style={{
+            background: 'rgba(255, 60, 60, 0.1)',
+            border: '1px solid rgba(255, 60, 60, 0.3)',
+            color: '#ff6b6b',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            <span style={{ fontSize: '20px' }}>⚠️</span>
+            <div>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600 }}>Analysis Failed</h4>
+              <p style={{ margin: 0, fontSize: '13px', opacity: 0.9 }}>{error}</p>
+            </div>
+          </div>
+        )}
+
+        <DetectionHeader />
+
             <ImageUpload
               imagePreviewUrl={imagePreviewUrl}
               farmOptions={farmOptions}
@@ -99,25 +122,27 @@ export default function DetectPage() {
             STAGE: RESULT — Diagnosis + Treatment + Log
             Stepper: DETECT ✓, UNDERSTAND ✓, TREAT ●
             ═══════════════════════════════════════════════════ */}
-        {stage === 'result' && diagnosis && (
+        {stage === 'result' && analysisResult && (
           <>
             <WorkflowStepper currentStage={stage} />
             <DiagnosisResult
-              diagnosis={diagnosis}
+              analysisResult={analysisResult}
               detectionSaved={detectionSaved}
               imagePreviewUrl={imagePreviewUrl}
               farmName={selectedFarm?.isStandalone ? undefined : selectedFarm?.name}
             />
-            <TreatmentPlan
-              diagnosis={diagnosis}
-              showTreatmentForm={showTreatmentForm}
-              isSaving={isSaving}
-              onOpenForm={openTreatmentForm}
-              onCloseForm={closeTreatmentForm}
-              onLogTreatment={logTreatment}
-              isStandalone={selectedFarm?.isStandalone}
-              onReset={resetDetection}
-            />
+            {!analysisResult.model_prediction.is_healthy && analysisResult.knowledge_base_evidence && (
+              <TreatmentPlan
+                analysisResult={analysisResult}
+                showTreatmentForm={showTreatmentForm}
+                isSaving={isSaving}
+                onOpenForm={openTreatmentForm}
+                onCloseForm={closeTreatmentForm}
+                onLogTreatment={logTreatment}
+                isStandalone={selectedFarm?.isStandalone}
+                onReset={resetDetection}
+              />
+            )}
           </>
         )}
 

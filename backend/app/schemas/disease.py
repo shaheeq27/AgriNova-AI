@@ -86,3 +86,20 @@ class DiseaseRecordResponse(BaseModel):
     images: list[DiseaseImageResponse] = []
 
     model_config = {"from_attributes": True}
+
+class MLModelPrediction(BaseModel):
+    predicted_crop: str
+    predicted_disease: str
+    model_probability: float = Field(..., description="Raw model probability, not calibrated confidence")
+    is_healthy: bool
+
+class KBDiseaseInfo(BaseModel):
+    disease_name: str
+    symptoms: str
+    treatment: str
+    prevention: str
+    severity: str = Field(..., description="Severity from KB, not inferred by model")
+
+class ImageAnalysisResponse(BaseModel):
+    model_prediction: MLModelPrediction
+    knowledge_base_evidence: KBDiseaseInfo | None = None

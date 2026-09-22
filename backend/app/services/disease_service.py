@@ -18,6 +18,9 @@ from app.core.exceptions import NotFoundException, AgriNovaException
 from app.models.disease import DiseaseImage, DiseaseRecord
 from app.models.knowledge import DiseaseLibrary
 from app.repositories.disease_repo import DiseaseRepository
+from app.services.disease_detection.engine import DiseaseDetectionEngine
+from app.services.disease_detection.exceptions import ImageProcessingError, EngineInferenceError, ModelLoadError
+from app.schemas.disease import ImageAnalysisResponse, MLModelPrediction, KBDiseaseInfo
 from app.schemas.disease import (
     DiseaseMatch,
     DiseaseRecordCreate,
@@ -59,10 +62,10 @@ class DiseaseService:
         for disease in diseases:
             # Tokenize KB symptoms
             kb_symptoms = [s.strip() for s in disease.symptoms.split(",")]
-            
+
             # Calculate confidence score
             confidence = self._jaccard_similarity(symptoms, kb_symptoms)
-            
+
             if confidence > 0.1:  # Threshold for matching
                 matches.append(
                     DiseaseMatch(
@@ -173,7 +176,7 @@ class DiseaseService:
 
         from app.models.crop import Crop
         import json
-        
+
         crop_result = await self.db.execute(select(Crop).where(Crop.id == record.crop_id))
         crop = crop_result.scalar_one_or_none()
 
@@ -183,7 +186,7 @@ class DiseaseService:
         update_data = data.model_dump(exclude_unset=True)
         if "status" in update_data and update_data["status"] == "resolved" and not record.resolved_at:
             update_data["resolved_at"] = datetime.now(timezone.utc)
-            
+
         record = await self.repo.update_record(record, **update_data)
 
         activity = ActivityService(self.db)
@@ -225,6 +228,65 @@ class DiseaseService:
 
         return DiseaseRecordResponse.model_validate(record)
 
+
+    async def analyze_image(self, file_content: bytes) -> ImageAnalysisResponse:
+        """
+        Analyzes an uploaded image using the standalone ML engine and merges it with the
+        deterministic disease knowledge base.
+        """
+        # 1. Model Inference (Probabilistic)
+        try:
+            engine = DiseaseDetectionEngine()
+            detection_result = engine.predict(file_content)
+        except (ImageProcessingError, ModelLoadError, EngineInferenceError) as e:
+            from app.core.exceptions import AgriNovaException
+            # Map specific engine errors to service exceptions
+            raise AgriNovaException(f"Image analysis failed: {str(e)}", status_code=400 if isinstance(e, ImageProcessingError) else 500)
+
+        # Get top prediction
+        if not detection_result.predictions:
+            from app.core.exceptions import AgriNovaException
+            raise AgriNovaException("No predictions returned from model.", status_code=500)
+
+        top_pred = detection_result.predictions[0]
+
+        ml_prediction = MLModelPrediction(
+            predicted_crop=top_pred.crop,
+            predicted_disease=top_pred.disease,
+            model_probability=top_pred.probability,
+            is_healthy=top_pred.is_healthy
+        )
+
+        kb_evidence = None
+
+        # 2. Knowledge Base Lookup (Deterministic)
+        if not top_pred.is_healthy:
+            from sqlalchemy import select, and_
+            from app.models.knowledge import DiseaseLibrary
+            # Query exactly the disease name AND ensure the crop is listed in affected_crops
+            result = await self.db.execute(
+                select(DiseaseLibrary).where(
+                    and_(
+                        DiseaseLibrary.disease_name == top_pred.disease,
+                        DiseaseLibrary.affected_crops.ilike(f"%{top_pred.crop}%")
+                    )
+                )
+            )
+            disease = result.scalar_one_or_none()
+            if disease:
+                kb_evidence = KBDiseaseInfo(
+                    disease_name=disease.disease_name,
+                    symptoms=disease.symptoms,
+                    treatment=disease.treatment,
+                    prevention=disease.prevention,
+                    severity=disease.severity
+                )
+
+        return ImageAnalysisResponse(
+            model_prediction=ml_prediction,
+            knowledge_base_evidence=kb_evidence
+        )
+
     async def get_disease_info(self, disease_name: str) -> dict:
         """Get full disease info from the Knowledge Base."""
         result = await self.db.execute(
@@ -233,7 +295,7 @@ class DiseaseService:
         disease = result.scalar_one_or_none()
         if not disease:
             raise NotFoundException("Disease", disease_name)
-        
+
         return {
             "id": disease.id,
             "disease_name": disease.disease_name,

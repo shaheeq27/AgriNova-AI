@@ -1,69 +1,215 @@
-# ═══════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 # AgriNova AI — .gitignore
-# ═══════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 
-# ── Python ──
+# ─────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 *.egg-info/
+
+# Python build / distribution
 dist/
 build/
 .eggs/
+*.egg
+pip-wheel-metadata/
 
-# ── Virtual Environments ──
+# Test / type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ─────────────────────────────────────────────────────────────
+# Virtual Environments
+# ─────────────────────────────────────────────────────────────
 .venv/
 venv/
 ENV/
+env/
 
-# ── Environment Variables ──
+# ─────────────────────────────────────────────────────────────
+# Environment Variables / Secrets
+# ─────────────────────────────────────────────────────────────
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.*.local
 
-# ── Database ──
+# ─────────────────────────────────────────────────────────────
+# Databases / Local Runtime Data
+# ─────────────────────────────────────────────────────────────
 *.db
+*.sqlite
 *.sqlite3
+*.sqlite-journal
 
-# ── IDE / Editor ──
+# Local database / runtime files
+backend/*.db
+backend/*.pid
+*.pid
+
+# ─────────────────────────────────────────────────────────────
+# IDE / Editor
+# ─────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# ── OS ──
 .DS_Store
 Thumbs.db
 
-# ── Node / Frontend ──
+# ─────────────────────────────────────────────────────────────
+# macOS
+# ─────────────────────────────────────────────────────────────
+.AppleDouble
+.LSOverride
+._*
+
+# ─────────────────────────────────────────────────────────────
+# Node / Next.js / Frontend
+# ─────────────────────────────────────────────────────────────
 node_modules/
 .next/
 out/
 .turbo/
+.vercel/
+coverage/
 
-# ── ML Models ──
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─────────────────────────────────────────────────────────────
+# ML Model Artifacts
+# ─────────────────────────────────────────────────────────────
 *.pkl
+*.pickle
 *.joblib
 *.h5
+*.hdf5
 *.pt
+*.pth
+*.ckpt
 *.onnx
-models/*.bin
+*.safetensors
+*.bin
 
-# ── Logs ──
+# Model directories / generated model binaries
+models/*.bin
+backend/ml_assets/models/
+
+# ─────────────────────────────────────────────────────────────
+# Large External Datasets
+# ─────────────────────────────────────────────────────────────
+
+# Never commit downloaded external datasets
+backend/data/external/
+
+# Common dataset/archive formats
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# ─────────────────────────────────────────────────────────────
+# ML Generated Outputs / Caches
+# ─────────────────────────────────────────────────────────────
+wandb/
+mlruns/
+runs/
+checkpoints/
+tensorboard/
+*.tfevents.*
+
+# Generated ML experiment artifacts
+
+*.npy
+backend/ml/experiments/**/best_model.pth
+backend/ml/experiments/**/robust_best_model.pth
+backend/ml/experiments/**/mtl_best_model.pth
+backend/ml/experiments/**/confusion_matrix.npy
+backend/ml/experiments/**/external_confusion_matrix.npy
+backend/ml/experiments/**/robust_confusion_matrix.npy
+backend/ml/experiments/**/mtl_confusion_matrix.npy
+
+
+
+# ─────────────────────────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────────────────────────
 *.log
 logs/
 
-# ── Coverage / Testing ──
-htmlcov/
-.coverage
-.pytest_cache/
-.mypy_cache/
+# ─────────────────────────────────────────────────────────────
+# Temporary / Backup Files
+# ─────────────────────────────────────────────────────────────
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
 
-# ── Docker ──
+# ─────────────────────────────────────────────────────────────
+# Local Scripts / Scratch Files
+# ─────────────────────────────────────────────────────────────
+
+# Antigravity / one-off patch scripts
+patch_*.py
+fix_*.py
+
+# Temporary experiment/debug scripts
+prototype_*.py
+test_bug.py
+test_db_audit.py
+test_none.py
+test_pipeline.py
+test_various_recs.py
+test_api.py
+test_model.py
+test_orch.py
+evaluate_model.py
+analyze_datasets.py
+update_backend_location.py
+
+# Temporary local execution scripts
+run_api.py
+run_real_inference.py
+
+# ─────────────────────────────────────────────────────────────
+# Frontend Planning / Temporary Generated Files
+# ─────────────────────────────────────────────────────────────
+# Keep project documentation unless explicitly temporary.
+# Add specific temporary planning files here only when confirmed disposable.
+
+# ─────────────────────────────────────────────────────────────
+# Docker
+# ─────────────────────────────────────────────────────────────
 docker-compose.override.yml
 
-# ── Misc ──
+# ─────────────────────────────────────────────────────────────
+# Local Deployment / Runtime
+# ─────────────────────────────────────────────────────────────
+*.pid
+*.sock
+
+# ─────────────────────────────────────────────────────────────
+# Miscellaneous
+# ─────────────────────────────────────────────────────────────
 *.bak
-*.tmpagrinova.db
+*.tmp
+*.swp
+*.swo

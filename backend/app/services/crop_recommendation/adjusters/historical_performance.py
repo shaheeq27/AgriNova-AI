@@ -3,10 +3,11 @@ AgriNova AI — Historical Performance Adjuster.
 """
 from app.services.crop_recommendation.context import RecommendationContext
 from app.services.crop_recommendation.adjusters.tracker import AdjustmentTracker
+from app.schemas.crop_v6_domain import HistoricalEvidence, EvidenceStrength
 
 class HistoricalPerformanceAdjuster:
     """
-    Adjusts scores based on the farm's historical yield success and momentum.
+    Evaluates historical yield success and momentum into HistoricalEvidence.
     """
 
     def apply(self, trackers: list[AdjustmentTracker], context: RecommendationContext):
@@ -27,28 +28,56 @@ class HistoricalPerformanceAdjuster:
         for tracker in trackers:
             if tracker.is_filtered:
                 continue
-                
+
             crop_name = tracker.crop.crop_name.lower()
-            
-            # 1. Momentum Bonus/Penalty
+
             trend = yield_trends.get(crop_name)
-            if trend and trend.confidence and trend.confidence > 0.0:
-                if trend.trend_direction == "increasing":
-                    multiplier = 1.0 + (0.10 * trend.confidence)
-                    tracker.apply_multiplier(multiplier, f"Strong increasing yield trend on this farm")
-                elif trend.trend_direction == "decreasing":
-                    multiplier = 1.0 - (0.10 * trend.confidence)
-                    tracker.apply_multiplier(multiplier, f"Decreasing yield trend on this farm")
-                    
-            # 2. Historical Success (Fallback to raw success rate for now)
             perf = perf_insights.get(crop_name)
-            if perf and perf["crops_observed"] > 0:
-                # Note: harvested_count simply means the crop was harvested, not necessarily a good yield.
-                # True yield-quality success metric requires an external baseline comparison in future versions.
-                success_rate = perf["harvested_count"] / perf["crops_observed"]
-                # If farm historically fails often with this crop
-                if success_rate < 0.5 and perf["crops_observed"] >= 2:
-                    tracker.apply_multiplier(0.85, "Poor historical success rate on this farm")
-                # If farm historically excels
-                elif success_rate >= 0.8 and perf["crops_observed"] >= 2:
-                    tracker.apply_multiplier(1.05, "Proven historical success on this farm")
+
+            obs_count = perf["crops_observed"] if perf else 0
+            success_count = perf["harvested_count"] if perf else 0
+
+            if obs_count == 0 and not trend:
+                tracker.historical_evidence = HistoricalEvidence(
+                    level=EvidenceStrength.NONE,
+                    explanation="No historical data available for this crop on this farm."
+                )
+                continue
+
+            level = EvidenceStrength.INSUFFICIENT
+            factors = []
+
+            if obs_count >= 2:
+                success_rate = success_count / obs_count
+                if success_rate >= 0.8:
+                    level = EvidenceStrength.STRONG
+                    factors.append("Proven high historical success rate on this farm.")
+                elif success_rate < 0.5:
+                    # Poor success rate represents lack of positive evidence
+                    level = EvidenceStrength.NONE
+                    factors.append("Poor historical success rate on this farm.")
+                else:
+                    level = EvidenceStrength.LIMITED
+                    factors.append("Mixed historical success rate on this farm.")
+            elif obs_count == 1:
+                factors.append("Insufficient historical observations to establish reliability.")
+
+            trend_dir = trend.trend_direction if trend else None
+            if trend and trend.confidence and trend.confidence > 0.0:
+                if trend_dir == "increasing":
+                    factors.append(f"Strong increasing yield trend.")
+                    if level == EvidenceStrength.LIMITED:
+                        level = EvidenceStrength.STRONG
+                elif trend_dir == "decreasing":
+                    factors.append(f"Decreasing yield trend.")
+                    if level == EvidenceStrength.STRONG:
+                        level = EvidenceStrength.LIMITED
+
+            tracker.historical_evidence = HistoricalEvidence(
+                level=level,
+                observations=obs_count,
+                successful_observations=success_count,
+                trend=trend_dir,
+                supporting_factors=factors,
+                explanation=f"Farm history provides {level.value} positive evidence based on {obs_count} past cycles."
+            )

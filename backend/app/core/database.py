@@ -62,6 +62,10 @@ async def _migrate_sqlite(conn) -> None:
         "disease_records": [
             ("outcome", "TEXT", ""),
         ],
+        "kb_crop_profiles": [
+            ("botanical_family", "VARCHAR(100)", ""),
+            ("water_requirement_mm", "FLOAT", ""),
+        ],
     }
 
     for table, columns in migrations.items():
@@ -86,12 +90,12 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         # First ensure all tables exist
         await conn.run_sync(Base.metadata.create_all)
-        
+
         # Then safely migrate existing SQLite tables to add any missing columns
         if settings.is_sqlite:
             # We need to drop down to the raw connection for PRAGMA statements, or just use text()
             from sqlalchemy import text
-            
+
             async def run_migrations(connection):
                 # Format: { table_name: [ (column_name, column_type, default_clause) ] }
                 migrations = {
@@ -105,6 +109,10 @@ async def init_db() -> None:
                     ],
                     "disease_records": [
                         ("outcome", "TEXT", ""),
+                    ],
+                    "kb_crop_profiles": [
+                        ("botanical_family", "VARCHAR(100)", ""),
+                        ("water_requirement_mm", "FLOAT", ""),
                     ],
                 }
 
@@ -125,5 +133,5 @@ async def init_db() -> None:
                             logging.getLogger(__name__).info(f"Migrating SQLite: Adding column '{col_name}' to table '{table}'")
                             alter_stmt = f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type} {default_clause}"
                             await connection.execute(text(alter_stmt))
-                            
+
             await run_migrations(conn)

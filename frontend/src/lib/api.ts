@@ -1,3 +1,5 @@
+import type { ImageAnalysisResponse } from "@/features/disease/types";
+
 /**
  * AgriNova AI — API Client
  *
@@ -39,6 +41,10 @@ export async function request<T>(
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
+
+  if (options.body instanceof FormData) {
+    delete headers["Content-Type"];
+  }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
@@ -281,10 +287,48 @@ export interface CropRecommendationResponse {
   input_conditions: Record<string, unknown>;
 }
 
+
+export interface ExplanationPayload {
+  base_explanation: string;
+  positive_factors: string[];
+  negative_factors: string[];
+  constraints_applied: string[];
+}
+
+export interface CropRecommendationV6 {
+  crop_name: string;
+  final_score: number;
+  base_score: number;
+  explanation: ExplanationPayload;
+  personalization_applied: boolean;
+  engine_version: string;
+}
+
+export interface CropRecommendationRequestV6 {
+  farm_id?: string;
+  location_name?: string;
+  soil_type: string;
+  season?: string;
+  water_source?: string;
+  temperature?: number;
+  humidity?: number;
+  rainfall?: number;
+}
+
+export interface CropRecommendationResponseV6 {
+  recommendations: CropRecommendationV6[];
+  input_conditions_used: Record<string, unknown>;
+}
+
 export const cropsAPI = {
   listByFarm: (farmId: string) => request<CropListResponse>(`/crops/farm/${farmId}`),
   recommend: (data: CropRecommendationRequest) =>
     request<CropRecommendationResponse>("/crops/recommend", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  recommendV6: (data: CropRecommendationRequestV6) =>
+    request<CropRecommendationResponseV6>("/crops/v6/recommend", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -328,29 +372,27 @@ export const irrigationAPI = {
 };
 
 // ── Disease Detection API ──
-export interface DiseaseMatch {
-  disease_name: string;
-  confidence: number;
-  symptoms: string[];
-  treatment: string;
-  prevention: string;
-  severity: string;
-  explanation: string;
-  historically_adjusted: boolean;
-  personalization_rationale: string | null;
-}
 
-export interface DiseaseDetectionResponse {
-  matches: DiseaseMatch[];
-}
+
+
 
 export const diseaseAPI = {
-  detect: (cropName: string, symptoms: string[], farmId?: string) =>
-    request<DiseaseDetectionResponse>("/disease/detect", {
+  analyzeImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<ImageAnalysisResponse>("/disease/analyze-image", {
       method: "POST",
-      body: JSON.stringify({ crop_name: cropName, symptoms, farm_id: farmId }),
-    }),
+      body: formData,
+    });
+  }
 };
 
 export { ApiError };
 export default request;
+
+export interface FormContextData {
+  locationText: string;
+  soilText: string;
+  seasonText: string;
+  waterText: string;
+}

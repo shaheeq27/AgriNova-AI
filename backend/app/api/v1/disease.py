@@ -108,6 +108,30 @@ async def upload_image(
     )
 
 
+
+@router.post("/analyze-image", response_model=APIResponse)
+async def analyze_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Analyze a crop leaf image for disease using the ML Engine."""
+    allowed_types = ["image/jpeg", "image/png", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise AgriNovaException("Invalid file type. Allowed types: jpeg, png, webp.", status_code=400)
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise AgriNovaException("File too large. Maximum size is 10MB.", status_code=400)
+
+    service = DiseaseService(db)
+    result = await service.analyze_image(content)
+
+    return APIResponse.success(
+        data=result.model_dump(),
+        message="Image analysis complete"
+    )
+
 @router.post("/record", response_model=APIResponse)
 async def create_record(
     data: DiseaseRecordCreate,

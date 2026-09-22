@@ -4,7 +4,6 @@
 
 export * from './types';
 export * from './constants';
-export * from './services/disease.service';
 export * from './hooks/useDiseaseDetection';
 export * from './components/DetectionHeader';
 export * from './components/ImageUpload';

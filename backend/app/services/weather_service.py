@@ -11,56 +11,71 @@ from app.repositories.weather_repo import WeatherRepository
 
 
 class WeatherService:
+
+    async def resolve_location(self, location_name: str) -> tuple[float, float] | None:
+        url = "https://geocoding-api.open-meteo.com/v1/search"
+        params = {"name": location_name, "count": 1, "language": "en", "format": "json"}
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, params=params, timeout=5.0)
+                if response.status_code == 200:
+                    data = response.json()
+                    results = data.get("results")
+                    if results and len(results) > 0:
+                        return results[0]["latitude"], results[0]["longitude"]
+        except Exception as e:
+            print(f"Geocoding failed for {location_name}: {e}")
+        return None
+
+
     async def _fetch_weather_data(self, latitude: float, longitude: float, days: int = 7) -> dict:
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
             "latitude": latitude,
             "longitude": longitude,
-            "current_weather": "true",
+            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
             "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max",
             "timezone": "auto",
             "forecast_days": days
         }
-        
+
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, params=params, timeout=10.0)
+                response = await client.get(url, params=params, timeout=5.0)
                 response.raise_for_status()
                 return response.json()
-        except Exception:
-            return self._get_mock_weather(days)
-
-    def _get_mock_weather(self, days: int) -> dict:
-        return {
-            "current_weather": {
-                "temperature": 25.5,
-                "windspeed": 12.0,
-                "time": datetime.now(timezone.utc).isoformat()
-            },
-            "daily": {
-                "time": [date.today().isoformat()] * days,
-                "temperature_2m_min": [18.0] * days,
-                "temperature_2m_max": [30.0] * days,
-                "precipitation_sum": [5.0] * days,
-                "windspeed_10m_max": [15.0] * days,
-            },
-            "source": "demo"
-        }
+        except Exception as e:
+            print(f"Weather fetch failed: {e}")
+            return {}
 
     async def get_current_weather(self, latitude: float, longitude: float) -> dict:
         data = await self._fetch_weather_data(latitude, longitude, days=1)
-        source = data.get("source", "open-meteo")
-        
-        current = data.get("current_weather", {})
+        source = "open-meteo" if data else "unavailable"
+
+        current = data.get("current", {})
         daily = data.get("daily", {})
-        
+
         precipitation = daily.get("precipitation_sum", [0.0])[0] if daily.get("precipitation_sum") else 0.0
-        
+
+        temp = current.get("temperature_2m")
+        humidity = current.get("relative_humidity_2m")
+        wind_speed = current.get("wind_speed_10m")
+
+        if not data:
+            # Complete failure
+            return {
+                "temperature": None,
+                "humidity": None,
+                "rainfall": None,
+                "wind_speed": None,
+                "source": "unavailable"
+            }
+
         return {
-            "temperature": current.get("temperature", 25.0),
-            "humidity": 60.0,
-            "rainfall": precipitation,
-            "wind_speed": current.get("windspeed", 10.0),
+            "temperature": temp,
+            "humidity": humidity,
+            "rainfall": precipitation if daily.get("precipitation_sum") else None,
+            "wind_speed": wind_speed,
             "condition": "Clear",
             "description": "Clear skies",
             "source": source
@@ -69,13 +84,13 @@ class WeatherService:
     async def get_forecast(self, latitude: float, longitude: float, days: int = 7) -> list[dict]:
         data = await self._fetch_weather_data(latitude, longitude, days)
         daily = data.get("daily", {})
-        
+
         times = daily.get("time", [])
         temp_mins = daily.get("temperature_2m_min", [])
         temp_maxs = daily.get("temperature_2m_max", [])
         precips = daily.get("precipitation_sum", [])
         winds = daily.get("windspeed_10m_max", [])
-        
+
         forecast = []
         for i in range(len(times)):
             forecast.append({
