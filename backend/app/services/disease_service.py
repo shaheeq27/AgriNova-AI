@@ -110,7 +110,12 @@ class DiseaseService:
         os.makedirs(upload_dir, exist_ok=True)
 
         # Generate unique filename
-        ext = file.filename.split(".")[-1] if file.filename and "." in file.filename else "jpg"
+        mime_to_ext = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp"
+        }
+        ext = mime_to_ext.get(file.content_type, "jpg")
         unique_filename = f"{uuid.uuid4()}.{ext}"
         file_path = os.path.join(upload_dir, unique_filename)
 

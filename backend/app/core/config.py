@@ -98,6 +98,11 @@ class Settings(BaseSettings):
                 raise ValueError("A secure SECRET_KEY environment variable is required in production.")
             if self.DEBUG:
                 raise ValueError("DEBUG must be False in production.")
+            if not self.CORS_ORIGINS or self.CORS_ORIGINS == "http://localhost:3000,http://localhost:3001":
+                raise ValueError("An explicit CORS_ORIGINS environment variable is required in production.")
+            origins = [o.strip() for o in self.CORS_ORIGINS.split(",")]
+            if "*" in origins:
+                raise ValueError("Wildcard CORS origins are not allowed in production.")
         return self
 
 
