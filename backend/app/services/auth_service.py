@@ -125,11 +125,12 @@ class AuthService:
         )
         self.db.add(reset_entry)
         await self.db.commit()
+        await self.db.refresh(reset_entry)
 
         # Generate Recovery URL
         from app.core.config import settings
         frontend_url = settings.FRONTEND_URL.rstrip("/")
-        recovery_url = f"{frontend_url}/reset-password?token={raw_token}"
+        recovery_url = f"{frontend_url}/reset-password?reset_id={reset_entry.id}&token={raw_token}"
 
         # Send email (using existing EmailService conceptually, or print to console)
         # Note: We bypass maybe_send_email preference checks for security emails
@@ -138,8 +139,7 @@ class AuthService:
         # We'll construct a simple email or print
         import logging
         logger = logging.getLogger(__name__)
-        print(f"\n====================================\nPASSWORD RESET LINK: {recovery_url}\n====================================\n", flush=True)
-        logger.info(f"\n====================================\nPASSWORD RESET LINK: {recovery_url}\n====================================\n")
+        logger.info(f"Password reset requested for user {user.id}. Delivery provider: {provider.provider_name}")
 
         # Optionally use the actual provider if it's not console
         if provider.provider_name != "console":
@@ -174,29 +174,29 @@ class AuthService:
             except Exception as e:
                 logger.error(f"Failed to send real email: {e}")
 
-    async def reset_password(self, raw_token: str, new_password: str) -> None:
-        """Process the password reset."""
-        # Clean up old tokens first (optional, but good practice)
+    async def reset_password(self, reset_id: str, raw_token: str, new_password: str) -> None:
+        """Process the password reset deterministically."""
+        # Get specific token record
         result = await self.db.execute(
-            select(PasswordReset).where(PasswordReset.is_used == False)
+            select(PasswordReset).where(
+                PasswordReset.id == reset_id,
+                PasswordReset.is_used == False
+            )
         )
-        valid_resets = result.scalars().all()
-
-        target_reset = None
-        for reset in valid_resets:
-            # Check expiration
-            exp = reset.expires_at
-            if exp.tzinfo is None:
-                exp = exp.replace(tzinfo=timezone.utc)
-            if exp < datetime.now(timezone.utc):
-                continue
-
-            # Verify hash
-            if verify_password(raw_token, reset.token_hash):
-                target_reset = reset
-                break
+        target_reset = result.scalar_one_or_none()
 
         if not target_reset:
+            raise AgriNovaException("Invalid or expired password reset token.", status_code=400)
+
+        # Check expiration
+        exp = target_reset.expires_at
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < datetime.now(timezone.utc):
+            raise AgriNovaException("Invalid or expired password reset token.", status_code=400)
+
+        # Verify hash
+        if not verify_password(raw_token, target_reset.token_hash):
             raise AgriNovaException("Invalid or expired password reset token.", status_code=400)
 
         # Get user

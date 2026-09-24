@@ -12,6 +12,7 @@ import { Lock, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const reset_id = searchParams.get('reset_id');
   const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');
@@ -21,14 +22,14 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || !reset_id) {
       setTimeout(() => setError('Invalid or missing recovery token. Please request a new password reset link.'), 0);
     }
-  }, [token]);
+  }, [token, reset_id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!token || !reset_id) return;
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -44,7 +45,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      await authAPI.resetPassword({ token, new_password: password });
+      await authAPI.resetPassword({ reset_id, token, new_password: password });
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to reset password');

@@ -112,7 +112,7 @@ class CropService:
     ) -> CropResponse:
         """Update a crop with ownership check."""
         crop = await self._check_crop_ownership(user_id, crop_id)
-        
+
         old_status = crop.status
 
         update_data = data.model_dump(exclude_unset=True)
@@ -193,8 +193,13 @@ class CropService:
         self, user_id: str, task_id: str, data: DailyTaskUpdate
     ) -> DailyTaskResponse:
         """Update a daily task (mark complete, add notes)."""
-        update_data = data.model_dump(exclude_unset=True)
-        task = await self.repo.update_task(task_id, **update_data)
+        task = await self.repo.get_task(task_id)
         if not task:
             raise NotFoundException("Task", task_id)
+
+        # Security: Enforce cross-user task update IDOR fix
+        await self._check_crop_ownership(user_id, task.crop_id)
+
+        update_data = data.model_dump(exclude_unset=True)
+        task = await self.repo.update_task(task_id, **update_data)
         return DailyTaskResponse.model_validate(task)

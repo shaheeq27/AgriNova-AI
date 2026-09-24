@@ -98,7 +98,7 @@ export const authAPI = {
   forgotPassword: (email: string) =>
     request<void>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
 
-  resetPassword: (data: { token: string; new_password: string }) =>
+  resetPassword: (data: { reset_id: string; token: string; new_password: string }) =>
     request<void>("/auth/reset-password", { method: "POST", body: JSON.stringify(data) }),
 };
 

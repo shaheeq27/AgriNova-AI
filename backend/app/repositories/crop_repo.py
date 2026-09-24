@@ -99,6 +99,12 @@ class CropRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_task(self, task_id: str) -> DailyTask | None:
+        result = await self.db.execute(
+            select(DailyTask).where(DailyTask.id == task_id)
+        )
+        return result.scalar_one_or_none()
+
     async def update_task(self, task_id: str, **kwargs) -> DailyTask | None:
         result = await self.db.execute(
             select(DailyTask).where(DailyTask.id == task_id)

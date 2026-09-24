@@ -94,16 +94,14 @@ async def recommend_crops(
 @router.post("/v6/recommend", response_model=APIResponse)
 async def recommend_crops_v6(
     request: CropRecommendationRequestV6,
-    credentials: HTTPAuthorizationCredentials | None = Security(security_optional),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Get AI-powered crop recommendations using the advanced V6 engine."""
-    user = await get_optional_user(db, credentials)
-
     orchestrator = RecommendationOrchestrator(db)
 
     try:
-        response = await orchestrator.recommend(request, user)
+        response = await orchestrator.recommend(request, current_user)
         return APIResponse.success(
             data=response.model_dump(mode="json"),
             message=f"Found {len(response.recommendations)} crop recommendations"

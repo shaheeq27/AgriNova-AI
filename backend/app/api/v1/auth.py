@@ -67,5 +67,5 @@ async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depend
 async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     """Reset password using a token."""
     service = AuthService(db)
-    await service.reset_password(data.token, data.new_password)
+    await service.reset_password(data.reset_id, data.token, data.new_password)
     return APIResponse.success(message="Password successfully updated")
