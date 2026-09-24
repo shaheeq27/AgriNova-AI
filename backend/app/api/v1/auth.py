@@ -52,3 +52,20 @@ async def update_profile(
     update_data = data.model_dump(exclude_unset=True)
     profile = await service.update_profile(current_user.id, **update_data)
     return APIResponse.success(data=profile.model_dump(), message="Profile updated")
+
+from app.schemas.auth import ForgotPasswordRequest, ResetPasswordRequest
+
+@router.post("/forgot-password", response_model=APIResponse)
+async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Request a password reset link."""
+    service = AuthService(db)
+    await service.forgot_password(data.email)
+    # Always return success to prevent email enumeration
+    return APIResponse.success(message="If an account exists, a recovery link has been sent.")
+
+@router.post("/reset-password", response_model=APIResponse)
+async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Reset password using a token."""
+    service = AuthService(db)
+    await service.reset_password(data.token, data.new_password)
+    return APIResponse.success(message="Password successfully updated")

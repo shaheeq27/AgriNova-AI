@@ -3,6 +3,9 @@ export interface Crop {
   crop_name: string;
   status: string;
   area_acres: number;
+  planting_date?: string;
+  season?: string;
+  created_at?: string;
 }
 
 export interface Farm {
@@ -34,6 +37,10 @@ export interface CreateFarmInput {
   soil_type: string;
   water_source?: string;
   description?: string;
+  crop_name?: string;
+  season?: string;
+  created_at?: string;
+  planting_date?: string;
 }
 
 export interface FarmStatsData {

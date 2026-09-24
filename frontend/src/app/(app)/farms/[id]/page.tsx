@@ -92,7 +92,7 @@ export default function FarmDetailPage() {
     return (
       <div className="p-6">
         <div className="skeleton" style={{ height: "32px", width: "200px", marginBottom: "8px" }} />
-        <div className="skeleton" style={{ height: "16px", width: "300px", marginBottom: "32px" }} />
+        <div className="skeleton" style={{ height: "16px", width: "300px", marginBottom: "28px" }} />
         <div className="skeleton" style={{ height: "300px" }} />
       </div>
     );
@@ -101,7 +101,7 @@ export default function FarmDetailPage() {
   if (!farm) return null;
 
   return (
-    <div className="pb-12">
+    <div className="pb-12 mx-auto w-[calc(100%-32px)] md:w-[calc(100%-64px)] max-w-[1200px]">
       {/* Header */}
       <div className="animate-fade-in-up" style={{ marginBottom: "32px" }}>
         <Link href="/farms" style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
@@ -125,18 +125,24 @@ export default function FarmDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-white/10 mb-8 animate-fade-in-up delay-1">
+      <div
+        className="flex items-center gap-6 border-b border-white/10 animate-fade-in-up delay-1 overflow-x-auto whitespace-nowrap hide-scrollbar relative"
+        style={{ height: "44px", paddingBottom: "10px", marginBottom: "24px", width: "100%" }}
+      >
         {(["overview", "history", "insights"] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-4 px-2 text-sm font-medium tracking-wide transition-colors uppercase ${
+            className={`relative flex items-center h-full text-sm font-medium tracking-wide transition-colors uppercase ${
               activeTab === tab
-                ? "text-neon-mint border-b-2 border-neon-mint"
+                ? "text-neon-mint"
                 : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             {tab.replace("_", " ")}
+            {activeTab === tab && (
+              <span className="absolute left-0 w-full bg-neon-mint" style={{ bottom: "-11px", height: "2px" }} />
+            )}
           </button>
         ))}
       </div>
@@ -146,16 +152,15 @@ export default function FarmDetailPage() {
         {activeTab === "overview" && (
           <div className="flex flex-col gap-6">
             {/* Farm Details Card */}
-            <div className="glass-card" style={{ padding: "32px" }}>
+            <div className="glass-card border-white/10" style={{ padding: "32px", width: "100%", maxWidth: "1200px", minHeight: "220px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}>Farm Details</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "24px" }}>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {[
                   { label: "Total Area", value: `${farm.total_area_acres} acres`, icon: "📐" },
                   { label: "Soil Type", value: farm.soil_type, icon: "🪨" },
                   { label: "Water Source", value: farm.water_source || "Not specified", icon: "💧" },
                   { label: "Active Crops", value: `${farm.crops.length}`, icon: "🌾" },
-                  { label: "Status", value: farm.is_active ? "Active" : "Inactive", icon: "✅" },
-                  { label: "Created", value: new Date(farm.created_at).toLocaleDateString(), icon: "📅" },
+                  { label: "Status", value: farm.is_active ? "Active" : "Inactive", icon: "✅" }
                 ].map((detail) => (
                   <div key={detail.label}>
                     <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
@@ -174,16 +179,28 @@ export default function FarmDetailPage() {
             </div>
 
             {/* Crop Recommendations CTA */}
-            <div className="glass-card" style={{
-              padding: "40px", textAlign: "center",
+            <div className="glass-card border-white/10" style={{
+              width: "100%",
+              maxWidth: "1200px",
+              height: "300px",
+              minHeight: "280px",
+              maxHeight: "320px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
               background: "radial-gradient(ellipse at center, var(--accent-glow), var(--surface-glass))",
+              padding: "0 24px"
             }}>
-              <div style={{ fontSize: "48px", marginBottom: "16px" }}>🤖</div>
-              <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>Get AI Crop Recommendations</h3>
-              <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "24px", maxWidth: "400px", margin: "0 auto 24px" }}>
+              <div style={{ fontSize: "44px", marginBottom: "12px", lineHeight: 1 }}>🤖</div>
+              <h3 className="font-bold text-on-surface" style={{ fontSize: "clamp(24px, 4vw, 28px)", marginBottom: "8px", lineHeight: 1.2 }}>
+                Get AI Crop Recommendations
+              </h3>
+              <p className="text-on-surface-variant" style={{ fontSize: "15.5px", marginBottom: "20px", maxWidth: "600px", marginInline: "auto" }}>
                 Based on your farm&apos;s soil type, location, and weather data, our AI will recommend the best crops for you.
               </p>
-              <Link href="/advisor" className="btn-primary" style={{ padding: "12px 32px", fontSize: "15px", display: "inline-block" }}>
+              <Link href="/advisor" className="btn-primary" style={{ padding: "0 32px", height: "48px", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "15px" }}>
                 🌱 Launch Advisor
               </Link>
             </div>
@@ -198,11 +215,46 @@ export default function FarmDetailPage() {
                 <p>Loading timeline...</p>
               </div>
             ) : cropsHistory.length === 0 ? (
-              <div className="glass-card p-12 text-center border-dashed border-white/20">
-                <span className="text-4xl mb-4 block opacity-50">🌾</span>
-                <h3 className="type-headline-md mb-2">No Historical Data Logged Yet</h3>
-                <p className="type-body-sm text-on-surface-variant max-w-sm mx-auto">
-                  Harvest a crop to build your farm&apos;s history and unlock powerful AI insights for future planting seasons.
+              <div
+                className="glass-card"
+                style={{
+                  width: "100%",
+                  maxWidth: "900px",
+                  marginInline: "auto",
+                  height: "190px",
+                  minHeight: "180px",
+                  maxHeight: "220px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  padding: "0 24px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)"
+                }}
+              >
+                <span style={{ fontSize: "48px", marginBottom: "12px", opacity: 0.6, lineHeight: 1 }}>🌾</span>
+                <h3
+                  className="font-bold text-on-surface"
+                  style={{
+                    fontSize: "clamp(22px, 3vw, 28px)",
+                    marginBottom: "10px",
+                    lineHeight: 1.2
+                  }}
+                >
+                  No Historical Data Logged Yet
+                </h3>
+                <p
+                  className="text-on-surface-variant"
+                  style={{
+                    maxWidth: "620px",
+                    fontSize: "15.5px",
+                    lineHeight: 1.5,
+                    margin: "0 auto"
+                  }}
+                >
+                  Harvest a crop to build your farm&apos;s history and unlock powerful AI insights for future plantings and seasons.
                 </p>
               </div>
             ) : (
@@ -282,33 +334,33 @@ export default function FarmDetailPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full" style={{ gridAutoRows: "minmax(150px, auto)" }}>
 
                 {/* Crop Performance */}
-                <div className="glass-card p-6 border border-white/5 hover:border-neon-mint/30 transition-colors">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-neon-mint/10 text-neon-mint">
+                <div className="glass-card border border-white/5 hover:border-white/20 transition-colors flex flex-col" style={{ padding: "22px 24px", boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+                    <div className="text-neon-mint">
                       <Sprout size={20} />
                     </div>
                     <h3 className="text-lg font-bold text-on-surface">Crop Performance</h3>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <div style={{ display: "flex", justifySelf: "stretch", justifyContent: "space-between", alignItems: "center" }}>
                       <span className="text-sm text-on-surface-variant">Best Performing</span>
                       <span className="font-medium text-neon-mint flex items-center gap-2">
                         {bestPerformingCrop?.crop_name || "—"}
                         {bestPerformingCrop && <TrendingUp size={14} />}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span className="text-sm text-on-surface-variant">Needs Attention</span>
                       <span className="font-medium text-orange-400 flex items-center gap-2">
                         {worstPerformingCrop?.crop_name || "—"}
                         {worstPerformingCrop && <TrendingDown size={14} />}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span className="text-sm text-on-surface-variant">Reliability Score</span>
                       <span className="font-mono text-on-surface">
                         {bestPerformingCrop?.confidence ? `${(bestPerformingCrop.confidence * 100).toFixed(0)}%` : "—"}
@@ -318,55 +370,58 @@ export default function FarmDetailPage() {
                 </div>
 
                 {/* Yield Trends */}
-                <div className="glass-card p-6 border border-white/5 hover:border-neon-mint/30 transition-colors">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                <div className="glass-card border border-white/5 hover:border-white/20 transition-colors flex flex-col" style={{ padding: "22px 24px", boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+                    <div className="text-blue-400">
                       <Activity size={20} />
                     </div>
                     <h3 className="text-lg font-bold text-on-surface">Yield Trends</h3>
                   </div>
 
-                  <div className="space-y-4">
-                    {insights.yield_trends.length > 0 ? insights.yield_trends.slice(0, 3).map((trend, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-white/5">
-                        <span className="text-sm text-on-surface-variant">{trend.crop_name}</span>
-                        <div className="flex items-center gap-2">
-                           <span className="text-xs text-on-surface-variant">{trend.average_yield} {trend.yield_unit}</span>
-                           {trend.trend_direction === "increasing" ? (
-                             <Badge className="bg-neon-mint/20 text-neon-mint border-neon-mint/50"><TrendingUp size={12} className="mr-1"/> Up</Badge>
-                           ) : trend.trend_direction === "decreasing" ? (
-                             <Badge className="bg-red-500/20 text-red-400 border-red-500/50"><TrendingDown size={12} className="mr-1"/> Down</Badge>
-                           ) : (
-                             <Badge className="bg-white/10 text-on-surface border-white/20"><Minus size={12} className="mr-1"/> Stable</Badge>
-                           )}
-                        </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    {insights.yield_trends.length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {insights.yield_trends.slice(0, 3).map((trend, i) => (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span className="text-sm text-on-surface-variant">{trend.crop_name}</span>
+                            <div className="flex items-center gap-2">
+                               <span className="text-xs text-on-surface-variant">{trend.average_yield} {trend.yield_unit}</span>
+                               {trend.trend_direction === "increasing" ? (
+                                 <Badge className="bg-neon-mint/20 text-neon-mint border-neon-mint/50"><TrendingUp size={12} className="mr-1"/> Up</Badge>
+                               ) : trend.trend_direction === "decreasing" ? (
+                                 <Badge className="bg-red-500/20 text-red-400 border-red-500/50"><TrendingDown size={12} className="mr-1"/> Down</Badge>
+                               ) : (
+                                 <Badge className="bg-white/10 text-on-surface border-white/20"><Minus size={12} className="mr-1"/> Stable</Badge>
+                               )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )) : (
-                      <div className="p-3 text-center text-on-surface-variant text-sm">No yield trends available.</div>
+                    ) : (
+                      <div className="text-center text-on-surface-variant text-sm w-full">No yield trends available.</div>
                     )}
                   </div>
                 </div>
 
                 {/* Disease Patterns */}
-                <div className="glass-card p-6 border border-white/5 hover:border-orange-500/30 transition-colors">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400">
+                <div className="glass-card border border-white/5 hover:border-white/20 transition-colors flex flex-col" style={{ padding: "22px 24px", boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+                    <div className="text-orange-400">
                       <ShieldAlert size={20} />
                     </div>
                     <h3 className="text-lg font-bold text-on-surface">Disease Patterns</h3>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5">
-                      <span className="text-sm text-on-surface-variant">Most Common</span>
-                      <span className="font-medium text-orange-400">
-                        {mostCommonDisease ? `${mostCommonDisease.disease_name} (${mostCommonDisease.occurrence_count})` : "—"}
-                      </span>
-                    </div>
-                                        {insights.disease_patterns.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                    <span className="text-sm text-on-surface-variant" style={{ marginBottom: "10px" }}>Most Common</span>
+
+                    {insights.disease_patterns.length > 0 ? (
                       <>
+                        <span className="font-medium text-orange-400" style={{ marginBottom: "12px" }}>
+                          {mostCommonDisease ? `${mostCommonDisease.disease_name} (${mostCommonDisease.occurrence_count})` : "—"}
+                        </span>
                         {insights.disease_patterns.filter(d => d.occurrence_count > 1).map((d, i) => (
-                           <div key={i} className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 mb-2">
+                           <div key={i} className="bg-orange-500/10 border border-orange-500/20" style={{ padding: "12px 14px", borderRadius: "8px", minHeight: "42px", display: "flex", alignItems: "center", marginBottom: "8px" }}>
                              <div className="flex items-start gap-2">
                                <AlertTriangle size={14} className="text-orange-400 mt-0.5" />
                                <p className="text-xs text-orange-200">
@@ -377,10 +432,10 @@ export default function FarmDetailPage() {
                         ))}
                       </>
                     ) : (
-                       <div className="p-3 rounded-lg bg-neon-mint/10 border border-neon-mint/20">
-                         <div className="flex items-start gap-2">
-                           <Sprout size={14} className="text-neon-mint mt-0.5" />
-                           <p className="text-xs text-neon-mint/80">
+                       <div style={{ padding: "12px 14px", borderRadius: "8px", minHeight: "42px", display: "flex", alignItems: "center", background: "rgba(173, 255, 0, 0.1)", border: "1px solid rgba(173, 255, 0, 0.2)" }}>
+                         <div className="flex items-center gap-2 w-full">
+                           <Sprout size={14} className="text-neon-mint flex-shrink-0" />
+                           <p className="text-xs text-neon-mint/80 mb-0">
                              No significant disease patterns detected in historical logs.
                            </p>
                          </div>
@@ -390,25 +445,29 @@ export default function FarmDetailPage() {
                 </div>
 
                 {/* Input Usage */}
-                <div className="glass-card p-6 border border-white/5 hover:border-blue-500/30 transition-colors">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                <div className="glass-card border border-white/5 hover:border-white/20 transition-colors flex flex-col" style={{ padding: "22px 24px", boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+                    <div className="text-purple-400">
                       <Droplet size={20} />
                     </div>
                     <h3 className="text-lg font-bold text-on-surface">Input Usage</h3>
                   </div>
 
-                  <div className="space-y-4">
-                    {insights.input_usage.length > 0 ? insights.input_usage.slice(0, 3).map((input, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-white/5">
-                        <span className="text-sm text-on-surface-variant">{input.input_type} ({input.crop_name})</span>
-                        <div className="text-right">
-                          <span className="block text-sm font-medium text-on-surface">{input.total_quantity || "—"} {input.quantity_unit}</span>
-                          <span className="block text-[10px] text-on-surface-variant">{input.application_count} applications</span>
-                        </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    {insights.input_usage.length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {insights.input_usage.slice(0, 3).map((input, i) => (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span className="text-sm text-on-surface-variant">{input.input_type} ({input.crop_name})</span>
+                            <div className="text-right">
+                              <span className="block text-sm font-medium text-on-surface">{input.total_quantity || "—"} {input.quantity_unit}</span>
+                              <span className="block text-[10px] text-on-surface-variant">{input.application_count} applications</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )) : (
-                      <div className="p-3 text-center text-on-surface-variant text-sm">No input usage data available.</div>
+                    ) : (
+                      <div className="text-center text-on-surface-variant text-sm w-full">No input usage data available.</div>
                     )}
                   </div>
                 </div>

@@ -2,7 +2,7 @@
 AgriNova AI — Farm schemas.
 """
 
-from datetime import datetime
+from datetime import datetime, date
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +14,9 @@ class FarmCreate(BaseModel):
     location_city: str = Field(..., min_length=2, max_length=255)
     location_state: str | None = Field(None, max_length=255)
     total_area_acres: float = Field(..., gt=0)
+    planting_date: date | None = None
+    season: str | None = None
+    created_at: datetime | None = None
     soil_type: str = Field(..., min_length=2, max_length=50)
     water_source: str | None = Field(None, max_length=100)
     description: str | None = None
@@ -26,6 +29,9 @@ class FarmUpdate(BaseModel):
     location_city: str | None = Field(None, min_length=2, max_length=255)
     location_state: str | None = Field(None, max_length=255)
     total_area_acres: float | None = Field(None, gt=0)
+    planting_date: date | None = None
+    season: str | None = None
+    created_at: datetime | None = None
     soil_type: str | None = Field(None, min_length=2, max_length=50)
     water_source: str | None = Field(None, max_length=100)
     description: str | None = None
@@ -38,6 +44,9 @@ class CropSummary(BaseModel):
     crop_name: str
     status: str
     area_acres: float
+    planting_date: date | None = None
+    season: str | None = None
+    created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -53,6 +62,9 @@ class FarmResponse(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     total_area_acres: float
+    planting_date: date | None = None
+    season: str | None = None
+    created_at: datetime | None = None
     soil_type: str
     water_source: str | None = None
     description: str | None = None

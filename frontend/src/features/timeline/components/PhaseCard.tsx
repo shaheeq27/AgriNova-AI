@@ -3,6 +3,7 @@
 import React from 'react';
 import { CropJourneyPhase } from '../types';
 import styles from './PhaseCard.module.css';
+import { parseDateString, formatDateShort } from '@/utils/date';
 
 interface PhaseCardProps {
   phase: CropJourneyPhase;
@@ -15,11 +16,9 @@ interface PhaseCardProps {
 }
 
 function formatDateRange(start: string, end: string) {
-  const format = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-  return `${format(start)} – ${format(end)}`;
+  const pStart = parseDateString(start);
+  const pEnd = parseDateString(end);
+  return `${formatDateShort(pStart)} – ${formatDateShort(pEnd)}`;
 }
 
 export default function PhaseCard({ 

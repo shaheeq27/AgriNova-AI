@@ -22,12 +22,10 @@ export function FarmCard({ farm, index }: FarmCardProps) {
     (index % 3 === 0 ? '/farm_1.jpg' : index % 3 === 1 ? '/farm_2.jpg' : '/farm_3.jpg');
 
   const stageName = farm.stageName || (hasCrop ? 'Vegetative Stage' : undefined);
-  const defaultDay = farm.defaultDay || 60;
-
   const { currentDay, totalDays } = FarmsService.calculateCropDays(
-    undefined,
+    activeCrop?.planting_date,
     activeCrop?.crop_name,
-    defaultDay
+    activeCrop?.created_at
   );
 
   return (
@@ -114,7 +112,7 @@ export function FarmCard({ farm, index }: FarmCardProps) {
           </>
         ) : (
           <>
-            <Link href="/crops" style={{ flex: 1 }}>
+            <Link href="/advisor" style={{ flex: 1 }}>
               <button className={styles.recommendButton}>
                 <Compass size={14} />
                 <span>Recommend Crop</span>

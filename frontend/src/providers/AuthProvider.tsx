@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data: TokenData = await authAPI.login({ email, password });
     localStorage.setItem("agrinova_token", data.access_token);
     setUser(data.user);
-    router.push("/dashboard");
+    router.push("/home");
   };
 
   const register = async (formData: {
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data: TokenData = await authAPI.register(formData);
     localStorage.setItem("agrinova_token", data.access_token);
     setUser(data.user);
-    router.push("/dashboard");
+    router.push("/home");
   };
 
   const logout = () => {

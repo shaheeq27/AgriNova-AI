@@ -76,35 +76,45 @@ export function InputState({ onSubmit, isLoading }: InputStateProps) {
   const isLocationProvided = locationName && locationName.trim() !== '';
 
   return (
-    <div
-      className="grid grid-cols-1 lg:grid-cols-2 items-stretch w-full max-w-[1200px] mx-auto"
-      style={{ gap: '32px', fontFamily: 'var(--font-sans, system-ui, sans-serif)' }}
-    >
+    <div className="flex flex-col w-[calc(100%-32px)] md:w-[calc(100%-48px)] max-w-[1200px] mx-auto items-center" style={{ fontFamily: 'var(--font-sans, system-ui, sans-serif)' }}>
+      {/* Page Title / Header */}
+      <div className="text-center w-full" style={{ marginTop: '32px', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '40px', fontWeight: 700, color: '#E4E2E0', lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '8px' }}>
+          Crop Advisor
+        </h1>
+        <p style={{ fontSize: '16px', color: '#88929E' }}>
+          AI-powered crop recommendations tailored to your farm's unique conditions.
+        </p>
+      </div>
+
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 items-start w-full gap-[20px] md:gap-[24px]"
+      >
 
       {/* ══════════════════════════════════════════════
           LEFT PANEL: FARM DETAILS
           ══════════════════════════════════════════════ */}
       <div
-        className="flex flex-col relative overflow-visible transition-all duration-300 group hover:-translate-y-1"
+        className="flex flex-col relative overflow-visible transition-all duration-300 group hover:-translate-y-1 h-auto"
         style={{
           backgroundColor: 'rgba(7, 12, 8, 0.95)',
           border: '1px solid #192B1D',
-          borderRadius: '32px',
-          padding: '40px',
+          borderRadius: '20px',
+          padding: '32px',
           boxSizing: 'border-box'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#4EE86A]/5 to-transparent pointer-events-none group-hover:from-[#4EE86A]/10 transition-colors duration-500" />
 
-        <div className="relative z-10 flex flex-col h-full">
-          <h2 style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1.1, color: '#4EE86A', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+        <div className="relative z-10 flex flex-col">
+          <h2 style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1.1, color: '#4EE86A', marginBottom: '8px', letterSpacing: '-0.02em' }}>
             Farm Details
           </h2>
-          <p style={{ fontSize: '16px', fontWeight: 400, color: '#88929E', marginBottom: '36px' }}>
+          <p style={{ fontSize: '16px', fontWeight: 400, color: '#88929E', marginBottom: '28px' }}>
             Provide your farm information to begin climate-based crop analysis.
           </p>
 
-          <div className="flex flex-col gap-5 flex-1 mb-10">
+          <div className="flex flex-col gap-[24px] mb-10">
             <AutocompleteInput
               label="Location"
               icon="📍"
@@ -195,12 +205,12 @@ export function InputState({ onSubmit, isLoading }: InputStateProps) {
           - Each card: emoji + bold green label + muted value
           ══════════════════════════════════════════════ */}
       <div
-        className="flex flex-col relative overflow-visible transition-all duration-300 group hover:-translate-y-1"
+        className="flex flex-col relative overflow-visible transition-all duration-300 group hover:-translate-y-1 h-auto"
         style={{
           backgroundColor: 'rgba(7, 12, 8, 0.95)',
           border: '1px solid #192B1D',
-          borderRadius: '32px',
-          padding: '40px',
+          borderRadius: '20px',
+          padding: '32px',
           boxSizing: 'border-box',
           fontFamily: 'var(--font-sans, system-ui, sans-serif)'
         }}
@@ -215,14 +225,14 @@ export function InputState({ onSubmit, isLoading }: InputStateProps) {
           fontStyle: 'italic',
           lineHeight: 1.1,
           color: '#4EE86A',
-          marginBottom: '20px',
+          marginBottom: '24px',
           letterSpacing: '-0.01em'
         }}>
           Climate Intelligence
         </h2>
 
         {/* STACKED INFO CARDS */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-[16px]">
 
           {/* LOCATION */}
           <InfoCard
@@ -278,6 +288,7 @@ export function InputState({ onSubmit, isLoading }: InputStateProps) {
       </div>
 
     </div>
+    </div>
   );
 }
 
@@ -302,12 +313,13 @@ function InfoCard({
 }) {
   return (
     <div
-      className="transition-all duration-200 hover:border-[#2A4530]"
+      className="transition-all duration-200 hover:border-[#2A4530] flex flex-col justify-center"
       style={{
         backgroundColor: 'rgba(12, 22, 14, 0.85)',
         border: '1px solid #1A2E1E',
-        borderRadius: '20px',
-        padding: '20px 28px',
+        borderRadius: '16px',
+        padding: '16px 24px',
+        minHeight: '90px'
       }}
     >
       <div className="flex items-center gap-2 mb-2">

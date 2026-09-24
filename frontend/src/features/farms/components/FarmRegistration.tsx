@@ -24,6 +24,9 @@ export function FarmRegistration({ onRegister, submitting }: FarmRegistrationPro
   const [areaAcres, setAreaAcres] = useState('');
   const [soilType, setSoilType] = useState<string>(SOIL_TYPES[0]);
   const [waterSource, setWaterSource] = useState<string>(WATER_SOURCES[0]);
+  const [cropName, setCropName] = useState('');
+  const [season, setSeason] = useState('Kharif');
+  const [plantingDate, setPlantingDate] = useState(() => new Date().toISOString().split('T')[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +38,15 @@ export function FarmRegistration({ onRegister, submitting }: FarmRegistrationPro
       total_area_acres: parseFloat(areaAcres),
       soil_type: soilType,
       water_source: waterSource,
+      crop_name: cropName || undefined,
+      season: season || undefined,
+      planting_date: plantingDate || undefined,
     });
 
     setName('');
     setLocationCity('');
     setAreaAcres('');
+    setCropName('');
   };
 
   return (
@@ -139,8 +146,50 @@ export function FarmRegistration({ onRegister, submitting }: FarmRegistrationPro
           </div>
         </div>
 
+        {/* Optional: Add Crop */}
+        <div className={styles.fieldGroup} style={{ gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginTop: "8px", padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+          <div style={{ gridColumn: "1 / -1", fontSize: "14px", fontWeight: 600, color: "var(--neon-mint)", marginBottom: "4px" }}>
+            Add Initial Crop (Optional)
+          </div>
+          <div>
+            <label className={styles.fieldLabel}>Crop Name</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type="text"
+                placeholder="e.g. Rice, Wheat"
+                value={cropName}
+                onChange={(e) => setCropName(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+          </div>
+          <div>
+            <label className={styles.fieldLabel}>Season</label>
+            <div className={styles.inputWrapper}>
+              <select value={season} onChange={(e) => setSeason(e.target.value)} className={styles.select}>
+                <option value="Kharif">Kharif</option>
+                <option value="Rabi">Rabi</option>
+                <option value="Zaid">Zaid</option>
+                <option value="Annual">Annual</option>
+              </select>
+              <ChevronDown size={14} className={styles.chevronIcon} />
+            </div>
+          </div>
+          <div>
+            <label className={styles.fieldLabel}>Sowing Date</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type="date"
+                value={plantingDate}
+                onChange={(e) => setPlantingDate(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* 6. Register CTA Button */}
-        <div>
+        <div style={{ gridColumn: "1 / -1" }}>
           <button type="submit" disabled={submitting} className={styles.submitButton}>
             <Plus size={18} strokeWidth={2.5} />
             <span>{submitting ? 'Registering...' : 'Register New Farm'}</span>

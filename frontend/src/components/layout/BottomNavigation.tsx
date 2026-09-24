@@ -3,14 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, Scan, Brain, Bot } from 'lucide-react';
+import { Home, Scan, Sprout, Bot, TrendingUp } from 'lucide-react';
 
 const NAV_ITEMS = [
   { label: 'Home', href: '/home', Icon: Home },
-  { label: 'Timeline', href: '/timeline', Icon: Calendar },
+  { label: 'Crop Advisor', href: '/advisor', Icon: Sprout },
   { label: 'Detect', href: '/detect', Icon: Scan },
-  { label: 'Advisor', href: '/advisor', Icon: Brain },
   { label: 'Aira', href: '/aira', Icon: Bot },
+  { label: 'Market', href: '/market', Icon: TrendingUp },
 ];
 
 export default function BottomNavigation() {

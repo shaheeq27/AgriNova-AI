@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { marketAPI, MarketSummaryResponse } from '@/services/market.service';
-import { useAuth } from '@/providers/AuthProvider';
 
 interface Props {
   className?: string;
@@ -18,13 +17,13 @@ export function MarketSummarySection({ className = '', activeCropNames, isLoadin
   useEffect(() => {
     async function load() {
       if (isLoadingCrops) return; // Wait for parent to finish loading crops
-      
+
       if (activeCropNames.length === 0) {
         setLoading(false);
         setData(null);
         return;
       }
-      
+
       setLoading(true);
       try {
         const res = await marketAPI.getSummary(activeCropNames);
@@ -36,84 +35,122 @@ export function MarketSummarySection({ className = '', activeCropNames, isLoadin
       }
     }
     load();
-  }, [activeCropNames]);
+  }, [activeCropNames, isLoadingCrops]);
+
+  // Section Label exactly matching other Dashboard components
+  const sectionLabel = (
+    <div style={{
+      fontFamily: 'monospace, sans-serif',
+      fontSize: '11px',
+      fontWeight: 600,
+      color: 'var(--color-text-muted, #8d928c)',
+      letterSpacing: '0.08em',
+      textTransform: 'uppercase',
+      marginBottom: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    }}>
+      <TrendingUp size={14} style={{ color: 'var(--accent-primary, #adff00)' }} />
+      Market Watch
+    </div>
+  );
+
+  const cardStyle = {
+    background: 'var(--color-bg-card, rgba(31, 32, 31, 0.75))',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid var(--color-border, rgba(141, 146, 140, 0.15))',
+    borderRadius: '16px',
+    padding: '20px 24px',
+    width: '100%',
+    minHeight: '100px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    boxSizing: 'border-box' as const,
+  };
 
   if (loading) {
     return (
-      <div className={`bg-surface-base border border-white/5 rounded-3xl p-6 ${className}`}>
-        <h2 className="text-xl font-medium text-white mb-6">Market Watch</h2>
-        <div className="animate-pulse space-y-4">
-          <div className="h-16 bg-white/5 rounded-2xl w-full"></div>
-          <div className="h-16 bg-white/5 rounded-2xl w-full"></div>
+      <div className={className} style={{ width: '100%' }}>
+        {sectionLabel}
+        <div style={cardStyle}>
+          <div style={{ color: '#8d928c', fontSize: '14px', textAlign: 'center' }}>
+            Loading market data...
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-surface-base border border-white/5 rounded-3xl p-6 flex flex-col ${className}`}>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-primary/10 rounded-xl">
-            <TrendingUp className="w-5 h-5 text-brand-primary" />
+    <div className={className} style={{ width: '100%' }}>
+      {sectionLabel}
+
+      <div style={cardStyle}>
+        {data?.data_status === 'unavailable' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', padding: '12px 16px', borderRadius: '12px', marginBottom: '16px' }}>
+            <AlertCircle size={16} />
+            <p style={{ fontSize: '14px' }}>Live market data is currently unavailable.</p>
           </div>
-          <h2 className="text-xl font-medium text-white">Market Watch</h2>
-        </div>
-        
-        {data?.last_updated && (
-          <div className="flex items-center gap-1.5 text-xs text-text-tertiary">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Updated {new Date(data.last_updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        )}
+
+        {(!data || data.items.length === 0) ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+            <TrendingUp size={20} style={{ color: 'var(--accent-primary, #adff00)', marginBottom: '8px' }} />
+            <p style={{ fontSize: '15px', fontWeight: 500, color: '#F2F0E8', marginBottom: '5px' }}>
+              No market data available
+            </p>
+            {data?.data_status !== 'unavailable' && (
+              <p style={{ fontSize: '13px', color: '#8d928c', opacity: 0.7 }}>
+                Add crops to your farm to see relevant prices.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {data.items.map((item, idx) => {
+              const isUp = item.price_change_pct !== null && item.price_change_pct > 0;
+              const isDown = item.price_change_pct !== null && item.price_change_pct < 0;
+
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    borderRadius: '12px'
+                  }}
+                >
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#e4e2e0', marginBottom: '2px' }}>{item.commodity}</h4>
+                    <p style={{ fontSize: '12px', color: '#8d928c' }}>{item.market_name}</p>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#e4e2e0' }}>
+                      ₹{item.modal_price.toLocaleString()}<span style={{ fontSize: '10px', color: '#8d928c', marginLeft: '2px' }}>/q</span>
+                    </div>
+                    {item.price_change_pct !== null && (
+                      <div style={{
+                        fontSize: '12px',
+                        marginTop: '2px',
+                        color: isUp ? 'var(--accent-primary, #adff00)' : isDown ? '#ffb4ab' : '#8d928c'
+                      }}>
+                        {isUp ? '↑' : isDown ? '↓' : ''} {Math.abs(item.price_change_pct)}%
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
-
-      {data?.data_status === 'unavailable' && (
-        <div className="flex items-center gap-2 text-sm text-yellow-500/80 bg-yellow-500/10 p-4 rounded-2xl mb-4">
-          <AlertCircle className="w-4 h-4" />
-          <p>Live market data is currently unavailable.</p>
-        </div>
-      )}
-
-      {(!data || data.items.length === 0) ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-white/5 rounded-2xl border border-white/5 border-dashed">
-          <TrendingUp className="w-8 h-8 text-text-tertiary mb-3" />
-          <p className="text-sm text-text-secondary">No market data available</p>
-          {data?.data_status !== 'unavailable' && (
-            <p className="text-xs text-text-tertiary mt-1">Add crops to your farm to see relevant prices.</p>
-          )}
-        </div>
-      ) : (
-        <div className="flex-1 space-y-3 overflow-y-auto pr-2">
-          {data.items.map((item, idx) => {
-            const isUp = item.price_change_pct !== null && item.price_change_pct > 0;
-            const isDown = item.price_change_pct !== null && item.price_change_pct < 0;
-
-            return (
-              <div 
-                key={idx}
-                className="flex items-center justify-between p-4 bg-surface-elevated/40 border border-white/5 rounded-2xl"
-              >
-                <div>
-                  <h4 className="text-sm font-medium text-white">{item.commodity}</h4>
-                  <p className="text-xs text-text-tertiary">{item.market_name}</p>
-                </div>
-                
-                <div className="text-right">
-                  <div className="text-sm font-medium text-white">
-                    ₹{item.modal_price.toLocaleString()}<span className="text-[10px] text-text-tertiary">/q</span>
-                  </div>
-                  {item.price_change_pct !== null && (
-                    <div className={`text-xs mt-0.5 ${isUp ? 'text-brand-primary' : isDown ? 'text-red-400' : 'text-text-tertiary'}`}>
-                      {isUp ? '↑' : isDown ? '↓' : ''} {Math.abs(item.price_change_pct)}%
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

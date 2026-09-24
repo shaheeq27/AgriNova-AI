@@ -92,6 +92,12 @@ export const authAPI = {
 
   updateProfile: (data: { full_name?: string; phone?: string }) =>
     request<UserData>("/auth/me", { method: "PUT", body: JSON.stringify(data) }),
+
+  forgotPassword: (email: string) =>
+    request<void>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
+
+  resetPassword: (data: { token: string; new_password: string }) =>
+    request<void>("/auth/reset-password", { method: "POST", body: JSON.stringify(data) }),
 };
 
 // ── Farm API ──
@@ -320,8 +326,48 @@ export interface CropRecommendationResponseV6 {
   input_conditions_used: Record<string, unknown>;
 }
 
+// ── Weather API ──
+export interface WeatherCurrent {
+  temperature: number | null;
+  humidity: number | null;
+  rainfall: number | null;
+  wind_speed: number | null;
+  condition: string;
+  description: string;
+  source: string;
+}
+
+export interface WeatherForecast {
+  date: string;
+  temp_min: number;
+  temp_max: number;
+  precipitation: number;
+  wind_speed: number;
+  condition: string;
+}
+
+export interface WeatherAlert {
+  type: string;
+  severity: string;
+  message: string;
+  date: string;
+}
+
+export interface WeatherResponse {
+  current: WeatherCurrent;
+  forecast: WeatherForecast[];
+  alerts: WeatherAlert[];
+}
+
+export const weatherAPI = {
+  getFarmWeather: (farmId: string) => request<WeatherResponse>(`/weather/farm/${farmId}`),
+};
+
 export const cropsAPI = {
   listByFarm: (farmId: string) => request<CropListResponse>(`/crops/farm/${farmId}`),
+  plant: (data: any) => request<CropResponse>("/crops/plant", { method: "POST", body: JSON.stringify(data) }),
+  getTimeline: (cropId: string) => request<any>(`/crops/${cropId}/timeline`),
+  getTasks: (cropId: string) => request<any>(`/crops/${cropId}/tasks`),
   recommend: (data: CropRecommendationRequest) =>
     request<CropRecommendationResponse>("/crops/recommend", {
       method: "POST",
@@ -346,6 +392,7 @@ export interface FertilizerRecommendation {
 }
 
 export const fertilizerAPI = {
+  getLogs: (cropId: string) => request<any>(`/fertilizer/logs/${cropId}`),
   recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
     let url = `/fertilizer/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
     if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
@@ -364,6 +411,7 @@ export interface IrrigationRecommendation {
 }
 
 export const irrigationAPI = {
+  getLogs: (cropId: string) => request<any>(`/irrigation/logs/${cropId}`),
   recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
     let url = `/irrigation/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
     if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
@@ -377,6 +425,7 @@ export const irrigationAPI = {
 
 
 export const diseaseAPI = {
+  getRecords: (cropId: string) => request<any>(`/disease/records/${cropId}`),
   analyzeImage: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -396,3 +445,7 @@ export interface FormContextData {
   seasonText: string;
   waterText: string;
 }
+
+export const activityAPI = {
+  getForCrop: (cropId: string) => request<any>(`/activity/crop/${cropId}`)
+};

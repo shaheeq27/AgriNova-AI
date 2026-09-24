@@ -80,10 +80,10 @@ export function AutocompleteInput({
 
   return (
     <div className="flex flex-col" ref={wrapperRef} style={{ fontFamily: 'var(--font-sans, system-ui, sans-serif)' }}>
-      <label className="flex items-center gap-2 font-bold text-[16px] mb-2 tracking-wide" style={{ color: '#4EE86A' }}>
+      <label className="flex items-center gap-2 font-bold text-[16px] mb-[6px] tracking-wide" style={{ color: '#4EE86A' }}>
         <span>{icon}</span> {label}
       </label>
-      {subtitle && <p className="text-[14px] mb-5" style={{ color: '#9CA3AF' }}>{subtitle}</p>}
+      {subtitle && <p className="text-[14px] mb-[8px]" style={{ color: '#9CA3AF' }}>{subtitle}</p>}
 
       <div className="relative w-full">
         <input

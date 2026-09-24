@@ -26,6 +26,7 @@ from app.models.conversation import Conversation, Message
 from app.models.market_price import MarketPrice
 from app.models.notification_preference import NotificationPreference
 from app.models.email_log import EmailLog
+from app.models.password_reset import PasswordReset
 
 __all__ = [
     "User",

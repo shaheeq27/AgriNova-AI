@@ -6,6 +6,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AuthProvider, useAuth } from "@/lib/auth";
 
 function RegisterForm() {
@@ -72,15 +73,18 @@ function RegisterForm() {
         style={{ width: "100%", maxWidth: "460px", padding: "40px", position: "relative", zIndex: 1 }}
       >
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div
-            style={{
-              width: 56, height: 56, borderRadius: "var(--radius-lg)",
-              background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
-              display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "28px",
-              marginBottom: "16px",
-            }}
-          >
-            🌱
+          <div style={{ position: "relative", marginBottom: "16px", display: "inline-flex", alignItems: "center", justifyItems: "center", margin: "0 auto 16px auto" }}>
+            <div className="absolute inset-0 bg-[#ADFF00]/20 blur-xl rounded-full" />
+            <div className="relative w-[72px] h-[72px] rounded-2xl bg-[#08120B] border border-[#ADFF00]/30 flex items-center justify-center p-2">
+              <Image
+                src="/logo_transparent.png"
+                alt="AgriNova AI Logo"
+                width={72}
+                height={72}
+                className="object-contain filter drop-shadow-[0_0_8px_rgba(173,255,0,0.6)]"
+                priority
+              />
+            </div>
           </div>
           <h1 style={{ fontSize: "28px", fontWeight: 800, marginBottom: "8px" }}>Create Account</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>

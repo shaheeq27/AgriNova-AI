@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import GlobalFooter from '@/components/layout/GlobalFooter';
 import {
   ArrowRight,
   Play,
@@ -81,23 +82,9 @@ export default function HomePage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
 
-  const footerRef = useRef<HTMLElement>(null);
-  const [footerVisible, setFooterVisible] = useState(false);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setFooterVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
 
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
 
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -161,7 +148,7 @@ export default function HomePage() {
           {/* Crop Image */}
           <div className={styles.heroCropContainer}>
             <img src="/hero-crop.png" alt="Agriculture crop" className={styles.heroCropImage} />
-            
+
             {/* Butterflies */}
             <div className={`${styles.butterfly} ${styles.butterfly1}`}>
               <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -259,8 +246,8 @@ export default function HomePage() {
               Everything you need for modern, data-driven farming.
             </p>
           </div>
-          <Link 
-            href="#features" 
+          <Link
+            href="#features"
             className={styles.sectionLink}
             onClick={(e) => {
               e.preventDefault();
@@ -399,29 +386,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <div className={styles.footerTrigger} />
-      <footer 
-        ref={footerRef} 
-        className={`${styles.footer} ${footerVisible ? styles.footerVisible : ''}`}
-      >
-        <div className={styles.footerContent}>
-          <div className={styles.footerLeft}>
-            <div className={styles.footerLogo}>
-              <Leaf size={18} className={styles.footerLogoIcon} />
-              <span className={styles.footerLogoText}>AgriNova</span>
-            </div>
-            <p className={styles.footerTagline}>Where Nature Meets Technology</p>
-          </div>
-          <div className={styles.footerRight}>
-            <div className={styles.footerLinks}>
-              <Link href="#">Privacy Policy</Link>
-              <Link href="#">Terms of Service</Link>
-              <Link href="#">Contact Support</Link>
-            </div>
-            <p className={styles.footerCopyright}>&copy; {new Date().getFullYear()} AgriNova AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <GlobalFooter />
     </div>
   );
 }

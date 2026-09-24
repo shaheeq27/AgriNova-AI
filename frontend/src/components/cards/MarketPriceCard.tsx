@@ -10,49 +10,83 @@ export function MarketPriceCard({ price }: Props) {
   const isDown = price.price_change_pct !== null && price.price_change_pct < 0;
 
   return (
-    <div className="bg-surface-elevated/40 backdrop-blur-xl border border-white/5 rounded-2xl p-6 hover:border-brand-primary/30 transition-colors">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-medium text-white">{price.commodity}</h3>
-          <p className="text-sm text-text-secondary">
+    <div style={{
+      width: '100%',
+      padding: '20px',
+      borderRadius: '16px',
+      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Header Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ minWidth: 0, paddingRight: '12px', flex: 1 }}>
+          <div style={{
+            fontSize: '20px',
+            lineHeight: '24px',
+            fontWeight: 500,
+            color: '#ffffff',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {price.commodity}
+          </div>
+          <div style={{
+            fontSize: '13px',
+            lineHeight: '18px',
+            color: '#9ca3af',
+            marginTop: '2px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
             {price.market_name}, {price.state}
-          </p>
+          </div>
         </div>
+
+        {/* Trend */}
         {price.price_change_pct !== null && (
-          <div
-            className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              isUp
-                ? 'bg-brand-primary/10 text-brand-primary'
-                : isDown
-                ? 'bg-red-500/10 text-red-400'
-                : 'bg-white/10 text-text-secondary'
-            }`}
-          >
+          <div style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '4px 8px',
+            borderRadius: '9999px',
+            fontSize: '12px',
+            fontWeight: 500,
+            backgroundColor: isUp ? 'rgba(34, 197, 94, 0.1)' : isDown ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+            color: isUp ? '#4ade80' : isDown ? '#f87171' : '#9ca3af'
+          }}>
             {isUp ? '↑' : isDown ? '↓' : '—'} {Math.abs(price.price_change_pct)}%
           </div>
         )}
       </div>
 
-      <div className="mb-4">
-        <div className="text-3xl font-light text-brand-primary">
+      {/* Price */}
+      <div style={{ marginTop: '14px' }}>
+        <div style={{
+          fontSize: '34px',
+          lineHeight: '40px',
+          fontWeight: 300,
+          color: '#4ade80'
+        }}>
           ₹{price.modal_price.toLocaleString()}
-          <span className="text-sm text-text-secondary ml-1">/q</span>
+          <span style={{ fontSize: '14px', color: '#9ca3af', marginLeft: '4px' }}>/q</span>
         </div>
-        <p className="text-xs text-text-tertiary mt-1">Modal Price</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-        <div>
-          <p className="text-xs text-text-tertiary">Min Price</p>
-          <p className="text-sm text-white">₹{price.min_price.toLocaleString()}</p>
-        </div>
-        <div>
-          <p className="text-xs text-text-tertiary">Max Price</p>
-          <p className="text-sm text-white">₹{price.max_price.toLocaleString()}</p>
-        </div>
-      </div>
-      
-      <div className="mt-4 text-xs text-text-tertiary text-right">
+      {/* Date */}
+      <div style={{
+        marginTop: '16px',
+        textAlign: 'right',
+        fontSize: '11px',
+        color: '#6b7280'
+      }}>
         Data as of {new Date(price.price_date).toLocaleDateString()}
       </div>
     </div>

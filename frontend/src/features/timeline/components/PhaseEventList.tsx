@@ -3,14 +3,15 @@
 import React from 'react';
 import { PhaseEvent } from '../types';
 import styles from './PhaseEventList.module.css';
+import { parseDateString, formatDateShort } from '@/utils/date';
 
 interface PhaseEventListProps {
   events: PhaseEvent[];
 }
 
 function formatShortDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const pDate = parseDateString(dateString);
+  return formatDateShort(pDate);
 }
 
 function getDotColor(category: string) {

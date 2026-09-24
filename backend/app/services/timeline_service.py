@@ -97,7 +97,7 @@ async def generate_timeline(
         stage_name = kb_stage.stage_name if hasattr(kb_stage, "stage_name") else kb_stage["stage_name"]
         stage_order = kb_stage.stage_order if hasattr(kb_stage, "stage_order") else kb_stage["stage_order"]
 
-        end_date = current_date + timedelta(days=duration)
+        end_date = current_date + timedelta(days=duration - 1)
 
         # Create timeline stage
         timeline_stage = CropTimeline(
@@ -117,9 +117,10 @@ async def generate_timeline(
         # Spread tasks across the stage duration
         task_interval = max(1, duration // len(task_templates))
         for i, tmpl in enumerate(task_templates):
-            task_date = current_date + timedelta(days=i * task_interval)
-            if task_date > end_date:
-                task_date = end_date
+            task_offset = i * task_interval
+            # Bound the task offset within the duration
+            task_offset = min(task_offset, duration - 1)
+            task_date = current_date + timedelta(days=task_offset)
 
             task = DailyTask(
                 timeline_id=timeline_stage.id,
@@ -133,7 +134,7 @@ async def generate_timeline(
             await repo.create_task(task)
 
         stages.append(TimelineStageResponse.model_validate(timeline_stage))
-        current_date = end_date
+        current_date = end_date + timedelta(days=1)
 
     await repo.commit()
     return stages
@@ -151,7 +152,7 @@ async def get_timeline(db: AsyncSession, crop_id: str) -> TimelineResponse:
     today = date.today()
 
     for s in stages:
-        total_days += (s.end_date - s.start_date).days
+        total_days += (s.end_date - s.start_date).days + 1
         if s.start_date <= today <= s.end_date:
             current_stage = s.stage_name
 

@@ -1,6 +1,7 @@
-import { farmAPI } from '@/lib/api';
+import { farmAPI, cropsAPI } from '@/lib/api';
 import { Farm, CreateFarmInput, FarmStatsData } from '../types';
 import { DEFAULT_FARMS, CROP_DURATION_KB } from '../constants';
+import { parseDateString } from '@/utils/date';
 
 export class FarmsService {
   /**
@@ -24,6 +25,22 @@ export class FarmsService {
   static async createFarm(input: CreateFarmInput): Promise<Farm> {
     try {
       const created = await farmAPI.create(input);
+
+      // If a crop was provided, plant it immediately
+      if (input.crop_name && input.season && input.planting_date) {
+        try {
+          await cropsAPI.plant({
+            farm_id: (created as any).id,
+            crop_name: input.crop_name,
+            season: input.season,
+            area_acres: input.total_area_acres,
+            planting_date: input.planting_date
+          });
+        } catch (e) {
+          console.error("Failed to plant crop during farm creation:", e);
+        }
+      }
+
       return created as Farm;
     } catch {
       const localFarm: Farm = {
@@ -77,17 +94,29 @@ export class FarmsService {
   /**
    * Calculate current day and total crop duration days dynamically.
    */
-  static calculateCropDays(plantingDateStr?: string, cropName?: string, defaultDay: number = 60) {
+  static calculateCropDays(plantingDateStr?: string, cropName?: string, createdAtStr?: string) {
     const totalDays = this.getCropDurationDays(cropName);
-    let currentDay = defaultDay;
 
-    if (plantingDateStr) {
-      const planted = new Date(plantingDateStr);
-      const now = new Date();
-      const diffTime = Math.max(0, now.getTime() - planted.getTime());
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      currentDay = Math.min(diffDays + 1, totalDays);
+    // Use created_at as fallback if plantingDate is missing
+    const targetDateStr = plantingDateStr || createdAtStr;
+
+    if (!targetDateStr) {
+      return { currentDay: 1, totalDays };
     }
+
+    const planted = parseDateString(targetDateStr);
+    if (!planted) {
+      return { currentDay: 1, totalDays };
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const diffTime = now.getTime() - planted.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    let currentDay = diffDays + 1;
+    currentDay = Math.max(1, Math.min(currentDay, totalDays));
 
     return { currentDay, totalDays };
   }

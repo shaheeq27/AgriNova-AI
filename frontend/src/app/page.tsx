@@ -10,15 +10,15 @@ export default function WelcomePage() {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    // Start exit transition at 5.1s
+    // Start exit transition at 7.2s
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
-    }, 5100);
+    }, 7200);
 
-    // Complete route transition at 5.9s (6 seconds total)
+    // Complete route transition at 8.0s (8 seconds total)
     const redirectTimer = setTimeout(() => {
-      router.push('/home');
-    }, 5900);
+      router.push('/login');
+    }, 8000);
 
     return () => {
       clearTimeout(exitTimer);
@@ -119,18 +119,17 @@ export default function WelcomePage() {
 
         .welcome-content-exiting {
           opacity: 0 !important;
-          transform: translate3d(0, -16px, 0) scale(1.04) !important;
-          filter: blur(14px) !important;
+          transition: opacity 800ms ease-in-out !important;
         }
 
         .welcome-overlay-fade {
           position: fixed;
           inset: 0;
-          background: #131412;
+          background: #030A04; /* Keep the exact dark-green background */
           z-index: 100;
           pointer-events: none;
           opacity: 0;
-          transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: opacity 800ms ease-in-out;
         }
 
         .welcome-overlay-fade-active {
@@ -139,7 +138,7 @@ export default function WelcomePage() {
       `}</style>
 
       {/* WebGL Seed Particles Canvas */}
-      <SeedShaderCanvas />
+      <SeedShaderCanvas isWelcomeMode={true} />
 
       {/* Dark Forest Curtain Dissolve Overlay for Transition to Dashboard */}
       <div

@@ -53,85 +53,163 @@ export default function MarketPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto anim-page-enter">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div className="market-container" style={{
+      maxWidth: '1280px',
+      width: 'calc(100% - 48px)',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingLeft: '0',
+      paddingRight: '0',
+    }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .market-container {
+            width: calc(100% - 32px) !important;
+          }
+          .market-grid {
+            grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            gap: 16px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1199px) {
+          .market-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
+      `}</style>
+
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginTop: '32px'
+      }}>
         <div>
-          <h1 className="text-3xl font-serif font-bold text-white mb-2">Market Intelligence</h1>
-          <p className="text-sm text-text-secondary font-mono">Live mandi prices across India</p>
+          <h1 style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: '40px',
+            lineHeight: '48px',
+            fontWeight: 700,
+            color: '#ffffff',
+            margin: '0 0 4px 0'
+          }}>Market Intelligence</h1>
+          <p style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '15px',
+            lineHeight: '22px',
+            color: '#9ca3af',
+            margin: 0
+          }}>Live mandi prices across India</p>
         </div>
-        
-        <div className="flex items-center gap-4">
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '6px' }}>
           {status && (
-            <div className="text-sm text-text-tertiary hidden md:block">
+            <div style={{ fontSize: '14px', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '8px' }} className="hidden md:flex">
               {status.data_status === 'live' ? (
-                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-brand-primary"></span> Live Data</span>
+                <><span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span> Live Data</>
               ) : status.data_status === 'cached' ? (
-                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Cached Data</span>
+                <><span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#eab308' }}></span> Cached Data</>
               ) : (
-                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-500"></span> Unavailable</span>
+                <><span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }}></span> Unavailable</>
               )}
             </div>
           )}
-          
-          <button 
+
+          <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-surface-elevated border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors disabled:opacity-50"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              backgroundColor: 'rgba(31, 41, 55, 0.5)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: refreshing ? 'not-allowed' : 'pointer',
+              opacity: refreshing ? 0.5 : 1
+            }}
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             Refresh
           </button>
         </div>
       </div>
 
-      <div className="bg-surface-elevated/40 border border-white/5 rounded-3xl p-6 mb-8">
-        <form onSubmit={handleSearch} className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
+      {/* Search */}
+      <div style={{ marginTop: '24px' }}>
+        <form onSubmit={handleSearch} style={{ position: 'relative', width: '100%' }}>
+          <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search crop (e.g. Tomato, Rice)..."
-            className="w-full bg-surface-base border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder-text-tertiary focus:outline-none focus:border-brand-primary/50 transition-colors"
+            style={{
+              width: '100%',
+              height: '48px',
+              backgroundColor: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              padding: '0 16px 0 48px',
+              color: '#ffffff',
+              fontSize: '15px',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
           />
         </form>
       </div>
 
       {status?.data_status === 'unavailable' && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-start gap-3 mb-8">
-          <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+        <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '16px', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px', marginTop: '24px', color: '#f87171' }}>
+          <AlertCircle size={20} style={{ marginTop: '2px', flexShrink: 0 }} />
           <div>
-            <h4 className="font-medium">Market Data Unavailable</h4>
-            <p className="text-sm mt-1 opacity-90">We could not fetch live market prices from the provider ({status.provider}). Please try refreshing later.</p>
+            <h4 style={{ fontWeight: 500, margin: '0 0 4px 0' }}>Market Data Unavailable</h4>
+            <p style={{ fontSize: '14px', margin: 0, opacity: 0.9 }}>We could not fetch live market prices from the provider ({status.provider}). Please try refreshing later.</p>
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="market-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px', marginTop: '52px' }}>
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-48 bg-surface-elevated/20 rounded-2xl animate-pulse"></div>
+            <div key={i} style={{ width: '100%', height: '170px', backgroundColor: 'rgba(31, 41, 55, 0.3)', borderRadius: '16px' }} className="animate-pulse"></div>
           ))}
         </div>
       ) : prices.length > 0 ? (
         <>
-          <div className="mb-4 flex items-center justify-between text-sm text-text-secondary">
-            <span>Showing {prices.length} markets for <strong className="text-white">{query}</strong></span>
+          {/* Market Metadata */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: '40px',
+            marginTop: '12px',
+            marginBottom: '16px'
+          }}>
+            <span style={{ fontSize: '14px', color: '#9ca3af' }}>Showing {prices.length} markets for <strong style={{ color: '#ffffff', fontWeight: 500 }}>{query}</strong></span>
             {status?.last_updated && (
-              <span>Last updated: {new Date(status.last_updated).toLocaleString()}</span>
+              <span style={{ fontSize: '14px', color: '#9ca3af' }}>Last updated: {new Date(status.last_updated).toLocaleString()}</span>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          {/* Market Card Grid */}
+          <div className="market-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px' }}>
             {prices.map(price => (
               <MarketPriceCard key={price.id} price={price} />
             ))}
           </div>
         </>
       ) : (
-        <div className="py-20 text-center">
-          <TrendingUp className="w-12 h-12 text-text-tertiary mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-medium text-white mb-2">No prices found</h3>
-          <p className="text-text-secondary">We couldn't find any recent market data for "{query}".</p>
+        <div style={{ padding: '80px 0', textAlign: 'center' }}>
+          <TrendingUp size={48} style={{ color: '#9ca3af', margin: '0 auto 16px auto', opacity: 0.5 }} />
+          <h3 style={{ fontSize: '20px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>No prices found</h3>
+          <p style={{ color: '#9ca3af' }}>We couldn't find any recent market data for "{query}".</p>
         </div>
       )}
     </div>

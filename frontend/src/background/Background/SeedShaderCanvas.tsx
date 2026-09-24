@@ -3,11 +3,12 @@
 import React, { useEffect, useRef } from 'react';
 
 export interface SeedShaderCanvasProps {
+  isWelcomeMode?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export function SeedShaderCanvas({ className, style }: SeedShaderCanvasProps) {
+export function SeedShaderCanvas({ className, style, isWelcomeMode = false }: SeedShaderCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -50,6 +51,8 @@ void main() {
     const fs = `precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform float u_reduced_motion;
+uniform float u_welcome_mode;
 varying vec2 v_texCoord;
 
 // High quality pseudo-random hash
@@ -71,42 +74,96 @@ void main() {
     // Neon Mint Seed Color #ADFF00
     vec3 seedColor = vec3(0.678, 1.0, 0.0);
 
-    // Render 65 float-randomized seed particles moving bottom to top
+    if (u_reduced_motion > 0.5) {
+        float n = hash(uv * 10.0);
+        color += seedColor * n * 0.02;
+        gl_FragColor = vec4(color, 1.0);
+        return;
+    }
+
     for(float i = 0.0; i < 65.0; i++) {
         float h1 = hash(vec2(i * 1.31, 123.456));
         float h2 = hash(vec2(i * 2.73, 789.012));
         float h3 = hash(vec2(i * 4.19, 345.678));
 
-        // Randomized initial x position across viewport
-        float baseX = h1;
+        if (u_welcome_mode > 0.5) {
+            float speedPx = 150.0 + hash(vec2(i, 0.1)) * 130.0; // 150 to 280 px/sec
+            float speedUV = speedPx / u_resolution.y;
+            float travelUV = 1.20; // travel from y=-0.10 to y=1.10
+            float travelTime = travelUV / speedUV;
 
-        // Upward floating motion from bottom to top with smooth speed
-        float speed = 0.03 + h2 * 0.07;
-        float yPos = fract(u_time * speed + h3);
+            // Global 6-second block grid
+            float blockDuration = 6.0;
+            float cycleIndex = floor(u_time / blockDuration);
+            float spawnDelay = hash(vec2(i, cycleIndex)) * 3.5; // Stagger 0-3.5s
 
-        // Organic horizontal drift
-        float drift = sin(u_time * (0.5 + h2 * 1.0) + h1 * 6.2831) * (0.02 + h3 * 0.03);
-        float xPos = baseX + drift;
+            float spawnEventTime = cycleIndex * blockDuration + spawnDelay;
+            float activeTime = u_time - spawnEventTime;
 
-        vec2 seedPosUV = vec2(xPos, yPos);
-        vec2 seedPosST = vec2(seedPosUV.x * aspect, seedPosUV.y);
+            // If hasn't spawned in current block, check previous block
+            if (activeTime < 0.0) {
+                cycleIndex -= 1.0;
+                spawnDelay = hash(vec2(i, cycleIndex)) * 3.5;
+                spawnEventTime = cycleIndex * blockDuration + spawnDelay;
+                activeTime = u_time - spawnEventTime;
+            }
 
-        // Calculate distance with aspect correction
-        float dist = length(st - seedPosST);
+            // Guarantee empty start at t=0
+            if (cycleIndex < 0.0) {
+                activeTime = -1.0;
+            }
 
-        // Particle core radius
-        float coreRadius = 0.0018 + h1 * 0.0022;
-        float glow = coreRadius / (dist + 0.00001);
-        glow = pow(glow, 1.25);
+            if (activeTime >= 0.0 && activeTime < travelTime) {
+                float progress = activeTime / travelTime;
 
-        // Soft trailing glow
-        float tailLength = 0.06 + h2 * 0.05;
-        float tail = smoothstep(0.035, 0.0, dist) * smoothstep(seedPosUV.y, seedPosUV.y - tailLength, uv.y);
+                // Spawn strictly from the bottom
+                float yPos = -0.10 + progress * travelUV;
 
-        // Brightness variation
-        float brightness = 0.45 + h3 * 0.55;
+                // Completely random independent values for this specific spawn cycle
+                float spawnX = hash(vec2(i, cycleIndex + 10.0));
+                float velocityXPx = -70.0 + hash(vec2(i, cycleIndex + 20.0)) * 140.0;
+                float velocityXUV = velocityXPx / u_resolution.x;
 
-        color += seedColor * (glow * 0.40 + tail * 0.18) * brightness;
+                float xPos = spawnX + velocityXUV * activeTime;
+
+                // Organic drift curve
+                float curve = sin(progress * 3.14159) * (0.01 + hash(vec2(i, cycleIndex + 30.0)) * 0.03);
+                xPos += curve;
+
+                vec2 seedPosUV = vec2(xPos, yPos);
+                vec2 seedPosST = vec2(seedPosUV.x * aspect, seedPosUV.y);
+                float dist = length(st - seedPosST);
+
+                float coreRadius = 0.0035 + hash(vec2(i, cycleIndex + 40.0)) * 0.0035;
+
+                float fadeIn = smoothstep(0.0, 0.10, progress);
+                float fadeOut = 1.0 - smoothstep(0.90, 1.0, progress);
+                float opacity = fadeIn * fadeOut;
+
+                float glow = coreRadius / (dist + 0.00001);
+                glow = pow(glow, 1.25);
+
+                float brightness = 0.45 + hash(vec2(i, cycleIndex + 50.0)) * 0.55;
+
+                color += seedColor * (glow * 0.40) * brightness * opacity * 0.8;
+            }
+        } else {
+            float baseX = h1;
+            float speed = 0.03 + h2 * 0.07;
+            float yPos = fract(u_time * speed + h3);
+            float drift = sin(u_time * (0.5 + h2 * 1.0) + h1 * 6.2831) * (0.02 + h3 * 0.03);
+            float xPos = baseX + drift;
+            vec2 seedPosUV = vec2(xPos, yPos);
+            vec2 seedPosST = vec2(seedPosUV.x * aspect, seedPosUV.y);
+            float dist = length(st - seedPosST);
+            float coreRadius = 0.0018 + h1 * 0.0022;
+            float glow = coreRadius / (dist + 0.00001);
+            glow = pow(glow, 1.25);
+            float tailLength = 0.06 + h2 * 0.05;
+            float tail = smoothstep(0.035, 0.0, dist) * smoothstep(seedPosUV.y, seedPosUV.y - tailLength, uv.y);
+            float brightness = 0.45 + h3 * 0.55;
+            color += seedColor * (glow * 0.40 + tail * 0.18) * brightness;
+        }
     }
 
     gl_FragColor = vec4(color, 1.0);
@@ -141,11 +198,19 @@ void main() {
     );
 
     const pos = gl.getAttribLocation(prog, 'a_position');
-    gl.enableVertexAttribArray(pos);
-    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+    if (pos >= 0) {
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+    } else {
+      console.warn('SeedShaderCanvas: Shader program invalid, skipping render.');
+      return; // Skip rendering loop to prevent JS errors
+    }
 
     const uTime = gl.getUniformLocation(prog, 'u_time');
     const uRes = gl.getUniformLocation(prog, 'u_resolution');
+    const uReducedMotion = gl.getUniformLocation(prog, 'u_reduced_motion');
+    const uWelcomeMode = gl.getUniformLocation(prog, 'u_welcome_mode');
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const startTime = performance.now();
 
@@ -157,6 +222,8 @@ void main() {
       const elapsed = (time - startTime) * 0.001;
       if (uTime) gl.uniform1f(uTime, elapsed);
       if (uRes) gl.uniform2f(uRes, gl.canvas.width, gl.canvas.height);
+      if (uReducedMotion) gl.uniform1f(uReducedMotion, mediaQuery.matches ? 1.0 : 0.0);
+      if (uWelcomeMode) gl.uniform1f(uWelcomeMode, isWelcomeMode ? 1.0 : 0.0);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       animFrameId = requestAnimationFrame(render);

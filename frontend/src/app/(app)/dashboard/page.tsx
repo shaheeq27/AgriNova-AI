@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { farmAPI } from '@/lib/api';
+import type { FarmData } from '@/lib/api';
 import {
   NeedsAttentionSection,
   FarmEnvironmentSection,
@@ -12,6 +13,7 @@ import {
 } from '@/features/dashboard';
 
 export default function DashboardPage() {
+  const [farms, setFarms] = useState<FarmData[]>([]);
   const [activeCropNames, setActiveCropNames] = useState<string[]>([]);
   const [loadingCrops, setLoadingCrops] = useState(true);
 
@@ -19,10 +21,11 @@ export default function DashboardPage() {
     let isMounted = true;
     async function fetchFarms() {
       try {
-        const farms = await farmAPI.list();
-        if (isMounted && farms) {
+        const res = await farmAPI.list();
+        if (isMounted && res && res.farms) {
+          setFarms(res.farms);
           const crops = new Set<string>();
-          farms.farms.forEach(farm => {
+          res.farms.forEach(farm => {
             farm.crops?.forEach(crop => {
               if (crop.status !== 'harvested' && crop.status !== 'failed') {
                 crops.add(crop.crop_name);
@@ -32,7 +35,7 @@ export default function DashboardPage() {
           setActiveCropNames(Array.from(crops));
         }
       } catch (err) {
-        console.error('Failed to fetch farms for market summary', err);
+        console.error('Failed to fetch farms for dashboard', err);
       } finally {
         if (isMounted) setLoadingCrops(false);
       }
@@ -41,10 +44,10 @@ export default function DashboardPage() {
     return () => { isMounted = false; };
   }, []);
 
+  const isRealData = farms.length > 0;
+
   return (
     <>
-
-      {/* Main Content Area with Smooth Page Entrance */}
       <main
         className="anim-page-enter"
         style={{
@@ -55,52 +58,59 @@ export default function DashboardPage() {
           zIndex: 10,
         }}
       >
-        {/* Page Heading */}
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <h1
             style={{
-              fontSize: '28px',
+              fontSize: '36px',
               fontWeight: 700,
               color: '#F2F0E8',
               fontFamily: '"Source Serif 4", "Playfair Display", serif',
               margin: 0,
               letterSpacing: '0.01em',
+              lineHeight: 1.1,
             }}
           >
-            Dashboard
+            Dashboard<span style={{ color: 'var(--accent-primary, #adff00)' }}>.</span>
           </h1>
           <p
             style={{
-              fontSize: '12px',
+              fontSize: '15px',
               color: '#8d928c',
               fontFamily: '"JetBrains Mono", monospace',
-              marginTop: '4px',
+              marginTop: '6px',
               margin: 0,
+              opacity: 0.7,
             }}
           >
             Farm Command Center & Overview
           </p>
         </div>
 
-        {/* 1. Needs Your Attention */}
-        <NeedsAttentionSection />
+        {!loadingCrops && !isRealData && (
+          <div style={{ marginBottom: '24px', color: '#8d928c', fontSize: '14px', lineHeight: '1.5' }}>
+            <span style={{ color: 'var(--accent-primary, #adff00)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginRight: '8px' }}>
+              [ DEMO PREVIEW ]
+            </span>
+            This is a preview of your AgriNova dashboard. Register a farm to see your actual farm data here.
+          </div>
+        )}
 
-        {/* 2. Farm Environment */}
-        <FarmEnvironmentSection />
+        {/* Both Demo and Real states use the original showcase composition. */}
+        {/* We pass isRealData to the components so they can internally render clean empty states if real backend data is missing. */}
+        <NeedsAttentionSection isRealData={isRealData} />
 
-        {/* 2.5. Market Watch (V5) */}
+        <FarmEnvironmentSection isRealData={isRealData} />
+
         <div style={{ marginBottom: '24px' }}>
           <MarketSummarySection activeCropNames={activeCropNames} isLoadingCrops={loadingCrops} />
         </div>
 
-        {/* 3. Upcoming Activities + Overdue */}
-        <ActivitiesAndOverdueSection />
+        <ActivitiesAndOverdueSection isRealData={isRealData} />
 
-        {/* 4. AI Insights */}
-        <AIInsightsSection />
+        <AIInsightsSection isRealData={isRealData} />
 
-        {/* 5. Farm Performance */}
-        <FarmPerformanceSection />
+        <FarmPerformanceSection isRealData={isRealData} />
+
       </main>
     </>
   );

@@ -1,0 +1,262 @@
+/* Global Footer Styles */
+.footerTrigger {
+  height: 1px;
+  width: 100%;
+  margin-top: 64px;
+}
+
+.footer {
+  margin-top: 32px;
+  padding: 48px 32px 32px 32px;
+  border-top: 1px solid rgba(78, 232, 106, 0.15); /* Subtle green border */
+  background: linear-gradient(to bottom, rgba(16, 46, 25, 0.4), rgba(11, 18, 13, 0.8)); /* Subtle green/dark background */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 40px rgba(78, 232, 106, 0.03); /* Subtle top glow */
+}
+
+.footerVisible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* 4-Column Grid Desktop */
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: 32px;
+  width: 100%;
+}
+
+/* 1. Brand Column */
+.brandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.brandLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brandIcon {
+  color: #ADFF00;
+}
+
+.brandTitle {
+  font-family: 'Source Serif 4', 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #E4E2E0;
+  margin: 0;
+}
+
+.brandTagline {
+  font-size: 14px;
+  color: rgba(228, 226, 224, 0.6);
+  margin: 0;
+}
+
+.brandDesc {
+  font-size: 13px;
+  color: rgba(228, 226, 224, 0.65);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+/* Column General */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.columnHeading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(228, 226, 224, 0.5);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linkItem {
+  font-size: 13px;
+  color: rgba(228, 226, 224, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.linkItem:hover, .linkItem:focus {
+  color: #ADFF00;
+  outline: none;
+}
+
+.linkItem:focus-visible {
+  outline: 2px solid #ADFF00;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 4. Developer Column */
+.developerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.developedByRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.devLabel {
+  font-size: 13px;
+  color: rgba(228, 226, 224, 0.65);
+}
+
+.devName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4EE86A;
+}
+
+.devDesc {
+  font-size: 13px;
+  color: rgba(228, 226, 224, 0.65);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+.socialRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.socialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(78, 232, 106, 0.2);
+  color: #E4E2E0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.socialBtn:hover, .socialBtn:focus {
+  border-color: rgba(78, 232, 106, 0.5);
+  box-shadow: 0 4px 12px rgba(78, 232, 106, 0.1);
+  transform: translateY(-2px);
+  color: #ADFF00;
+  outline: none;
+}
+
+.socialBtn:focus-visible {
+  outline: 2px solid #ADFF00;
+  outline-offset: 2px;
+}
+
+/* Divider */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(78, 232, 106, 0.15);
+  margin: 40px 0 24px 0;
+}
+
+/* Bottom Row */
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.copyright {
+  font-size: 12px;
+  color: rgba(228, 226, 224, 0.6);
+  margin: 0;
+}
+
+.legalLinks {
+  display: flex;
+  gap: 20px;
+}
+
+.legalLinks a {
+  font-size: 12px;
+  color: rgba(228, 226, 224, 0.6);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.legalLinks a:hover, .legalLinks a:focus {
+  color: #E4E2E0;
+  outline: none;
+}
+
+.legalLinks a:focus-visible {
+  outline: 2px solid #ADFF00;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  .footer {
+    padding: 40px 24px 24px 24px;
+  }
+  .footerGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding: 32px 20px 24px 20px;
+  }
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .bottomRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .legalLinks {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { farmAPI, cropsAPI } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 import { CropRecommendationResponseV6, FormContextData } from '@/lib/api';
 
 interface ReportStateProps {
@@ -12,6 +14,39 @@ export function ReportState({ data, formContext, onReset }: ReportStateProps) {
   const bestCrop = recommendations[0];
   const alternatives = recommendations.slice(1);
   const isEmpty = recommendations.length === 0;
+
+    const [isPlanting, setIsPlanting] = useState(false);
+  const [farms, setFarms] = useState<any[]>([]);
+  const [selectedFarm, setSelectedFarm] = useState<string>('');
+  const [showFarmSelect, setShowFarmSelect] = useState<string | null>(null); // crop name
+  const router = useRouter();
+
+  useEffect(() => {
+    farmAPI.list().then(res => {
+      if (res && res.farms) {
+        setFarms(res.farms);
+        if (res.farms.length > 0) setSelectedFarm(res.farms[0].id);
+      }
+    });
+  }, []);
+
+  const handlePlant = async (cropName: string) => {
+    if (!selectedFarm) return;
+    setIsPlanting(true);
+    try {
+      await cropsAPI.plant({
+        farm_id: selectedFarm,
+        crop_name: cropName,
+        season: data.input_conditions_used?.season || formContext?.seasonText || "Kharif",
+        area_acres: 1.0, // Default minimal area
+        planting_date: new Date().toISOString().split('T')[0]
+      });
+      router.push('/timeline');
+    } catch (e) {
+      console.error(e);
+      setIsPlanting(false);
+    }
+  };
 
   const formatScore = (score: number) => (score * 100).toFixed(2);
 
@@ -265,6 +300,48 @@ export function ReportState({ data, formContext, onReset }: ReportStateProps) {
                 {bestCrop.explanation?.base_explanation ||
                   'The highest-ranked crop based on historical climate, soil type and season.'}
               </p>
+
+              {showFarmSelect === bestCrop.crop_name ? (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '1rem' }}>
+                   <select
+                     style={{ padding: '8px', borderRadius: '8px', background: '#0B120D', color: '#fff', border: '1px solid #162819' }}
+                     value={selectedFarm}
+                     onChange={e => setSelectedFarm(e.target.value)}
+                   >
+                     {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                   </select>
+                   <button
+                     onClick={() => handlePlant(bestCrop.crop_name)}
+                     disabled={isPlanting}
+                     style={{ padding: '8px 16px', borderRadius: '8px', background: '#4EE86A', color: '#000', fontWeight: 'bold' }}
+                   >
+                     {isPlanting ? 'Adding...' : 'Confirm'}
+                   </button>
+                   <button
+                     onClick={() => setShowFarmSelect(null)}
+                     style={{ padding: '8px 16px', borderRadius: '8px', background: 'transparent', color: '#fff' }}
+                   >
+                     Cancel
+                   </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowFarmSelect(bestCrop.crop_name)}
+                  style={{
+                    marginTop: '1rem',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    background: 'rgba(78, 232, 106, 0.1)',
+                    border: '1px solid #4EE86A',
+                    color: '#4EE86A',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Add to Farm
+                </button>
+              )}
+
             </div>
           )}
 

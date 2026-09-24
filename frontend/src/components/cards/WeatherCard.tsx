@@ -1,52 +1,102 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import GlassCard from './GlassCard';
+import { WeatherCurrent } from '@/lib/api';
+import { Cloud, Droplets, Wind, CloudRain, Sun } from 'lucide-react';
 
-export default function WeatherCard() {
-  const [temp, setTemp] = useState(0);
-  const [humidity, setHumidity] = useState(0);
-  
-  useEffect(() => {
-    let t = 0;
-    let h = 0;
-    const interval = setInterval(() => {
-      if (t < 24) { t++; setTemp(t); }
-      if (h < 65) { h += 2; setHumidity(h > 65 ? 65 : h); }
-      if (t >= 24 && h >= 65) { clearInterval(interval); }
-    }, 40);
-    return () => clearInterval(interval);
-  }, []);
+interface WeatherCardProps {
+  farmName: string;
+  location: string;
+  current: WeatherCurrent | null;
+  error?: boolean;
+  onClick?: () => void;
+  selected?: boolean;
+}
 
+export default function WeatherCard({ farmName, location, current, error, onClick, selected }: WeatherCardProps) {
   return (
-    <GlassCard glow>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'var(--font-sans, "Inter")' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '3rem', fontFamily: 'var(--font-mono, "Space Mono")', color: 'var(--text-primary, #e8f5ec)', marginBottom: '8px', fontWeight: 300 }}>
-            {temp}°C
+    <div
+      onClick={onClick}
+      style={{
+        cursor: onClick ? 'pointer' : 'default',
+        opacity: error ? 0.7 : 1,
+        transition: 'all 0.2s',
+        width: '100%',
+        minHeight: '220px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      <GlassCard glow={selected} style={{ flex: 1, borderRadius: '18px', padding: 0 }} padding="none">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          fontFamily: 'var(--font-sans, "Inter")',
+          padding: '24px',
+          height: '100%',
+          boxSizing: 'border-box'
+        }}>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ color: 'var(--text-primary, #e8f5ec)', fontSize: '22px', fontWeight: 700, marginBottom: '4px' }}>
+                {farmName}
+              </div>
+              <div style={{ color: 'var(--text-muted, #9ca3af)', fontSize: '14px' }}>
+                {location}
+              </div>
+            </div>
+            {!error && current && (
+               <div style={{ color: selected ? 'var(--accent-primary, #4ee86a)' : 'var(--text-muted, #9ca3af)' }}>
+                 {current.temperature !== null && current.temperature > 20 ? <Sun size={24} /> : <Cloud size={24} />}
+               </div>
+            )}
           </div>
-          <div style={{ color: 'var(--accent-primary, #4ee86a)', fontFamily: 'var(--font-mono, "Space Mono")', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Partly Cloudy
-          </div>
+
+          {error ? (
+            <div style={{ color: 'var(--error, #ef4444)', fontSize: '14px', paddingTop: '20px' }}>
+              Weather unavailable
+            </div>
+          ) : current ? (
+            <>
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary, #e8f5ec)', lineHeight: 1, marginBottom: '4px' }}>
+                  {current.temperature !== null ? `${Math.round(current.temperature)}°C` : '--'}
+                </div>
+                <div style={{ color: 'var(--accent-primary, #4ee86a)', fontSize: '15px', fontWeight: 600 }}>
+                  {current.condition || 'Clear'}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', marginTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Humidity">
+                  <Droplets size={14} style={{ color: '#60a5fa' }} />
+                  <span style={{ color: 'var(--text-primary, #e8f5ec)', fontSize: '14px' }}>
+                    {current.humidity !== null ? `${Math.round(current.humidity)}%` : '--'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Rainfall">
+                  <CloudRain size={14} style={{ color: '#93c5fd' }} />
+                  <span style={{ color: 'var(--text-primary, #e8f5ec)', fontSize: '14px' }}>
+                    {current.rainfall !== null ? `${current.rainfall}mm` : '--'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Wind Speed">
+                  <Wind size={14} style={{ color: '#cbd5e1' }} />
+                  <span style={{ color: 'var(--text-primary, #e8f5ec)', fontSize: '14px' }}>
+                    {current.wind_speed !== null ? `${Math.round(current.wind_speed)}km/h` : '--'}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+             <div style={{ fontSize: '14px', paddingTop: '20px', color: 'var(--text-muted)' }}>
+               Loading weather...
+             </div>
+          )}
+
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', flex: 1, textAlign: 'right' }}>
-          <div>
-            <div style={{ color: 'var(--text-muted, #5a8a6d)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Humidity</div>
-            <div style={{ color: 'var(--text-primary, #e8f5ec)', fontFamily: 'var(--font-mono, "Space Mono")' }}>{humidity}%</div>
-          </div>
-          <div>
-            <div style={{ color: 'var(--text-muted, #5a8a6d)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Wind</div>
-            <div style={{ color: 'var(--text-primary, #e8f5ec)', fontFamily: 'var(--font-mono, "Space Mono")' }}>12 km/h</div>
-          </div>
-          <div>
-            <div style={{ color: 'var(--text-muted, #5a8a6d)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Rainfall</div>
-            <div style={{ color: 'var(--text-primary, #e8f5ec)', fontFamily: 'var(--font-mono, "Space Mono")' }}>0 mm</div>
-          </div>
-          <div>
-            <div style={{ color: 'var(--text-muted, #5a8a6d)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>UV Index</div>
-            <div style={{ color: 'var(--text-primary, #e8f5ec)', fontFamily: 'var(--font-mono, "Space Mono")' }}>Moderate</div>
-          </div>
-        </div>
-      </div>
-    </GlassCard>
+      </GlassCard>
+    </div>
   );
 }
