@@ -109,7 +109,9 @@ async def upload_image(
 
 
 
-@router.post("/analyze-image", response_model=APIResponse)
+from app.core.rate_limit import disease_rate_limit
+
+@router.post("/analyze-image", response_model=APIResponse, dependencies=[Depends(disease_rate_limit)])
 async def analyze_image(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),

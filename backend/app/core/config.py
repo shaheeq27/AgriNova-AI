@@ -58,6 +58,10 @@ class Settings(BaseSettings):
     AI_ENABLE_FALLBACK: bool = True
 
     # ── Rate Limiting ──
+    AUTH_RATE_LIMIT_REQUESTS: int = 5
+    AUTH_RATE_LIMIT_WINDOW: int = 60
+    DISEASE_RATE_LIMIT_REQUESTS: int = 10
+    DISEASE_RATE_LIMIT_WINDOW: int = 60
     AI_RATE_LIMIT_MAX_REQUESTS: int = 20
     AI_RATE_LIMIT_WINDOW_SECONDS: int = 60
 

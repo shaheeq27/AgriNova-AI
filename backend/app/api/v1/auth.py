@@ -14,7 +14,9 @@ from app.services.auth_service import AuthService
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=APIResponse)
+from app.core.rate_limit import auth_rate_limit
+
+@router.post("/register", response_model=APIResponse, dependencies=[Depends(auth_rate_limit)])
 async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     """Register a new user account."""
     service = AuthService(db)
@@ -22,7 +24,7 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     return APIResponse.success(data=token.model_dump(), message="Account created successfully")
 
 
-@router.post("/login", response_model=APIResponse)
+@router.post("/login", response_model=APIResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(data: UserLogin, db: AsyncSession = Depends(get_db)):
     """Authenticate and receive a JWT token."""
     service = AuthService(db)
@@ -55,7 +57,7 @@ async def update_profile(
 
 from app.schemas.auth import ForgotPasswordRequest, ResetPasswordRequest
 
-@router.post("/forgot-password", response_model=APIResponse)
+@router.post("/forgot-password", response_model=APIResponse, dependencies=[Depends(auth_rate_limit)])
 async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
     """Request a password reset link."""
     service = AuthService(db)
