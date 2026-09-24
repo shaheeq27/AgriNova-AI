@@ -5,6 +5,7 @@ Loads all settings from environment variables via Pydantic Settings.
 """
 
 from pathlib import Path
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +22,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "AgriNova AI"
     APP_ENV: str = "development"
     DEBUG: bool = True
+    FRONTEND_URL: str = "http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
     # ── Security ──
     SECRET_KEY: str = "change-me-to-a-random-64-char-string"
@@ -54,7 +57,6 @@ class Settings(BaseSettings):
     AI_PRIMARY_PROVIDER: str = "gemini"
     AI_ENABLE_FALLBACK: bool = True
 
-
     # ── Rate Limiting ──
     AI_RATE_LIMIT_MAX_REQUESTS: int = 20
     AI_RATE_LIMIT_WINDOW_SECONDS: int = 60
@@ -84,6 +86,15 @@ class Settings(BaseSettings):
     def is_sqlite(self) -> bool:
         """Check if we're using SQLite (for dev convenience)."""
         return "sqlite" in self.DATABASE_URL
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> 'Settings':
+        if self.APP_ENV == "production":
+            if self.SECRET_KEY == "change-me-to-a-random-64-char-string" or len(self.SECRET_KEY) < 16:
+                raise ValueError("A secure SECRET_KEY environment variable is required in production.")
+            if self.DEBUG:
+                raise ValueError("DEBUG must be False in production.")
+        return self
 
 
 settings = Settings()

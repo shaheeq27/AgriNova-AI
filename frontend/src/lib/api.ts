@@ -6,7 +6,9 @@ import type { ImageAnalysisResponse } from "@/features/disease/types";
  * Typed fetch wrapper with JWT injection, error handling, and base URL config.
  */
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { APP_CONFIG } from "@/config/app.config";
+
+export const API_BASE_URL = APP_CONFIG.api.baseUrl;
 
 export interface APIResponse<T = unknown> {
   status: "success" | "error";
@@ -365,9 +367,9 @@ export const weatherAPI = {
 
 export const cropsAPI = {
   listByFarm: (farmId: string) => request<CropListResponse>(`/crops/farm/${farmId}`),
-  plant: (data: any) => request<CropResponse>("/crops/plant", { method: "POST", body: JSON.stringify(data) }),
-  getTimeline: (cropId: string) => request<any>(`/crops/${cropId}/timeline`),
-  getTasks: (cropId: string) => request<any>(`/crops/${cropId}/tasks`),
+  plant: (data: Record<string, unknown>) => request<CropResponse>("/crops/plant", { method: "POST", body: JSON.stringify(data) }),
+  getTimeline: (cropId: string) => request<{ stages?: Record<string, unknown>[]; current_stage?: string }>(`/crops/${cropId}/timeline`),
+  getTasks: (cropId: string) => request<{ tasks?: Record<string, unknown>[] }>(`/crops/${cropId}/tasks`),
   recommend: (data: CropRecommendationRequest) =>
     request<CropRecommendationResponse>("/crops/recommend", {
       method: "POST",
@@ -392,7 +394,7 @@ export interface FertilizerRecommendation {
 }
 
 export const fertilizerAPI = {
-  getLogs: (cropId: string) => request<any>(`/fertilizer/logs/${cropId}`),
+  getLogs: (cropId: string) => request<unknown[]>(`/fertilizer/logs/${cropId}`),
   recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
     let url = `/fertilizer/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
     if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
@@ -411,7 +413,7 @@ export interface IrrigationRecommendation {
 }
 
 export const irrigationAPI = {
-  getLogs: (cropId: string) => request<any>(`/irrigation/logs/${cropId}`),
+  getLogs: (cropId: string) => request<unknown[]>(`/irrigation/logs/${cropId}`),
   recommend: (cropName: string, stage: string, soilType: string, farmId?: string) => {
     let url = `/irrigation/recommend/${encodeURIComponent(cropName)}?stage=${encodeURIComponent(stage)}&soil_type=${encodeURIComponent(soilType)}`;
     if (farmId) url += `&farm_id=${encodeURIComponent(farmId)}`;
@@ -425,7 +427,7 @@ export const irrigationAPI = {
 
 
 export const diseaseAPI = {
-  getRecords: (cropId: string) => request<any>(`/disease/records/${cropId}`),
+  getRecords: (cropId: string) => request<unknown[]>(`/disease/records/${cropId}`),
   analyzeImage: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -447,5 +449,5 @@ export interface FormContextData {
 }
 
 export const activityAPI = {
-  getForCrop: (cropId: string) => request<any>(`/activity/crop/${cropId}`)
+  getForCrop: (cropId: string) => request<unknown[]>(`/activity/crop/${cropId}`)
 };

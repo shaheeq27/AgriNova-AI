@@ -61,7 +61,7 @@ export default function FarmDetailPage() {
   // Fetch history when history tab is selected
   useEffect(() => {
     if (activeTab === "history" && farmId && cropsHistory.length === 0) {
-      setHistoryLoading(true);
+      setTimeout(() => setHistoryLoading(true), 0);
       cropsAPI.listByFarm(farmId)
         .then(res => {
           // Filter for non-active crops

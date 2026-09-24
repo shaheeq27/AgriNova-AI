@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { icons, IconSize } from '@/theme/icons';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'telemetry' | 'scan';

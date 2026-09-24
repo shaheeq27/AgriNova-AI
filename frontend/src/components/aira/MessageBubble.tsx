@@ -61,7 +61,7 @@ export function MessageBubble({ role, content, isTyping = false, interrupted = f
               </div>
               {interrupted && (
                 <div className="text-sm text-yellow-500/80 italic mt-2 border-t border-yellow-500/20 pt-2">
-                  Aira's response was interrupted. You can try again.
+                  Aira&apos;s response was interrupted. You can try again.
                 </div>
               )}
             </div>

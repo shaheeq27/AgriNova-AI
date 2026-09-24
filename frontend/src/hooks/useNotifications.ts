@@ -32,8 +32,8 @@ export function useNotifications() {
       setHasMore(response.items.length === LIMIT);
       setSkip(currentSkip + LIMIT);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch notifications');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch notifications');
     } finally {
       setLoading(false);
     }
@@ -78,15 +78,19 @@ export function useNotifications() {
 
   // Reset when filters change
   useEffect(() => {
-    fetchNotifications(true);
+    const timer = setTimeout(() => fetchNotifications(true), 0);
+    return () => clearTimeout(timer);
   }, [category, unreadOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initial load
   useEffect(() => {
-    refreshUnreadCount();
+    const timer = setTimeout(() => refreshUnreadCount(), 0);
     // Refresh count periodically (e.g., every 60s)
     const interval = setInterval(refreshUnreadCount, 60000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [refreshUnreadCount]);
 
   return {
@@ -120,8 +124,8 @@ export function useNotificationPreferences() {
         const prefs = await notificationAPI.getPreferences();
         setPreferences(prefs);
         setError(null);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch preferences');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch preferences');
       } finally {
         setLoading(false);
       }
@@ -136,8 +140,8 @@ export function useNotificationPreferences() {
       setPreferences(updated);
       setError(null);
       return true;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update preferences');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update preferences');
       return false;
     } finally {
       setSaving(false);

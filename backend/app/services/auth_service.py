@@ -127,9 +127,8 @@ class AuthService:
         await self.db.commit()
 
         # Generate Recovery URL
-        frontend_url = os.getenv("NEXT_PUBLIC_API_URL", "http://localhost:3000").replace("/api/v1", "")
-        if frontend_url == "http://localhost:8000":
-            frontend_url = "http://localhost:3000"
+        from app.core.config import settings
+        frontend_url = settings.FRONTEND_URL.rstrip("/")
         recovery_url = f"{frontend_url}/reset-password?token={raw_token}"
 
         # Send email (using existing EmailService conceptually, or print to console)

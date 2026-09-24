@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { farmAPI, cropsAPI } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { CropRecommendationResponseV6, FormContextData } from '@/lib/api';
+import { CropRecommendationResponseV6, FormContextData, FarmData } from '@/lib/api';
 
 interface ReportStateProps {
   data: CropRecommendationResponseV6;
@@ -15,8 +15,8 @@ export function ReportState({ data, formContext, onReset }: ReportStateProps) {
   const alternatives = recommendations.slice(1);
   const isEmpty = recommendations.length === 0;
 
-    const [isPlanting, setIsPlanting] = useState(false);
-  const [farms, setFarms] = useState<any[]>([]);
+  const [isPlanting, setIsPlanting] = useState(false);
+  const [farms, setFarms] = useState<FarmData[]>([]);
   const [selectedFarm, setSelectedFarm] = useState<string>('');
   const [showFarmSelect, setShowFarmSelect] = useState<string | null>(null); // crop name
   const router = useRouter();

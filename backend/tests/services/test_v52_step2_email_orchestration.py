@@ -21,6 +21,11 @@ from sqlalchemy import select
 
 from app.core.database import Base
 
+@pytest.fixture(autouse=True)
+def force_console_email_provider(monkeypatch):
+    """Ensure all email orchestration tests use the safe ConsoleEmailProvider."""
+    monkeypatch.setattr("app.core.config.settings.EMAIL_PROVIDER", "console")
+
 # Models
 from app.models.user import User
 from app.models.notification import Notification

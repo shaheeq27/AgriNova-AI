@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem("agrinova_token");
     if (!token) {
-      setIsLoading(false);
+      Promise.resolve().then(() => setIsLoading(false));
       return;
     }
     try {
@@ -42,7 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    loadUser();
+    const timer = setTimeout(() => {
+      loadUser();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadUser]);
 
   const login = async (email: string, password: string) => {

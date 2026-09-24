@@ -32,15 +32,16 @@ export function useAira() {
       if (farmRes.farms && farmRes.farms.length > 0 && !activeFarmId) {
         setActiveFarmId(farmRes.farms[0].id);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load Aira data');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to load Aira data');
     } finally {
       setIsLoading(false);
     }
   }, [activeFarmId]);
 
   useEffect(() => {
-    initialize();
+    const timer = setTimeout(() => initialize(), 0);
+    return () => clearTimeout(timer);
   }, [initialize]);
 
   const loadConversation = useCallback(async (id: string) => {
@@ -58,8 +59,8 @@ export function useAira() {
       } else {
         setIsFarmLocked(false);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load conversation');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to load conversation');
     } finally {
       setIsLoading(false);
     }
@@ -132,15 +133,15 @@ export function useAira() {
           throw new Error(event.message);
         }
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
         // Handle explicit interruption
         setMessages(prev => prev.map(m => 
           m.id === aiMsgId ? { ...m, interrupted: true } : m
         ));
       } else {
         // Handle unexpected network/backend error during streaming
-        setError(err.message || 'Failed to send message');
+        setError(err instanceof Error ? err.message : String(err) || 'Failed to send message');
         // If it failed before any chunks, we can remove the empty AI message
         setMessages(prev => {
           const aiMsg = prev.find(m => m.id === aiMsgId);
@@ -169,8 +170,8 @@ export function useAira() {
       if (currentConversationId === id) {
         startNewConversation();
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete conversation');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to delete conversation');
     }
   }, [currentConversationId, startNewConversation]);
 

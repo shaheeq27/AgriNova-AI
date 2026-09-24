@@ -9,8 +9,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { AuthProvider, useAuth } from "@/lib/auth";
 
+const generateParticles = (count: number) => {
+  return Array.from({ length: count }).map(() => ({
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 5}s`,
+    animationDuration: `${4 + Math.random() * 4}s`,
+  }));
+};
+
 function RegisterForm() {
   const { register } = useAuth();
+  const particles = React.useMemo(() => generateParticles(15), []);
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,16 +64,11 @@ function RegisterForm() {
     >
       {/* Particles */}
       <div className="particle-bg">
-        {Array.from({ length: 15 }).map((_, i) => (
+        {particles.map((p, i) => (
           <div
             key={i}
             className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${4 + Math.random() * 4}s`,
-            }}
+            style={p}
           />
         ))}
       </div>

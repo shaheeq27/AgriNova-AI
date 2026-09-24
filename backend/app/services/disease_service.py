@@ -105,7 +105,8 @@ class DiseaseService:
             raise AgriNovaException("Invalid file type. Allowed types: jpeg, png, webp.", status_code=400)
 
         # Create directory if it doesn't exist
-        upload_dir = f"/Users/shaheeq.s/AgriNova-AI/backend/uploads/disease_images/{crop_id}"
+        from app.core.config import settings
+        upload_dir = os.path.join(settings.UPLOAD_DIR, "disease_images", str(crop_id))
         os.makedirs(upload_dir, exist_ok=True)
 
         # Generate unique filename

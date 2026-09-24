@@ -40,7 +40,7 @@ export function AutocompleteInput({
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setInputValue(matched ? matched.label : value);
       } else {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+
         setInputValue(value);
       }
     }

@@ -13,11 +13,7 @@ export default function MarketPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [query]);
-
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
       const [priceRes, statusRes] = await Promise.all([
@@ -31,7 +27,11 @@ export default function MarketPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [query]);
+
+  useEffect(() => {
+    setTimeout(() => loadData(), 0);
+  }, [loadData]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -209,7 +209,7 @@ export default function MarketPage() {
         <div style={{ padding: '80px 0', textAlign: 'center' }}>
           <TrendingUp size={48} style={{ color: '#9ca3af', margin: '0 auto 16px auto', opacity: 0.5 }} />
           <h3 style={{ fontSize: '20px', fontWeight: 500, color: '#ffffff', marginBottom: '8px' }}>No prices found</h3>
-          <p style={{ color: '#9ca3af' }}>We couldn't find any recent market data for "{query}".</p>
+          <p style={{ color: '#9ca3af' }}>We couldn&apos;t find any recent market data for &quot;{query}&quot;.</p>
         </div>
       )}
     </div>

@@ -233,11 +233,13 @@ def test_factory_unknown_returns_console():
 
 def test_factory_brevo_without_key_falls_back():
     """Brevo without EMAIL_API_KEY falls back to ConsoleEmailProvider."""
-    with patch("app.integrations.email.factory.settings") as mock_settings:
-        mock_settings.EMAIL_PROVIDER = "brevo"
-        mock_settings.EMAIL_API_KEY = ""
-        mock_settings.EMAIL_FROM_ADDRESS = "test@test.com"
-        mock_settings.EMAIL_FROM_NAME = "Test"
+    with patch("app.integrations.email.factory.settings") as mock_factory_settings, \
+         patch("app.integrations.email.brevo.settings") as mock_brevo_settings:
+        for mock_s in (mock_factory_settings, mock_brevo_settings):
+            mock_s.EMAIL_PROVIDER = "brevo"
+            mock_s.EMAIL_API_KEY = ""
+            mock_s.EMAIL_FROM_ADDRESS = "test@test.com"
+            mock_s.EMAIL_FROM_NAME = "Test"
         provider = get_email_provider()
         assert isinstance(provider, ConsoleEmailProvider)
 

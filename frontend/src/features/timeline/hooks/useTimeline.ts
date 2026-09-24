@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { farmAPI, cropsAPI, diseaseAPI, fertilizerAPI, irrigationAPI, activityAPI } from '@/lib/api';
+import { farmAPI, cropsAPI, diseaseAPI, fertilizerAPI, irrigationAPI, activityAPI, FarmData, CropResponse } from '@/lib/api';
 import { parseDateString } from '@/utils/date';
 import { FarmsService } from '@/features/farms/services/farms.service';
 import { MOCK_CROP_JOURNEY } from '../constants';
@@ -11,8 +11,8 @@ export function useTimeline() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Selection state
-  const [farms, setFarms] = useState<any[]>([]);
-  const [crops, setCrops] = useState<any[]>([]);
+  const [farms, setFarms] = useState<FarmData[]>([]);
+  const [crops, setCrops] = useState<CropResponse[]>([]);
   const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null);
   const [selectedCropId, setSelectedCropId] = useState<string | null>(null);
 
@@ -41,14 +41,16 @@ export function useTimeline() {
   useEffect(() => {
     if (!selectedFarmId) return;
     let isMounted = true;
-    setIsLoading(true);
+    const timer = setTimeout(() => {
+      if (isMounted) setIsLoading(true);
+    }, 0);
 
     cropsAPI.listByFarm(selectedFarmId).then(res => {
       if (!isMounted) return;
       if (res && res.crops && res.crops.length > 0) {
         setCrops(res.crops);
         // Try to pick an active crop
-        let activeCrop = res.crops.find((c: any) => c.status === "active" || c.status === "planned");
+        let activeCrop = res.crops.find((c: CropResponse) => c.status === "active" || c.status === "planned");
         if (!activeCrop) activeCrop = res.crops[0];
         setSelectedCropId(activeCrop.id);
       } else {
@@ -60,14 +62,19 @@ export function useTimeline() {
     }).catch(err => {
       if (isMounted) { setCrops([]); setSelectedCropId(null); setIsLoading(false); }
     });
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [selectedFarmId]);
 
   // When selectedCropId changes, load timeline and stats
   useEffect(() => {
     if (!selectedCropId) return;
     let isMounted = true;
-    setIsLoading(true);
+    const timer = setTimeout(() => {
+      if (isMounted) setIsLoading(true);
+    }, 0);
 
     async function loadTimeline() {
       try {
@@ -78,17 +85,17 @@ export function useTimeline() {
         const timelineRes = await cropsAPI.getTimeline(activeCrop.id);
         const tasksRes = await cropsAPI.getTasks(activeCrop.id);
 
-        let diseaseRecords: any[] = [];
-        try { const dRes = await diseaseAPI.getRecords(activeCrop.id); diseaseRecords = dRes.data || []; } catch(e) {}
+        let diseaseRecords: Record<string, unknown>[] = [];
+        try { const dRes = await diseaseAPI.getRecords(activeCrop.id) as { data?: Record<string, unknown>[] }; diseaseRecords = dRes.data || []; } catch(e) {}
 
-        let fertilizerLogs: any[] = [];
-        try { const fRes = await fertilizerAPI.getLogs(activeCrop.id); fertilizerLogs = fRes.data || []; } catch(e) {}
+        let fertilizerLogs: Record<string, unknown>[] = [];
+        try { const fRes = await fertilizerAPI.getLogs(activeCrop.id) as { data?: Record<string, unknown>[] }; fertilizerLogs = fRes.data || []; } catch(e) {}
 
-        let irrigationLogs: any[] = [];
-        try { const iRes = await irrigationAPI.getLogs(activeCrop.id); irrigationLogs = iRes.data || []; } catch(e) {}
+        let irrigationLogs: Record<string, unknown>[] = [];
+        try { const iRes = await irrigationAPI.getLogs(activeCrop.id) as { data?: Record<string, unknown>[] }; irrigationLogs = iRes.data || []; } catch(e) {}
 
-        let activityRecords: any[] = [];
-        try { const aRes = await activityAPI.getForCrop(activeCrop.id); activityRecords = aRes.data?.items || []; } catch(e) {}
+        let activityRecords: Record<string, unknown>[] = [];
+        try { const aRes = await activityAPI.getForCrop(activeCrop.id) as { data?: { items?: Record<string, unknown>[] } }; activityRecords = aRes.data?.items || []; } catch(e) {}
 
         const stages = timelineRes.stages || [];
         const tasks = tasksRes.tasks || [];
@@ -98,11 +105,11 @@ export function useTimeline() {
 
         // USE THE EXACT SAME LOGIC AS FARM CARD
         const { currentDay, totalDays } = FarmsService.calculateCropDays(
-            activeCrop.planting_date,
+            activeCrop.planting_date ?? undefined,
             activeCrop.crop_name,
             activeCrop.created_at
         );
-        let plantingDate = parseDateString(activeCrop.planting_date || activeCrop.created_at) || today;
+        const plantingDate = parseDateString(activeCrop.planting_date || activeCrop.created_at) || today;
         let progressPercent = 0;
 
         if (currentDay > 0) {
@@ -110,9 +117,9 @@ export function useTimeline() {
         }
 
 
-        const phases: CropJourneyPhase[] = stages.map((s: any) => {
-           const startDate = parseDateString(s.start_date) || today;
-           const endDate = parseDateString(s.end_date) || today;
+        const phases: CropJourneyPhase[] = stages.map((s: Record<string, unknown>) => {
+           const startDate = parseDateString(s.start_date as string) || today;
+           const endDate = parseDateString(s.end_date as string) || today;
 
            const sDiff = startDate.getTime() - plantingDate!.getTime();
            const dayStart = Math.round(sDiff / (1000 * 60 * 60 * 24)) + 1;
@@ -125,19 +132,20 @@ export function useTimeline() {
            else if (today > endDate) status = 'completed';
 
            let icon = "🌱";
-           if (s.stage_name.toLowerCase().includes("veg")) icon = "🌿";
-           if (s.stage_name.toLowerCase().includes("flower")) icon = "🌸";
-           if (s.stage_name.toLowerCase().includes("fruit")) icon = "🍎";
-           if (s.stage_name.toLowerCase().includes("mature")) icon = "🌾";
-           if (s.stage_name.toLowerCase().includes("harvest")) icon = "🚜";
+           const stageNameStr = String(s.stage_name || '').toLowerCase();
+           if (stageNameStr.includes("veg")) icon = "🌿";
+           if (stageNameStr.includes("flower")) icon = "🌸";
+           if (stageNameStr.includes("fruit")) icon = "🍎";
+           if (stageNameStr.includes("mature")) icon = "🌾";
+           if (stageNameStr.includes("harvest")) icon = "🚜";
 
-           const phaseTasks = tasks.filter((t: any) => {
-              const tDate = parseDateString(t.scheduled_date);
+           const phaseTasks = tasks.filter((t: Record<string, unknown>) => {
+              const tDate = parseDateString(t.scheduled_date as string);
               if (!tDate) return false;
               return tDate >= startDate && tDate <= endDate;
            });
 
-           const events: PhaseEvent[] = phaseTasks.map((t: any) => {
+           const events: PhaseEvent[] = phaseTasks.map((t: Record<string, unknown>) => {
               let category: EventCategory = 'milestone';
               let tIcon = "📌";
               if (t.category === 'monitoring') { category = 'health'; tIcon = "🔎"; }
@@ -147,23 +155,23 @@ export function useTimeline() {
               if (t.is_completed) tIcon = "✅";
 
               return {
-                 id: t.id,
+                 id: t.id as string,
                  // Pass the RAW string (YYYY-MM-DD) so the component can parse it securely
-                 date: t.scheduled_date,
+                 date: t.scheduled_date as string,
                  category,
-                 title: t.title,
-                 description: t.description || "",
+                 title: t.title as string,
+                 description: (t.description || "") as string,
                  icon: tIcon
               };
            });
 
            return {
-              id: s.id,
-              name: s.stage_name,
-              stageOrder: s.stage_order,
+              id: s.id as string,
+              name: s.stage_name as string,
+              stageOrder: s.stage_order as number,
               // Pass the raw strings
-              startDate: s.start_date,
-              endDate: s.end_date,
+              startDate: s.start_date as string,
+              endDate: s.end_date as string,
               dayStart,
               dayEnd,
               status,
@@ -213,7 +221,10 @@ export function useTimeline() {
     }
 
     loadTimeline();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [selectedCropId]);
 
   const togglePhase = useCallback((phaseId: string) => {

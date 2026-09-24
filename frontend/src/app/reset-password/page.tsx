@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (!token) {
-      setError('Invalid or missing recovery token. Please request a new password reset link.');
+      setTimeout(() => setError('Invalid or missing recovery token. Please request a new password reset link.'), 0);
     }
   }, [token]);
 

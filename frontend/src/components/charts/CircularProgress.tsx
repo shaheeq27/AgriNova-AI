@@ -29,7 +29,7 @@ export default function CircularProgress({
       }, 100);
       return () => clearTimeout(timer);
     } else {
-      setOffset(circumference - (value / 100) * circumference);
+      setTimeout(() => setOffset(circumference - (value / 100) * circumference), 0);
     }
   }, [value, circumference, animated]);
 

@@ -57,9 +57,12 @@ app = FastAPI(
 )
 
 # ── CORS ──
+def get_cors_origins() -> list[str]:
+    return [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -109,4 +112,5 @@ async def api_health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    should_reload = settings.DEBUG and settings.APP_ENV == "development"
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=should_reload)

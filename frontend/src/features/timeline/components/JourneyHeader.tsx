@@ -2,18 +2,20 @@
 
 import React from 'react';
 import styles from './JourneyHeader.module.css';
+import type { FarmData, CropResponse } from '@/lib/api';
+import type { CropJourney } from '../types';
 
 interface JourneyHeaderProps {
   cropName: string;
   farmName: string;
   season: string;
-  farms: any[];
-  crops: any[];
+  farms: FarmData[];
+  crops: CropResponse[];
   selectedFarmId: string | null;
   selectedCropId: string | null;
   onSelectFarm: (id: string) => void;
   onSelectCrop: (id: string) => void;
-  journey: any;
+  journey: CropJourney | null;
 }
 
 export default function JourneyHeader({
@@ -53,10 +55,10 @@ export default function JourneyHeader({
       `TIMELINE STAGES`
     ];
 
-    journey.phases.forEach((p: any) => {
+    journey.phases.forEach((p) => {
       lines.push(`- [${p.status.toUpperCase()}] ${p.name} (${p.startDate} to ${p.endDate})`);
       if (p.events && p.events.length > 0) {
-        p.events.forEach((e: any) => {
+        p.events.forEach((e) => {
            lines.push(`    * ${e.date}: ${e.title}`);
         });
       }
@@ -77,7 +79,7 @@ export default function JourneyHeader({
     <div className={styles.header}>
       <div className={styles.titleSection}>
         <h1 className={styles.title}>Crop Journey</h1>
-        <p className={styles.subtitle}>Track your crop's complete life cycle</p>
+        <p className={styles.subtitle}>Track your crop&apos;s complete life cycle</p>
       </div>
 
       <div className={styles.selectors}>

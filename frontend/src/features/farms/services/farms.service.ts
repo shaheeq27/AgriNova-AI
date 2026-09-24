@@ -30,7 +30,7 @@ export class FarmsService {
       if (input.crop_name && input.season && input.planting_date) {
         try {
           await cropsAPI.plant({
-            farm_id: (created as any).id,
+            farm_id: (created as Farm).id,
             crop_name: input.crop_name,
             season: input.season,
             area_acres: input.total_area_acres,

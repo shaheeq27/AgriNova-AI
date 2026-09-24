@@ -28,9 +28,9 @@ export function NotificationSettings() {
     updatePreferences({ [key]: !preferences[key] });
   };
 
-  const RenderToggle = ({ id, checked }: { id: string, checked: boolean }) => (
+  const renderToggle = (id: keyof typeof preferences, checked: boolean) => (
     <button
-      onClick={() => handleToggle(id as any)}
+      onClick={() => handleToggle(id)}
       disabled={saving}
       style={{
         position: 'relative',
@@ -88,7 +88,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>Email Notifications</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Receive important alerts and digests via email</div>
           </div>
-          <RenderToggle id="email_enabled" checked={preferences.email_enabled} />
+          {renderToggle("email_enabled", preferences.email_enabled)}
         </div>
 
         {/* Weather Alerts */}
@@ -100,7 +100,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>Weather Alerts</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Severe weather warnings and extreme forecasts</div>
           </div>
-          <RenderToggle id="weather_alerts" checked={preferences.weather_alerts} />
+          {renderToggle("weather_alerts", preferences.weather_alerts)}
         </div>
 
         {/* Irrigation Reminders */}
@@ -112,7 +112,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>Irrigation Reminders</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Scheduled watering based on soil moisture and crop needs</div>
           </div>
-          <RenderToggle id="irrigation_reminders" checked={preferences.irrigation_reminders} />
+          {renderToggle("irrigation_reminders", preferences.irrigation_reminders)}
         </div>
 
         {/* Fertilizer Reminders */}
@@ -124,7 +124,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>Fertilizer Reminders</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Nutrient application schedules and recommendations</div>
           </div>
-          <RenderToggle id="fertilizer_reminders" checked={preferences.fertilizer_reminders} />
+          {renderToggle("fertilizer_reminders", preferences.fertilizer_reminders)}
         </div>
 
         {/* Market Alerts */}
@@ -136,7 +136,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>Market Alerts</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Significant price changes for your active crops</div>
           </div>
-          <RenderToggle id="market_alerts" checked={preferences.market_alerts} />
+          {renderToggle("market_alerts", preferences.market_alerts)}
         </div>
 
         {/* AI Recommendations */}
@@ -148,7 +148,7 @@ export function NotificationSettings() {
             <div style={{ fontSize: '15px', fontWeight: 500, color: '#ffffff' }}>AI Recommendations</div>
             <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>Intelligent insights and proactive farming advice</div>
           </div>
-          <RenderToggle id="ai_insights" checked={preferences.ai_insights} />
+          {renderToggle("ai_insights", preferences.ai_insights)}
         </div>
       </div>
     </div>

@@ -83,7 +83,7 @@ export function InputState({ onSubmit, isLoading }: InputStateProps) {
           Crop Advisor
         </h1>
         <p style={{ fontSize: '16px', color: '#88929E' }}>
-          AI-powered crop recommendations tailored to your farm's unique conditions.
+          AI-powered crop recommendations tailored to your farm&apos;s unique conditions.
         </p>
       </div>
 
