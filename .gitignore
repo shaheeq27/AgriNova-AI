@@ -213,3 +213,10 @@ docker-compose.override.yml
 *.tmp
 *.swp
 *.swo
+
+# Local-only AgriNova project documentation
+/frontend/AGENTS.md
+/frontend/CLAUDE.md
+/frontend/FRONTEND.md
+/frontend/src/theme/DESIGN_FOUNDATION.md
+/v4_phase5_ui_architecture_report.md
