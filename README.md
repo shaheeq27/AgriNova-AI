@@ -31,6 +31,49 @@ Rather than treating every recommendation as an isolated prediction, AgriNova bu
 
 ---
 
+## 📸 Product Showcase
+
+A glimpse into the AgriNova experience — where agricultural intelligence is translated into a focused, visual workspace.
+
+### 🏡 Home — The Agricultural Command Center
+
+> A unified operational view of farm conditions, active crops, weather intelligence, recommendations, alerts, and key agricultural signals.
+
+<!-- 📸 SCREENSHOT: HOME / DASHBOARD -->
+<!-- Replace this comment with the final screenshot path, e.g. ![AgriNova Home](./screenshots/home.png) -->
+
+<br/>
+
+### 🤖 Aira — AI Agricultural Intelligence
+
+> A context-aware agricultural copilot that brings together farm history, weather, crop intelligence, and grounded recommendations through a conversational interface.
+
+<!-- 📸 SCREENSHOT: AIRA -->
+<!-- Replace this comment with the final screenshot path, e.g. ![Aira AI Agronomist](./screenshots/aira.png) -->
+
+<br/>
+
+### 🦠 Crop Disease Detection
+
+> A dedicated crop-health workflow for disease identification, confidence-aware analysis, symptoms, treatment guidance, and prevention intelligence.
+
+<!-- 📸 SCREENSHOT: DISEASE DETECTION -->
+<!-- Replace this comment with the final screenshot path, e.g. ![Crop Disease Detection](./screenshots/disease-detection.png) -->
+
+<br/>
+
+### 💹 Market Intelligence
+
+> A market intelligence workspace bringing crop prices, market movements, alerts, and relevant agricultural signals into the same decision environment.
+
+<!-- 📸 SCREENSHOT: MARKET INTELLIGENCE -->
+<!-- Replace this comment with the final screenshot path, e.g. ![Market Intelligence](./screenshots/market.png) -->
+
+---
+
+
+---
+
 ## ✨ What AgriNova Brings Together
 
 ### 🌱 Intelligent Crop Recommendation
