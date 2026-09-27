@@ -220,3 +220,19 @@ docker-compose.override.yml
 /frontend/FRONTEND.md
 /frontend/src/theme/DESIGN_FOUNDATION.md
 /v4_phase5_ui_architecture_report.md
+
+# Local-only AgriNova core project documentation
+/01_Product_Vision.md
+/02_Master_Blueprint.md
+/03_System_Architecture.md
+/04_Development_Roadmap.md
+/05_API_Engineering_Standards.md
+/06_Knowledge_Base_Design.md
+/07_Frontend_Architecture.md
+/08_Backend_Architecture.md
+/09_Database_Design.md
+/10_UI_Design_System.md
+/11_AI_Architecture.md
+/12_Development_Standards.md
+/13_Deployment_and_Testing.md
+/14_Project_Management.md
